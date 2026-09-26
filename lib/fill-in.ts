@@ -83,6 +83,12 @@ export function capitalizeFirst(answer: string): string {
   return answer.replace(/\p{L}/u, (letter) => letter.toUpperCase());
 }
 
+// Whether there's a round to discard before starting a new one: a spotter
+// game, or any answer typed.
+export function roundInProgress(answers: string[], spotterGame: boolean): boolean {
+  return spotterGame || answers.some((a) => a.trim());
+}
+
 // A random seed for a new round. Part 5's challenge links will carry it.
 export function newSeed(): number {
   return Math.floor(Math.random() * 2 ** 32);

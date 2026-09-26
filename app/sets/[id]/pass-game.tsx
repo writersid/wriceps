@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { Engine } from "@/app/components/load-engine";
 import { ScoreCard } from "@/app/components/score-card";
-import { NoteCards, SetHeader } from "@/app/components/set-parts";
+import { NewRound, NoteCards, SetHeader } from "@/app/components/set-parts";
 import type { FillInSet } from "@/content/fill-in";
 import { scoreText } from "@/lib/engine/score";
 import { answerAt, answersText, resolveRound, type Part } from "@/lib/fill-in";
@@ -24,7 +24,7 @@ export function PassGame({
   seed,
   initial,
   eyebrow,
-  onNewGame,
+  onNewRound,
 }: {
   set: FillInSet;
   parts: Part[];
@@ -32,7 +32,7 @@ export function PassGame({
   seed: number;
   initial: FillInDraft | null;
   eyebrow: string;
-  onNewGame: () => void;
+  onNewRound: () => void;
 }) {
   const blankCount = parts.filter((p) => p.type === "blank").length;
   const [answers, setAnswers] = useState<string[]>(() => initial?.answers ?? Array(blankCount).fill(""));
@@ -117,6 +117,7 @@ export function PassGame({
             {player === "Spotter" ? "Spotter: I'm ready" : "I'm ready"}
           </button>
         </section>
+        <NewRound onConfirm={onNewRound} />
       </>
     );
   }
@@ -160,6 +161,7 @@ export function PassGame({
           {last ? "Reveal the poem" : "Done. Pass the phone"}
         </button>
         {!done && <p className="-mt-2 text-center text-sm text-muted">Fill every blank on your line first.</p>}
+        <NewRound onConfirm={onNewRound} />
       </>
     );
   }
@@ -190,7 +192,9 @@ export function PassGame({
         >
           Next line
         </button>
-      ) : (
+      ) : null}
+      {!all && <NewRound onConfirm={onNewRound} />}
+      {all && (
         <>
           <NoteCards
             notes={buildNotes(flags, ignored, round, engine.syllableRange)}
@@ -202,10 +206,10 @@ export function PassGame({
           <p className="-mt-2 text-sm text-muted">Team scores don&apos;t count toward your PR.</p>
           <button
             type="button"
-            onClick={onNewGame}
+            onClick={onNewRound}
             className="min-h-12 rounded-full border border-border font-semibold"
           >
-            New game
+            New round
           </button>
         </>
       )}

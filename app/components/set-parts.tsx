@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import type { ScoredRule } from "@/lib/engine/types";
 import { FREE_IGNORES } from "@/lib/engine/score";
 import { ruleLabel, type Note } from "@/lib/notes";
@@ -99,6 +102,46 @@ export function NoteCards({
         </p>
       )}
     </>
+  );
+}
+
+// Starts over, after an inline confirm, since it discards the current round.
+export function NewRound({ onConfirm }: { onConfirm: () => void }) {
+  const [confirming, setConfirming] = useState(false);
+  if (!confirming) {
+    return (
+      <button
+        type="button"
+        onClick={() => setConfirming(true)}
+        className="min-h-11 self-center px-3 text-sm font-medium text-muted underline underline-offset-4"
+      >
+        Start a new round
+      </button>
+    );
+  }
+  return (
+    <section role="alertdialog" aria-label="Start a new round?" className="flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4">
+      <p className="font-semibold">Start over? This round&apos;s answers will be lost.</p>
+      <div className="flex gap-2">
+        <button
+          type="button"
+          onClick={() => setConfirming(false)}
+          className="min-h-11 flex-1 rounded-full border border-border font-semibold"
+        >
+          Keep going
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setConfirming(false);
+            onConfirm();
+          }}
+          className="min-h-11 flex-1 rounded-full bg-ink font-semibold text-bg"
+        >
+          Start a new round
+        </button>
+      </div>
+    </section>
   );
 }
 
