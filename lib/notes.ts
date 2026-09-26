@@ -15,6 +15,10 @@ const TIPS: Record<string, [string, string, string]> = {
   adverb: ["Cut it, or find a verb that does the work.", "Let the verb carry the weight.", "Drop it and see if anyone misses it."],
   adjective: ["Show it instead of labeling it.", "Try a sharper noun.", "Cut it and let the noun stand."],
   tooManySyllables: ["Find a shorter word.", "Break it into plain words.", "Short words hit harder."],
+  tooFewSyllables: ["Find a longer word.", "Stretch it out.", "Too light. Add a syllable."],
+  repeat: ["Find a new word.", "Once is enough.", "Swap it for something fresh."],
+  repeatForm: ["Same word, new outfit. Find another.", "Pick a different word.", "It's still the same word."],
+  overTime: ["Faster next rep.", "The clock won this one.", "Beat the clock next time."],
   bannedLetter: ["Find a word without it.", "Rephrase around it.", "That letter is benched today."],
   tooManyWords: ["Trim until it fits.", "Cut the weakest sentence.", "Every word has to earn its spot."],
   tooFewWords: ["Keep going.", "A few more reps.", "Not done yet."],
@@ -35,7 +39,7 @@ export function buildNotes(
   flags: Flag[],
   ignored: string[],
   exercise: Exercise,
-  countSyllables: (part: string) => number | null,
+  syllableRange: (part: string) => [number, number] | null,
 ): Note[] {
   const visible = flags.filter((f) => !(f.ignorable && ignored.includes(f.ignoreKey)));
   const rules = [...exercise.rules, ...(exercise.bonus ?? [])];
@@ -49,7 +53,7 @@ export function buildNotes(
   }
 
   // One card per word, covering every rule that flagged it, word type first.
-  const WORD_KINDS = ["adverb", "adjective", "bannedLetter", "tooManySyllables"];
+  const WORD_KINDS = ["adverb", "adjective", "bannedLetter", "tooManySyllables", "tooFewSyllables", "repeat", "repeatForm"];
   const byWord = new Map<string, Flag[]>();
   for (const f of visible) {
     if (!WORD_KINDS.includes(f.kind)) continue;
@@ -61,9 +65,12 @@ export function buildNotes(
     const group = [...unsorted].sort((a, b) => WORD_KINDS.indexOf(a.kind) - WORD_KINDS.indexOf(b.kind));
     const details = new Set<string>();
     for (const f of group) {
-      if (f.kind === "tooManySyllables") {
-        const counts = f.word.split("-").map((part) => countSyllables(part) ?? 0);
-        details.add(plural(Math.max(...counts), "syllable"));
+      if (f.kind === "tooManySyllables" || f.kind === "tooFewSyllables") {
+        details.add(plural(syllablesShown(f, ruleFor(f) as Extract<Rule, { type: "syllables" }>, syllableRange), "syllable"));
+      } else if (f.kind === "repeat") {
+        details.add("used before");
+      } else if (f.kind === "repeatForm") {
+        details.add(`same word as “${f.of}”`);
       } else if (f.kind === "bannedLetter") {
         const letters = [...(ruleFor(f) as Extract<Rule, { type: "bannedLetters" }>).letters.toLowerCase()];
         details.add(`contains ${letters.filter((l) => word.includes(l)).join(", ")}`);
@@ -90,7 +97,23 @@ export function buildNotes(
   const short = visible.find((f) => f.kind === "tooFewWords");
   if (short) notes.push(wholeDraft("tooFewWords", `${plural(short.count ?? 1, "word")} short`));
 
+  if (visible.some((f) => f.kind === "overTime")) notes.push(wholeDraft("overTime", "Over the time limit, so no bonus"));
+
   return notes;
+}
+
+// The count that broke the rule: the whole word's highest count for a minimum,
+// its lowest for "exactly", else its longest part's lowest (each part is
+// checked on its own).
+function syllablesShown(
+  f: Flag,
+  rule: Extract<Rule, { type: "syllables" }>,
+  syllableRange: (part: string) => [number, number] | null,
+): number {
+  const parts = f.word.split("-").map((part) => syllableRange(part) ?? [0, 0]);
+  if (f.kind === "tooFewSyllables") return parts.reduce((sum, p) => sum + p[1], 0);
+  if (rule.min === rule.max) return parts.reduce((sum, p) => sum + p[0], 0);
+  return Math.max(...parts.map((p) => p[0]));
 }
 
 function wholeDraft(kind: string, detail: string): Note {
@@ -104,8 +127,15 @@ export function ruleLabel(rule: Rule): string {
       if (rule.min !== undefined && rule.max !== undefined) return `${rule.min}–${rule.max} words`;
       if (rule.min !== undefined) return `${rule.min}+ words`;
       return `Up to ${plural(rule.max ?? 0, "word")}`;
-    case "maxSyllables":
-      return `Max ${plural(rule.max, "syllable")}`;
+    case "syllables":
+      if (rule.min !== undefined && rule.min === rule.max) return `Exactly ${plural(rule.min, "syllable")}`;
+      if (rule.min !== undefined && rule.max !== undefined) return `${rule.min}–${rule.max} syllables`;
+      if (rule.min !== undefined) return `Min ${plural(rule.min, "syllable")}`;
+      return `Max ${plural(rule.max ?? 0, "syllable")}`;
+    case "noRepeats":
+      return "No repeated words";
+    case "timeLimit":
+      return `Under ${rule.seconds} seconds`;
     case "noAdverbs":
       return "No adverbs";
     case "noAdjectives":

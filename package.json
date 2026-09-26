@@ -9,7 +9,7 @@
     "lint": "eslint",
     "test": "vitest run",
     "language:build": "node scripts/language/build-syllable-list.mjs",
-    "language:eval": "node scripts/language/evaluate-syllables.mjs && node scripts/language/evaluate-pos.mjs && node scripts/language/measure-bundle.mjs"
+    "language:eval": "node scripts/language/evaluate-syllables.mjs && node scripts/language/evaluate-pos.mjs && node scripts/language/measure-bundle.mjs && vitest run lib/engine/word-lists --reporter=default"
   },
   "dependencies": {
     "compromise": "14.17.0",

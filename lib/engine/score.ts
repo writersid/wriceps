@@ -17,7 +17,7 @@ export const FREE_IGNORES = 2;
 // Default cost of one violation: the weight split across the rule's fixed
 // maximum number of violations, or a third of it when there is no fixed maximum.
 function defaultCost(rule: ScoredRule): number {
-  if (rule.type === "firstSentence") return rule.weight;
+  if (rule.type === "firstSentence" || rule.type === "timeLimit") return rule.weight;
   if (rule.type === "requiredWords") return rule.weight / Math.max(1, rule.words.length);
   return rule.weight / 3;
 }

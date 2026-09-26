@@ -1,25 +1,27 @@
 import { describe, expect, test } from "vitest";
-import { countSyllables, tagWords } from "./language";
+import { syllableRange, tagWords, wordRoots } from "./language";
 import {
   checkBannedLetters,
   checkBannedWordType,
   checkFirstSentence,
-  checkMaxSyllables,
+  checkNoRepeats,
   checkRequiredWords,
+  checkSyllables,
+  checkTimeLimit,
   checkWordCount,
 } from "./rules";
 import { tokenize } from "./tokenize";
 
 describe("max syllables", () => {
   const check = (max: number, text: string) =>
-    checkMaxSyllables({ type: "maxSyllables", id: "ms", weight: 30, max }, tokenize(text), countSyllables).map((f) => f.word);
+    checkSyllables({ type: "syllables", id: "ms", weight: 30, max }, tokenize(text), syllableRange).map((f) => f.word);
 
   test("words within the limit pass", () => {
     expect(check(1, "The cat sat on the mat.")).toEqual([]);
   });
 
   test("flags each word over the limit, with its position", () => {
-    const flags = checkMaxSyllables({ type: "maxSyllables", id: "ms", weight: 30, max: 1 }, tokenize("A happy dog"), countSyllables);
+    const flags = checkSyllables({ type: "syllables", id: "ms", weight: 30, max: 1 }, tokenize("A happy dog"), syllableRange);
     expect(flags).toEqual([{ ruleId: "ms", kind: "tooManySyllables", word: "happy", start: 2, end: 7, level: "sure", ignorable: true, ignoreKey: "ms:happy" }]);
   });
 
@@ -58,6 +60,100 @@ describe("max syllables", () => {
 
   test("empty text has no flags", () => {
     expect(check(1, "")).toEqual([]);
+  });
+});
+
+describe("min and exact syllables", () => {
+  const check = (min: number | undefined, max: number | undefined, text: string) =>
+    checkSyllables({ type: "syllables", id: "sy", weight: 30, min, max }, tokenize(text), syllableRange).map(
+      (f) => `${f.word}:${f.kind}`,
+    );
+
+  test("flags words under the minimum", () => {
+    expect(check(2, undefined, "cat window")).toEqual(["cat:tooFewSyllables"]);
+  });
+
+  test("a word passes the minimum if any valid count reaches it", () => {
+    expect(check(2, undefined, "fire hour tired")).toEqual([]);
+  });
+
+  test("exactly 2 accepts either count of a two-way word", () => {
+    expect(check(2, 2, "fire every window")).toEqual([]);
+    expect(check(2, 2, "cat banana")).toEqual(["cat:tooFewSyllables", "banana:tooManySyllables"]);
+  });
+
+  test("hyphenated words: the minimum checks the whole word", () => {
+    expect(check(2, undefined, "well-known")).toEqual([]);
+  });
+
+  test("hyphenated words: exactly also checks the maximum on the whole word", () => {
+    expect(check(2, 2, "well-known")).toEqual([]);
+    expect(check(2, 2, "forget-me-not")).toEqual(["forget-me-not:tooManySyllables"]);
+    expect(check(undefined, 2, "forget-me-not")).toEqual([]);
+  });
+
+  test("numbers are not checked against the minimum", () => {
+    expect(check(2, 2, "2026")).toEqual([]);
+  });
+});
+
+describe("no repeated words", () => {
+  const check = (text: string) => {
+    const words = tokenize(text);
+    return checkNoRepeats({ type: "noRepeats", id: "nr", weight: 20 }, words, wordRoots(text, words)).map(
+      (f) => `${f.word}<${f.of}:${f.kind}:${f.ignorable ? "ignorable" : "strict"}`,
+    );
+  };
+
+  test("different words pass", () => {
+    expect(check("window, chair, lamp")).toEqual([]);
+  });
+
+  test("the same word ignoring case is a strict repeat", () => {
+    expect(check("Apple, apple, pear, APPLE")).toEqual(["apple<Apple:repeat:strict", "APPLE<Apple:repeat:strict"]);
+  });
+
+  test("regular and irregular plurals are ignorable repeats", () => {
+    expect(check("window, windows")).toEqual(["windows<window:repeatForm:ignorable"]);
+    expect(check("mouse, mice, child, children, goose, geese")).toEqual([
+      "mice<mouse:repeatForm:ignorable",
+      "children<child:repeatForm:ignorable",
+      "geese<goose:repeatForm:ignorable",
+    ]);
+  });
+
+  test("verb forms, including irregular participles", () => {
+    expect(check("run, ran, running")).toEqual(["ran<run:repeatForm:ignorable", "running<run:repeatForm:ignorable"]);
+    expect(check("go, went, gone")).toEqual(["went<go:repeatForm:ignorable", "gone<go:repeatForm:ignorable"]);
+    expect(check("write, written")).toEqual(["written<write:repeatForm:ignorable"]);
+  });
+
+  test("derived words are different words", () => {
+    expect(check("sing, singer, walk, walker, new, news")).toEqual([]);
+  });
+
+  test("in a sentence, left as leave and left as a direction", () => {
+    expect(check("She left because he wanted to leave.")).toEqual(["leave<left:repeatForm:ignorable"]);
+    // compromise misreads "Turn left, then leave." (left as leave), so a flag
+    // there is a tagger error the player can ignore.
+    expect(check("She turned left and then had to leave.")).toEqual([]);
+  });
+
+  test("each repeat after the first is flagged", () => {
+    expect(check("the the the")).toHaveLength(2);
+  });
+});
+
+describe("time limit", () => {
+  const rule = { type: "timeLimit" as const, id: "tl", weight: 10, seconds: 60 };
+
+  test("no flag before the clock starts or within the limit", () => {
+    expect(checkTimeLimit(rule, undefined)).toEqual([]);
+    expect(checkTimeLimit(rule, 60_000)).toEqual([]);
+  });
+
+  test("one strict flag once past the limit", () => {
+    expect(checkTimeLimit(rule, 60_001)).toMatchObject([{ ruleId: "tl", kind: "overTime", ignorable: false }]);
   });
 });
 

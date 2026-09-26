@@ -1,11 +1,12 @@
-import { isAllowed } from "../language/allowlists";
+import { EITHER_WORDS, isAllowed } from "../language/allowlists";
 import type { TaggedWord } from "./language";
 import { normalizeWord } from "./tokenize";
 import type { Flag, Rule, ScoredRule, Token } from "./types";
 
 type RuleOf<T extends Rule["type"]> = Extract<ScoredRule, { type: T }>;
 
-const IGNORABLE: ReadonlySet<Rule["type"]> = new Set(["noAdverbs", "noAdjectives", "maxSyllables"]);
+// No-repeats flags set their own: only root-form matches can be ignored.
+const IGNORABLE: ReadonlySet<Rule["type"]> = new Set(["noAdverbs", "noAdjectives", "syllables"]);
 
 function flag(rule: ScoredRule, kind: string, word: string, pos?: Token): Flag {
   return {
@@ -52,29 +53,69 @@ export function checkRequiredWords(rule: RuleOf<"requiredWords">, words: Token[]
     .map((word) => flag(rule, "missingWord", word));
 }
 
-// One flag per word with a part over the limit. Each part of a hyphenated word
-// is checked on its own. `count` gives a part's lowest valid count, so a word
-// with several valid counts passes if any is within the limit. Takes the
-// counter as an argument so this file doesn't load the syllable list.
-export function checkMaxSyllables(
-  rule: RuleOf<"maxSyllables">,
+// One flag per word outside the limits. `range` gives a word part's lowest and
+// highest valid counts, so a word passes if any valid count fits. The maximum
+// checks each hyphenated part; the minimum checks the whole word; "exactly"
+// (min = max) also checks the maximum on the whole word. Numbers aren't
+// checked. Takes the counter as an argument so this file doesn't load the
+// syllable list.
+export function checkSyllables(
+  rule: RuleOf<"syllables">,
   words: Token[],
-  count: (part: string) => number | null,
+  range: (part: string) => [number, number] | null,
 ): Flag[] {
-  return words
-    .filter((w) => w.text.split("-").some((part) => (count(part) ?? 0) > rule.max))
-    .map((w) => flag(rule, "tooManySyllables", w.text, w));
+  return words.flatMap((w) => {
+    const parts = w.text.split("-").map(range);
+    const known = parts.filter((p) => p !== null);
+    const lowest = known.reduce((sum, p) => sum + p[0], 0);
+    const highest = known.reduce((sum, p) => sum + p[1], 0);
+    const { min, max } = rule;
+    if (max !== undefined && (known.some((p) => p[0] > max) || (min === max && lowest > max))) {
+      return [flag(rule, "tooManySyllables", w.text, w)];
+    }
+    if (min !== undefined && known.length === parts.length && highest < min) {
+      return [flag(rule, "tooFewSyllables", w.text, w)];
+    }
+    return [];
+  });
 }
 
 // One flag per word tagged as the banned category and not on its allowlist.
+// In word-list games, adjectives that are as often nouns or verbs are skipped.
 // Takes compromise's tags as an argument so this file doesn't load compromise.
-export function checkBannedWordType(rule: RuleOf<"noAdverbs" | "noAdjectives">, tagged: TaggedWord[]): Flag[] {
+export function checkBannedWordType(
+  rule: RuleOf<"noAdverbs" | "noAdjectives">,
+  tagged: TaggedWord[],
+  wordList = false,
+): Flag[] {
   const category = rule.type === "noAdverbs" ? "adverb" : "adjective";
   const flagged = new Set<Token>();
   for (const t of tagged) {
-    if (t.category === category && !isAllowed(category, t.word)) flagged.add(t.token);
+    if (t.category !== category || isAllowed(category, t.word)) continue;
+    if (wordList && category === "adjective" && EITHER_WORDS.has(t.word)) continue;
+    flagged.add(t.token);
   }
   return [...flagged].map((token) => flag(rule, category, token.text, token));
+}
+
+// One flag per word used before. The same word ignoring case ("the", "The") is
+// exact, so it can't be ignored. Another form of the same word, matched through
+// `roots` (from compromise), is the checker's guess, so it can be.
+export function checkNoRepeats(rule: RuleOf<"noRepeats">, words: Token[], roots: Set<string>[]): Flag[] {
+  return words.flatMap((w, i): Flag[] => {
+    const earlier = words.slice(0, i);
+    const same = earlier.find((e) => normalizeWord(e.text) === normalizeWord(w.text));
+    if (same) return [{ ...flag(rule, "repeat", w.text, w), ignorable: false, of: same.text }];
+    const form = roots.slice(0, i).findIndex((r) => [...roots[i]].some((x) => r.has(x)));
+    if (form === -1) return [];
+    return [{ ...flag(rule, "repeatForm", w.text, w), ignorable: true, of: words[form].text }];
+  });
+}
+
+// One flag, with nothing to underline, once the clock passes the limit.
+// `elapsedMs` is undefined until the first keystroke.
+export function checkTimeLimit(rule: RuleOf<"timeLimit">, elapsedMs: number | undefined): Flag[] {
+  return elapsedMs !== undefined && elapsedMs > rule.seconds * 1000 ? [flag(rule, "overTime", "")] : [];
 }
 
 // Ignores case, curly versus straight quotes, and extra spaces.

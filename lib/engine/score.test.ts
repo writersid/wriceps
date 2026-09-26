@@ -189,7 +189,7 @@ describe("determinism and awkward input", () => {
       { type: "wordCount", id: "wc", weight: 20, max: 30 },
       { type: "noAdverbs", id: "adv", weight: 30 },
       { type: "noAdjectives", id: "adj", weight: 30 },
-      { type: "maxSyllables", id: "ms", weight: 20, max: 2 },
+      { type: "syllables", id: "ms", weight: 20, max: 2 },
     ],
     bonus: [{ type: "firstSentence", id: "fs", weight: 10, sentence: "It was a “dark” night." }],
   };

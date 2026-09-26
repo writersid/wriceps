@@ -5,7 +5,8 @@ const PROGRESS_KEY = "wriceps-progress";
 const draftKey = (setId: string) => `wriceps-draft:${setId}`;
 
 type Progress = Record<string, { best: number }>;
-export type Draft = { text: string; ignored: string[] };
+// startedAt: when the first keystroke started the clock (ms since 1970), for time-limit bonuses.
+export type Draft = { text: string; ignored: string[]; startedAt?: number };
 
 function readJson<T>(key: string): T | null {
   try {
@@ -37,7 +38,8 @@ export function logScore(setId: string, score: number): { best: number; isNewPR:
 
 export function loadDraft(setId: string): Draft | null {
   const draft = readJson<Draft>(draftKey(setId));
-  return typeof draft?.text === "string" && Array.isArray(draft.ignored) ? draft : null;
+  if (typeof draft?.text !== "string" || !Array.isArray(draft.ignored)) return null;
+  return typeof draft.startedAt === "number" ? draft : { text: draft.text, ignored: draft.ignored };
 }
 
 export function saveDraft(setId: string, draft: Draft) {

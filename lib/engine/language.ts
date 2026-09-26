@@ -32,7 +32,43 @@ export function countSyllables(part: string): number | null {
 export type TaggedWord = { token: Token; word: string; category: "adverb" | "adjective" };
 
 // compromise sets these at runtime but leaves them out of its types.
-type Term = { text: string; normal: string; tags?: Set<string>; implicit?: string; offset?: { start: number } };
+type Term = {
+  text: string;
+  normal: string;
+  tags?: Set<string>;
+  implicit?: string;
+  offset?: { start: number };
+  root?: string;
+};
+type VerbForms = Record<string, string>;
+const world = nlp.world() as unknown as {
+  model: object;
+  methods: { two: { transform: { verb: { conjugate: (root: string, model: object) => VerbForms } } } };
+};
+
+// The keys each token can match for the no-repeats rule: its own spelling and
+// compromise's root ("mice" → "mouse"). Verbs also get "v:" keys for every
+// form of their root, so participles match ("gone" → "go"), but only against
+// other verbs, so "left" as a direction doesn't match "leave".
+export function wordRoots(text: string, tokens: Token[]): Set<string>[] {
+  const roots = tokens.map((t) => new Set([normalizeWord(t.text)]));
+  const doc = nlp(text);
+  doc.compute(["offset", "root"]);
+  for (const terms of doc.docs as Term[][]) {
+    for (const t of terms) {
+      const start = t.offset?.start;
+      const i = start === undefined ? -1 : tokens.findLastIndex((k) => k.start <= start && start < k.end);
+      if (i === -1) continue;
+      const root = normalizeWord(t.root ?? t.normal);
+      roots[i].add(root);
+      if (!t.tags?.has("Verb")) continue;
+      const forms = world.methods.two.transform.verb.conjugate(root, world.model);
+      for (const [tense, form] of Object.entries(forms)) if (tense !== "FutureTense") roots[i].add(`v:${form}`);
+      roots[i].add(`v:${root}`).add(`v:${normalizeWord(tokens[i].text)}`);
+    }
+  }
+  return roots;
+}
 
 // Words compromise tags as adverbs or adjectives, mapped to our tokens.
 // `word` is compromise's own word, lowercase: "known" inside "well-known",

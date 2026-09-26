@@ -10,7 +10,7 @@ import { clearDraft, getBest, loadDraft, logScore, saveDraft } from "@/lib/progr
 
 type Engine = {
   checkText: typeof import("@/lib/engine/check").checkText;
-  countSyllables: typeof import("@/lib/engine/language").countSyllables;
+  syllableRange: typeof import("@/lib/engine/language").syllableRange;
 };
 
 // How long typing must pause before the draft is rechecked.
@@ -24,6 +24,10 @@ export function ConstraintScreen({ set, number, total }: { set: ConstraintSet; n
   const [loadFailed, setLoadFailed] = useState(false);
   const [best, setBest] = useState<number | null>(null);
   const [logged, setLogged] = useState<{ score: number; isNewPR: boolean } | null>(null);
+  // Time-limit bonus: the clock starts at the first keystroke; `now` ticks the countdown.
+  const timeRule = set.bonus?.find((r) => r.type === "timeLimit");
+  const [startedAt, setStartedAt] = useState<number | null>(null);
+  const [now, setNow] = useState(0);
 
   // The language tools load only once a constraint set opens, not with the app.
   // The saved draft loads with them, so nothing typed before then gets replaced.
@@ -35,9 +39,13 @@ export function ConstraintScreen({ set, number, total }: { set: ConstraintSet; n
           setText(draft.text);
           setCheckedText(draft.text);
           setIgnored(draft.ignored);
+          if (draft.startedAt) {
+            setStartedAt(draft.startedAt);
+            setNow(Date.now());
+          }
         }
         setBest(getBest(set.id));
-        setEngine({ checkText: check.checkText, countSyllables: language.countSyllables });
+        setEngine({ checkText: check.checkText, syllableRange: language.syllableRange });
       })
       .catch(() => setLoadFailed(true));
   }, [set.id]);
@@ -47,8 +55,25 @@ export function ConstraintScreen({ set, number, total }: { set: ConstraintSet; n
     return () => clearTimeout(timer);
   }, [text]);
 
-  const flags = useMemo(() => (engine ? engine.checkText(checkedText, set) : []), [engine, checkedText, set]);
-  const notes = engine ? buildNotes(flags, ignored, set, engine.countSyllables) : [];
+  const clockRunning = timeRule !== undefined && startedAt !== null && logged === null;
+  useEffect(() => {
+    if (!clockRunning) return;
+    const timer = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, [clockRunning]);
+  const secondsLeft =
+    timeRule?.type === "timeLimit" && startedAt !== null
+      ? Math.max(0, timeRule.seconds - Math.floor((now - startedAt) / 1000))
+      : null;
+  // The rules only need to know whether time is up, so the draft isn't rechecked every second.
+  const timeUp = secondsLeft === 0;
+  const clock = startedAt === null ? undefined : timeUp ? Infinity : 0;
+
+  const flags = useMemo(
+    () => (engine ? engine.checkText(checkedText, set, clock) : []),
+    [engine, checkedText, set, clock],
+  );
+  const notes = engine ? buildNotes(flags, ignored, set, engine.syllableRange) : [];
   const underlines = flags.flatMap((f) =>
     f.start !== undefined && f.end !== undefined && !(f.ignorable && ignored.includes(f.ignoreKey))
       ? [{ start: f.start, end: f.end }]
@@ -58,24 +83,32 @@ export function ConstraintScreen({ set, number, total }: { set: ConstraintSet; n
   const freeLeft = Math.max(0, FREE_IGNORES - ignored.length);
 
   function edit(value: string) {
+    let started = startedAt;
+    if (started === null && timeRule) {
+      started = Date.now();
+      setStartedAt(started);
+      setNow(started);
+    }
     setText(value);
     setLogged(null);
-    saveDraft(set.id, { text: value, ignored });
+    saveDraft(set.id, { text: value, ignored, startedAt: started ?? undefined });
   }
 
   function ignore(keys: string[]) {
     const next = [...ignored, ...keys.filter((k) => !ignored.includes(k))];
     setIgnored(next);
-    saveDraft(set.id, { text, ignored: next });
+    saveDraft(set.id, { text, ignored: next, startedAt: startedAt ?? undefined });
   }
 
   function log() {
     if (!engine) return;
-    // Score the text as it is now, not as of the last pause in typing.
-    const final = scoreText(text, set, engine.checkText(text, set), ignored).score;
+    // Score the text and time as they are now, not as of the last pause in typing.
+    const elapsed = startedAt === null ? undefined : Date.now() - startedAt;
+    const final = scoreText(text, set, engine.checkText(text, set, elapsed), ignored).score;
     const result = logScore(set.id, final);
     setBest(result.best);
     setLogged({ score: final, isNewPR: result.isNewPR });
+    setStartedAt(null);
     clearDraft(set.id);
   }
 
@@ -95,6 +128,14 @@ export function ConstraintScreen({ set, number, total }: { set: ConstraintSet; n
         {set.bonus?.map((rule) => (
           <li key={rule.id} className="rounded-full border border-dashed border-muted px-3 py-1.5">
             Bonus: {ruleLabel(rule)}
+            {rule.type === "timeLimit" && secondsLeft !== null && (
+              <span className="font-semibold tabular-nums">
+                {" · "}
+                {timeUp
+                  ? "time's up"
+                  : `${Math.floor(secondsLeft / 60)}:${String(secondsLeft % 60).padStart(2, "0")} left`}
+              </span>
+            )}
           </li>
         ))}
       </ul>

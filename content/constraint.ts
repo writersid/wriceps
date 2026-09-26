@@ -9,13 +9,15 @@ export const constraintSets: ConstraintSet[] = [
   {
     id: "two-syllable-sprint",
     title: "The Two-Syllable Sprint",
-    blurb: "Short words only. No fluff. Lift 100 words and we'll spot you.",
+    blurb: "List 20 different two-syllable words. No adjectives. Beat 60 seconds for a bonus.",
+    wordList: true,
     rules: [
-      { id: "length", type: "wordCount", min: 100, weight: 40 },
-      { id: "syllables", type: "maxSyllables", max: 2, weight: 30 },
-      { id: "adverbs", type: "noAdverbs", weight: 15 },
-      { id: "adjectives", type: "noAdjectives", weight: 15 },
+      { id: "length", type: "wordCount", exact: 20, weight: 30 },
+      { id: "syllables", type: "syllables", min: 2, max: 2, weight: 25 },
+      { id: "adjectives", type: "noAdjectives", weight: 20 },
+      { id: "repeats", type: "noRepeats", weight: 15 },
     ],
+    bonus: [{ id: "clock", type: "timeLimit", seconds: 60, weight: 10 }],
   },
   {
     id: "six-word-story",
