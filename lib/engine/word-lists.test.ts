@@ -1,7 +1,6 @@
 // Accuracy of the no-repeats and no-adjectives rules on the word-list test
 // sets reviewed by Sid. Prints a report (npm run language:eval shows it) and
-// fails below the thresholds. PROVISIONAL thresholds, copied from the SPEC's
-// sentence targets until Sid sets word-list ones.
+// fails below the SPEC thresholds.
 import { describe, expect, test } from "vitest";
 import adjectiveLists from "../../test-data/adjective-lists.json";
 import repeatLists from "../../test-data/repeat-lists.json";

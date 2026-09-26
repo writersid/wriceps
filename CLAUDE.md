@@ -57,8 +57,8 @@ npm run language:eval    # rerun syllable, part-of-speech, and word-list accurac
   - Rule `syllables` (replaces `maxSyllables`) with `min`/`max`; hyphen rules per SPEC.
   - Rule `noRepeats`: identical words strict; other forms matched by compromise root plus verb conjugations (verbs only match verbs), ignorable. Known tagger error: "Turn left, then leave." reads left as leave.
   - Rule `timeLimit` (bonus only, enforced by `content/constraint.test.ts`): clock from first keystroke, saved in the draft, countdown chip on the screen.
-  - `Exercise.wordList`: the no-adjectives rule skips `EITHER_WORDS` in `lib/language/allowlists.ts` (DRAFT, about 125 words, for Sid's review).
-  - `lib/engine/word-lists.test.ts` measures the word-list sets, and runs in `npm run language:eval`: repeats 100%/100% on lists and sentences; adjectives on lists precision 100%, recall 97.6%, "either" words flagged 0/23. Thresholds are PROVISIONAL (90% precision, 85% recall), pending Sid.
+  - `Exercise.wordList`: the no-adjectives rule skips `EITHER_WORDS` in `lib/language/allowlists.ts` (about 125 words, reviewed by Sid).
+  - `lib/engine/word-lists.test.ts` measures the word-list sets, and runs in `npm run language:eval`: repeats 100%/100% on lists and sentences; adjectives on lists precision 100%, recall 97.6%, "either" words flagged 0/23. Thresholds in SPEC.md: 90% precision, 85% recall. The time-limit clock's saved start time and bonus loss are unit-tested in `lib/progress.test.ts`.
   - Two-Syllable Sprint is now the word-list game (exact 20, exactly 2 syllables, no adjectives, no repeats; bonus under 60 seconds).
   - Speed: `checkText` on 150 words with all text rules takes about 11 ms on desktop.
-- **Next step:** Sid reviews `EITHER_WORDS` and the provisional word-list thresholds; then plan part 3b (fill-in poems, solo). Sid rewrites the DRAFT tips in `lib/notes.ts` when ready.
+- **Next step:** Sid tests part 3a on his phone via the Vercel preview; then plan part 3b (fill-in poems, solo). Sid rewrites the DRAFT tips in `lib/notes.ts` when ready.

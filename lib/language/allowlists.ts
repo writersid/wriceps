@@ -19,7 +19,7 @@ export const ADJECTIVE_ALLOWLIST: ReadonlySet<string> = new Set(
   "last next previous following other another same own only all few fewer many much more most less least several such enough".split(" "),
 );
 
-// DRAFT for Sid's review. In word-list games only, the no-adjectives rule skips
+// Reviewed by Sid. In word-list games only, the no-adjectives rule skips
 // these: words used about as often as nouns, verbs, or adverbs as adjectives,
 // so a bare list can't tell which is meant.
 export const EITHER_WORDS: ReadonlySet<string> = new Set(
