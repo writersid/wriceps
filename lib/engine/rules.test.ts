@@ -29,6 +29,10 @@ describe("max syllables", () => {
     expect(check(1, "every")).toEqual(["every"]);
   });
 
+  test("uses a word's lowest valid count even when the fallback guesses a higher one", () => {
+    expect(check(2, "family different camera interest")).toEqual([]);
+  });
+
   test("tricky words from the test set", () => {
     expect(check(2, "business")).toEqual([]);
     expect(check(1, "business")).toEqual(["business"]);

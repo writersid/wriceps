@@ -30,16 +30,24 @@ for (const level of SCOWL_LEVELS) {
 }
 
 const covered = [...vocab].filter((w) => cmu.has(w));
-const exceptions = covered.filter((w) => !cmu.get(w).has(syllable(w))).sort();
+// Stored: words `syllable` gets wrong, and every word with more than one valid
+// count, since `syllable` gives only one of them. The syllable rule passes a word
+// if any valid count is within its limits, so it needs the lowest and highest.
+const exceptions = covered
+  .filter((w) => cmu.get(w).size > 1 || !cmu.get(w).has(syllable(w)))
+  .sort();
 
-// Store each word's lowest count: the max-syllables rule passes a word if any
-// valid count is within the limit. Grouped by count to keep the file small.
+// Grouped by count ("2") or range ("2-3") to keep the file small.
 const groups = {};
-for (const w of exceptions) (groups[Math.min(...cmu.get(w))] ??= []).push(w);
+for (const w of exceptions) {
+  const counts = [...cmu.get(w)];
+  const [low, high] = [Math.min(...counts), Math.max(...counts)];
+  (groups[low === high ? `${low}` : `${low}-${high}`] ??= []).push(w);
+}
 const output = Object.fromEntries(
   Object.keys(groups)
-    .sort((a, b) => a - b)
-    .map((n) => [n, groups[n].join(" ")]),
+    .sort((a, b) => parseFloat(a) - parseFloat(b) || a.length - b.length || a.localeCompare(b))
+    .map((key) => [key, groups[key].join(" ")]),
 );
 
 fs.mkdirSync(path.dirname(OUT), { recursive: true });

@@ -7,18 +7,26 @@ import exceptions from "../language/syllable-exceptions.json";
 import { normalizeWord } from "./tokenize";
 import type { Token } from "./types";
 
-// The list stores each word's lowest valid count, grouped by count.
-const syllableList = new Map<string, number>();
-for (const [count, words] of Object.entries(exceptions)) {
-  for (const w of words.split(" ")) syllableList.set(w, Number(count));
+// The list stores each word's lowest and highest valid count, grouped by
+// count ("2") or range ("2-3").
+const syllableList = new Map<string, [number, number]>();
+for (const [key, words] of Object.entries(exceptions)) {
+  const [low, high = low] = key.split("-").map(Number);
+  for (const w of words.split(" ")) syllableList.set(w, [low, high]);
 }
 
-// Lowest valid syllable count of one word part (no hyphens), or null for
+// Lowest and highest valid syllable counts of a word or word part, or null for
 // numbers, which are not checked.
+export function syllableRange(word: string): [number, number] | null {
+  if (/\p{N}/u.test(word)) return null;
+  const w = normalizeWord(word).replaceAll("'", "");
+  const guess = syllable(w);
+  return syllableList.get(w) ?? [guess, guess];
+}
+
+// Lowest valid syllable count of one word part (no hyphens), or null for numbers.
 export function countSyllables(part: string): number | null {
-  if (/\p{N}/u.test(part)) return null;
-  const w = normalizeWord(part).replaceAll("'", "");
-  return syllableList.get(w) ?? syllable(w);
+  return syllableRange(part)?.[0] ?? null;
 }
 
 export type TaggedWord = { token: Token; word: string; category: "adverb" | "adjective" };
