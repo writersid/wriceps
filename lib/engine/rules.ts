@@ -112,6 +112,29 @@ export function checkNoRepeats(rule: RuleOf<"noRepeats">, words: Token[], roots:
   });
 }
 
+// One flag per line whose first letter isn't the rule's letter, or, with no
+// letter set, the letter the first line starts with. The flag underlines the
+// line's first word and carries the expected letter in `of`. Ignores case and
+// accents; lines with no letters are skipped.
+export function checkSameFirstLetter(rule: RuleOf<"sameFirstLetter">, text: string): Flag[] {
+  let expected = rule.letter ? plainLetters(rule.letter) : undefined;
+  const flags: Flag[] = [];
+  let at = 0;
+  for (const line of text.split("\n")) {
+    const word = /[\p{L}\p{N}][\p{L}\p{N}'’-]*/u.exec(line);
+    if (word && /\p{L}/u.test(word[0][0])) {
+      const first = plainLetters(word[0][0]);
+      expected ??= first;
+      if (first !== expected) {
+        const pos = { text: word[0], start: at + word.index, end: at + word.index + word[0].length };
+        flags.push({ ...flag(rule, "wrongFirstLetter", word[0], pos), of: expected });
+      }
+    }
+    at += line.length + 1;
+  }
+  return flags;
+}
+
 // One flag, with nothing to underline, once the clock passes the limit.
 // `elapsedMs` is undefined until the first keystroke.
 export function checkTimeLimit(rule: RuleOf<"timeLimit">, elapsedMs: number | undefined): Flag[] {

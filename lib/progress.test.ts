@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { constraintSets } from "../content/constraint";
 import { checkText } from "./engine/check";
 import { scoreText } from "./engine/score";
-import { clearDraft, getBest, loadDraft, logScore, saveDraft } from "./progress";
+import { clearDraft, getBest, loadDraft, loadFillInDraft, logScore, saveDraft } from "./progress";
 
 // Tests run in Node, which has no localStorage, so stand in a simple one.
 function fakeStorage() {
@@ -79,6 +79,25 @@ describe("time-limit clock in the saved draft", () => {
     const late = scoreAfter(startedAt + 61_000 - restored);
     expect(inTime).toBe(100);
     expect(inTime - late).toBe(bonus);
+  });
+});
+
+describe("fill-in drafts", () => {
+  const draft = { answers: ["snow", ""], ignored: [], seed: 42, step: 1, startedAt: 1_700_000_000_000 };
+
+  it("saves and restores answers, seed, step, and clock", () => {
+    saveDraft("f", draft);
+    expect(loadFillInDraft("f", 2)).toEqual(draft);
+  });
+
+  it("drops a draft whose blank count no longer matches the template", () => {
+    saveDraft("f", draft);
+    expect(loadFillInDraft("f", 3)).toBeNull();
+  });
+
+  it("drops damaged drafts", () => {
+    localStorage.setItem("wriceps-draft:f", '{"answers":["a",2],"ignored":[],"seed":1,"step":0}');
+    expect(loadFillInDraft("f", 2)).toBeNull();
   });
 });
 

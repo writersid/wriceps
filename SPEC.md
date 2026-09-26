@@ -22,6 +22,12 @@ An initial group of writers from writing communities, mostly arriving from Whats
 
 ### 1. Fill-in poems
 Templates with labeled blanks (noun, verb, adjective, question). The finished poem is shown as a card.
+Each set fills in one of two ways:
+- Open: the poem is shown with its blanks inline, so the player picks words that fit.
+- Surprise: one blank at a time, showing only its label; the poem stays hidden until the end. A Back button lets the player change earlier answers until the set is logged.
+
+Blank labels are prompts only: the app does not check that a noun blank got a noun. Echo blanks repeat an earlier answer (for example, the words from line 2) and are filled in automatically; echoed words are not checked by the rules.
+Rules run on the player's answers only, not on the template text, using the constraint-writing rule engine plus one fill-in rule: every answer starts with the same letter. The letter is set by the exercise, is any letter the answers share, or is drawn at random for the round from a seed, so a challenge link replays the same letter.
 Modes: solo, and pass-the-phone for 2 players. In pass-the-phone, players take turns on one device; the app hides everything except the last few words of the previous turn, then reveals the full piece in order at the end. A page refresh mid-game must not lose turns.
 
 ### 2. Constraint writing
@@ -68,7 +74,7 @@ A public-domain passage is shown. The user taps words to black them out, and the
 - A new best score on an exercise is a PR.
 - Scoring is deterministic: the same text and time taken always get the same score.
 - How points are earned: each exercise lists its rules and bonus rules with point weights. Each violation costs part of its rule's points, and a rule can never lose more than its weight. Bonus rules add points, and the total is capped at 100.
-- Default cost of a violation: the rule's weight divided by its fixed maximum number of violations. A missed required first sentence costs the full weight; each missing required word costs the weight divided by the number of required words. Rules with no fixed maximum (word count, banned letters, syllables per word, no adverbs, no adjectives, no repeated words) cost a third of their weight per violation. An exercise can set its own cost for any rule.
+- Default cost of a violation: the rule's weight divided by its fixed maximum number of violations. A missed required first sentence costs the full weight; each missing required word costs the weight divided by the number of required words. Rules with no fixed maximum (word count, banned letters, syllables per word, no adverbs, no adjectives, no repeated words, same first letter) cost a third of their weight per violation. An exercise can set its own cost for any rule.
 - Each piece gets 2 free ignores. Ignoring a word covers every flag on that word from the same rule and uses one free ignore. After 2, Ignore still hides the flag, but it costs points as usual. Only flags from the language rules, and repeats matched by root form, can be ignored. Doubtful flags cost nothing. The result card and share text show how many flags were ignored.
 - In v1 no adverb or adjective flag is doubtful: in testing, the tagger's guessed tags were as accurate as its sure ones.
 - The word-count rule gates the score: points scale with progress toward the word-count target, so a short draft can't reach a high band. The target is the minimum, or the maximum when there is no minimum. Only a word-count rule among the main rules gates, not a bonus one. Without a word-count rule, an empty draft scores 0.

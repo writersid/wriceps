@@ -42,7 +42,25 @@ export function loadDraft(setId: string): Draft | null {
   return typeof draft.startedAt === "number" ? draft : { text: draft.text, ignored: draft.ignored };
 }
 
-export function saveDraft(setId: string, draft: Draft) {
+// A fill-in round: one answer per blank, the round's seed (random letter), and
+// in surprise mode the blank on screen.
+export type FillInDraft = { answers: string[]; ignored: string[]; seed: number; step: number; startedAt?: number };
+
+export function loadFillInDraft(setId: string, blanks: number): FillInDraft | null {
+  const d = readJson<FillInDraft>(draftKey(setId));
+  const valid =
+    Array.isArray(d?.answers) &&
+    d.answers.length === blanks &&
+    d.answers.every((a) => typeof a === "string") &&
+    Array.isArray(d.ignored) &&
+    Number.isInteger(d.seed) &&
+    Number.isInteger(d.step);
+  if (!d || !valid) return null;
+  const { answers, ignored, seed, step, startedAt } = d;
+  return typeof startedAt === "number" ? { answers, ignored, seed, step, startedAt } : { answers, ignored, seed, step };
+}
+
+export function saveDraft(setId: string, draft: Draft | FillInDraft) {
   writeJson(draftKey(setId), draft);
 }
 

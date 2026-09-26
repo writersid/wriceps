@@ -19,6 +19,7 @@ const TIPS: Record<string, [string, string, string]> = {
   repeat: ["Find a new word.", "Once is enough.", "Swap it for something fresh."],
   repeatForm: ["Same word, new outfit. Find another.", "Pick a different word.", "It's still the same word."],
   overTime: ["Faster next rep.", "The clock won this one.", "Beat the clock next time."],
+  wrongFirstLetter: ["Find one that fits the letter.", "Stay on the letter.", "Wrong letter. Try again."],
   bannedLetter: ["Find a word without it.", "Rephrase around it.", "That letter is benched today."],
   tooManyWords: ["Trim until it fits.", "Cut the weakest sentence.", "Every word has to earn its spot."],
   tooFewWords: ["Keep going.", "A few more reps.", "Not done yet."],
@@ -53,7 +54,16 @@ export function buildNotes(
   }
 
   // One card per word, covering every rule that flagged it, word type first.
-  const WORD_KINDS = ["adverb", "adjective", "bannedLetter", "tooManySyllables", "tooFewSyllables", "repeat", "repeatForm"];
+  const WORD_KINDS = [
+    "wrongFirstLetter",
+    "adverb",
+    "adjective",
+    "bannedLetter",
+    "tooManySyllables",
+    "tooFewSyllables",
+    "repeat",
+    "repeatForm",
+  ];
   const byWord = new Map<string, Flag[]>();
   for (const f of visible) {
     if (!WORD_KINDS.includes(f.kind)) continue;
@@ -67,6 +77,8 @@ export function buildNotes(
     for (const f of group) {
       if (f.kind === "tooManySyllables" || f.kind === "tooFewSyllables") {
         details.add(plural(syllablesShown(f, ruleFor(f) as Extract<Rule, { type: "syllables" }>, syllableRange), "syllable"));
+      } else if (f.kind === "wrongFirstLetter") {
+        details.add(`should start with ${f.of?.toUpperCase()}`);
       } else if (f.kind === "repeat") {
         details.add("used before");
       } else if (f.kind === "repeatForm") {
@@ -136,6 +148,8 @@ export function ruleLabel(rule: Rule): string {
       return "No repeated words";
     case "timeLimit":
       return `Under ${rule.seconds} seconds`;
+    case "sameFirstLetter":
+      return rule.letter ? `Every answer starts with ${rule.letter.toUpperCase()}` : "Every answer starts with the same letter";
     case "noAdverbs":
       return "No adverbs";
     case "noAdjectives":

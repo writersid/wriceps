@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { constraintSets } from "@/content/constraint";
+import { fillInSets } from "@/content/fill-in";
 import { PageFrame } from "./components/page-frame";
 
 // Placeholder home until Phase 3 part 6 builds the real one.
@@ -11,7 +12,7 @@ export default function Home() {
       </h1>
       <p className="text-muted">Short, scored writing sets.</p>
       <ul className="flex flex-col gap-2">
-        {constraintSets.map((set) => (
+        {[...constraintSets, ...fillInSets].map((set) => (
           <li key={set.id}>
             <Link
               href={`/sets/${set.id}`}

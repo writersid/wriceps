@@ -8,6 +8,7 @@ import {
   checkFirstSentence,
   checkNoRepeats,
   checkRequiredWords,
+  checkSameFirstLetter,
   checkSyllables,
   checkTimeLimit,
   checkWordCount,
@@ -38,6 +39,8 @@ export function checkText(text: string, exercise: Exercise, elapsedMs?: number):
         return checkFirstSentence(rule, text);
       case "noRepeats":
         return checkNoRepeats(rule, words, wordRoots(text, words));
+      case "sameFirstLetter":
+        return checkSameFirstLetter(rule, text);
       case "timeLimit":
         return checkTimeLimit(rule, elapsedMs);
     }

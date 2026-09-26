@@ -9,6 +9,10 @@ export type Rule =
   | { type: "requiredWords"; words: string[] }
   | { type: "firstSentence"; sentence: string }
   | { type: "noRepeats" }
+  // Every line (in a fill-in, every answer) starts with the same letter: `letter`,
+  // or whatever the first line starts with. `random` means draw the letter from
+  // the round's seed (see lib/fill-in.ts) before checking.
+  | { type: "sameFirstLetter"; letter?: string; random?: boolean }
   // Bonus rules only.
   | { type: "timeLimit"; seconds: number };
 
