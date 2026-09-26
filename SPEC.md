@@ -27,6 +27,8 @@ Each set fills in one of two ways:
 - Surprise: one blank at a time, showing only its label; the poem stays hidden until the end. A Back button lets the player change earlier answers until the set is logged.
 
 Blank labels are prompts only: the app does not check that a noun blank got a noun. Echo blanks repeat an earlier answer (for example, the words from line 2) and are filled in automatically; echoed words are not checked by the rules.
+When the poem is shown, a blank or echo that starts a sentence (at the start of the poem or a line, or after . ! or ? and a space) is displayed with a capital first letter. The rules still check the answer as typed.
+While blanks are still empty, the live score is scaled by the share of blanks filled. "Log this set" needs every blank filled.
 Rules run on the player's answers only, not on the template text, using the constraint-writing rule engine plus one fill-in rule: every answer starts with the same letter. The letter is set by the exercise, is any letter the answers share, or is drawn at random for the round from a seed, so a challenge link replays the same letter.
 Modes: solo, and pass-the-phone for 2 players. In pass-the-phone, players take turns on one device; the app hides everything except the last few words of the previous turn, then reveals the full piece in order at the end. A page refresh mid-game must not lose turns.
 

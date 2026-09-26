@@ -6,9 +6,19 @@ import { ScoreCard } from "@/app/components/score-card";
 import { EngineStatus, LogButton, NoteCards, SetHeader, type Logged } from "@/app/components/set-parts";
 import { useClock } from "@/app/components/use-clock";
 import type { FillInSet } from "@/content/fill-in";
-import { scoreText } from "@/lib/engine/score";
+import { bandFor, scoreText } from "@/lib/engine/score";
 import type { Flag } from "@/lib/engine/types";
-import { answerAt, answersText, newSeed, parseTemplate, resolveRound, type Part } from "@/lib/fill-in";
+import {
+  answerAt,
+  answersText,
+  capitalizeFirst,
+  newSeed,
+  parseTemplate,
+  resolveRound,
+  scaleByFilled,
+  startsSentence,
+  type Part,
+} from "@/lib/fill-in";
 import { buildNotes } from "@/lib/notes";
 import { clearDraft, getBest, loadFillInDraft, logScore, saveDraft } from "@/lib/progress";
 
@@ -68,7 +78,8 @@ export function FillInScreen({ set, number, total }: { set: FillInSet; number: n
     visible.flatMap((f) => (f.start === undefined ? [] : [answerAt(checkedAnswers, f.start).index])),
   );
   const notesFor = (some: Flag[]) => (engine ? buildNotes(some, ignored, round, engine.syllableRange) : []);
-  const { score, band } = scoreText(text, round, flags, ignored);
+  const score = scaleByFilled(scoreText(text, round, flags, ignored).score, checkedAnswers);
+  const band = bandFor(score);
   const complete = answers.every((a) => a.trim());
   const revealed = set.mode === "open" || step === labels.length;
 
@@ -254,7 +265,7 @@ function Poem({
                   : undefined
               }
             >
-              {value}
+                {startsSentence(parts, i) ? capitalizeFirst(value) : value}
             </strong>
           );
         }

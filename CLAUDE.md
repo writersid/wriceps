@@ -65,6 +65,7 @@ npm run language:eval    # rerun syllable, part-of-speech, and word-list accurac
   - Content in `content/fill-in.ts`: 3 placeholder sets (open mode with a random letter; surprise mode with a time bonus; surprise mode with echoes). Template syntax `{label}`, `{label#name}`, `{=name}`, parsed by `lib/fill-in.ts`; `content/content.test.ts` checks every template parses and ids are unique across mechanics.
   - Rule `sameFirstLetter` (per line; in fill-ins, per answer): a set letter, the first answer's letter, or `random` drawn from the round's seed (`drawLetter`, mulberry32). The seed is saved in the draft for part 5's challenge links.
   - Rules run on the answers only, one per line (`answersText`); echoes are never checked.
+  - Live score scaled by the share of blanks filled (`scaleByFilled`). Blanks and echoes that start a sentence are capitalized for display only (`startsSentence`, `capitalizeFirst`).
   - `app/sets/[id]/fill-in-screen.tsx`: open mode (inline inputs in the poem card) and surprise mode (one blank at a time, Back until logged, reveal). Logging needs every blank filled. Answers, step, seed, and clock survive a refresh (`loadFillInDraft`).
   - Shared by both screens: `app/components/set-parts.tsx` (header, note cards, log button), `use-clock.ts`, `load-engine.ts`.
 - **Next step:** Sid tests part 3b on his phone via the Vercel preview; then plan part 3c (pass-the-phone). Sid rewrites the DRAFT tips in `lib/notes.ts` when ready.

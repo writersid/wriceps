@@ -60,6 +60,29 @@ export function answerAt(answers: string[], pos: number): { index: number; offse
   return { index: answers.length - 1, offset: answers.at(-1)?.length ?? 0 };
 }
 
+// The live score while blanks are still empty, scaled by the share filled, so
+// a half-done poem can't show a high band. Logging needs every blank anyway.
+export function scaleByFilled(score: number, answers: string[]): number {
+  const filled = answers.filter((a) => a.trim()).length;
+  return answers.length ? Math.round((score * filled) / answers.length) : 0;
+}
+
+// Whether the blank or echo at parts[index] starts a sentence: at the start of
+// the template, at the start of a line, or after . ! or ? and a space. Only
+// for display; the rules check answers as typed.
+export function startsSentence(parts: Part[], index: number): boolean {
+  const before = parts[index - 1];
+  if (!before) return true;
+  if (before.type !== "text") return false;
+  if (index === 1 && !before.text.trim()) return true;
+  return /(?:[.!?]["'”’)]*\s+|\n\s*)$/.test(before.text);
+}
+
+// The answer with its first letter capitalized, for display.
+export function capitalizeFirst(answer: string): string {
+  return answer.replace(/\p{L}/u, (letter) => letter.toUpperCase());
+}
+
 // A random seed for a new round. Part 5's challenge links will carry it.
 export function newSeed(): number {
   return Math.floor(Math.random() * 2 ** 32);

@@ -3,7 +3,16 @@ import { checkText } from "./engine/check";
 import { checkSameFirstLetter } from "./engine/rules";
 import { scoreText } from "./engine/score";
 import type { Exercise } from "./engine/types";
-import { answerAt, answersText, drawLetter, parseTemplate, resolveRound } from "./fill-in";
+import {
+  answerAt,
+  answersText,
+  capitalizeFirst,
+  drawLetter,
+  parseTemplate,
+  resolveRound,
+  scaleByFilled,
+  startsSentence,
+} from "./fill-in";
 
 describe("parseTemplate", () => {
   it("splits text, blanks, and echoes", () => {
@@ -84,6 +93,52 @@ describe("random letter from a seed", () => {
     const round = resolveRound(exercise, 42);
     expect(round.rules[0]).toMatchObject({ letter: drawLetter(42), random: false });
     expect(round.rules[1]).toBe(exercise.rules[1]);
+  });
+});
+
+describe("live score while blanks are empty", () => {
+  it("scales by the share of blanks filled", () => {
+    expect(scaleByFilled(100, ["a", "b", "", "", ""])).toBe(40);
+    expect(scaleByFilled(80, ["a", "b", "c", " ", ""])).toBe(48);
+    expect(scaleByFilled(90, ["a", "b"])).toBe(90);
+    expect(scaleByFilled(90, ["", ""])).toBe(0);
+  });
+});
+
+describe("capitals at the start of a sentence", () => {
+  // Which blanks and echoes start a sentence, by position in the template.
+  const starts = (template: string) => {
+    const { parts } = parseTemplate(template);
+    return parts.flatMap((p, i) => (p.type === "text" ? [] : [startsSentence(parts, i)]));
+  };
+
+  it("at the start of the template or of a line", () => {
+    expect(starts("{noun} ran.\n{verb} now.")).toEqual([true, true]);
+    expect(starts("  {noun} ran.")).toEqual([true]);
+  });
+
+  it("after . ! or ? and a space, including after a closing quote", () => {
+    expect(starts('It ended. {noun}! {verb}? {adjective} "Go." {noun} done.')).toEqual([true, true, true, true]);
+  });
+
+  it("not mid-sentence, after a colon or comma, or right after another blank", () => {
+    expect(starts("The {noun} said: {verb}, {adjective}{noun}.")).toEqual([false, false, false, false]);
+  });
+
+  it("covers echoes too", () => {
+    expect(starts("I said {noun#reply}.\n{=reply}, said the canyon. {=reply}.")).toEqual([false, true, true]);
+  });
+
+  it("capitalizes only the first letter, leaving the rest as typed", () => {
+    expect(capitalizeFirst("just me")).toBe("Just me");
+    expect(capitalizeFirst("“oh no”")).toBe("“Oh no”");
+    expect(capitalizeFirst("éclair")).toBe("Éclair");
+    expect(capitalizeFirst("42")).toBe("42");
+  });
+
+  it("the rules still check the answer as typed", () => {
+    const exercise: Exercise = { rules: [{ id: "l", type: "sameFirstLetter", letter: "j", weight: 100 }] };
+    expect(checkText(answersText(["just me"]), exercise)).toEqual([]);
   });
 });
 
