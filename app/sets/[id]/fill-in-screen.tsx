@@ -8,19 +8,12 @@ import { useClock } from "@/app/components/use-clock";
 import type { FillInSet } from "@/content/fill-in";
 import { bandFor, scoreText } from "@/lib/engine/score";
 import type { Flag } from "@/lib/engine/types";
-import {
-  answerAt,
-  answersText,
-  capitalizeFirst,
-  newSeed,
-  parseTemplate,
-  resolveRound,
-  scaleByFilled,
-  startsSentence,
-  type Part,
-} from "@/lib/fill-in";
+import { answerAt, answersText, newSeed, parseTemplate, resolveRound, scaleByFilled } from "@/lib/fill-in";
 import { buildNotes } from "@/lib/notes";
-import { clearDraft, getBest, loadFillInDraft, logScore, saveDraft } from "@/lib/progress";
+import { splitLines, turnLines } from "@/lib/pass";
+import { clearDraft, getBest, loadFillInDraft, logScore, saveDraft, type FillInDraft } from "@/lib/progress";
+import { PassGame } from "./pass-game";
+import { AnswerInput, Poem } from "./poem";
 
 const CHECK_DELAY_MS = 150;
 
@@ -39,27 +32,38 @@ export function FillInScreen({ set, number, total }: { set: FillInSet; number: n
   const timeRule = set.bonus?.find((r) => r.type === "timeLimit");
   const timer = useClock(timeRule?.type === "timeLimit" ? timeRule.seconds : undefined);
   const { restore } = timer;
+  // Solo, with a spotter, or not chosen yet (the first screen offers both).
+  const [mode, setMode] = useState<"solo" | "pass" | null>(null);
+  const [passDraft, setPassDraft] = useState<FillInDraft | null>(null);
+  // Pass-the-phone needs at least two turns.
+  const canPass = useMemo(() => turnLines(splitLines(parts)).length >= 2, [parts]);
 
   // The saved round loads with the engine, so nothing typed before then gets replaced.
   useEffect(() => {
     loadEngine()
       .then((loaded) => {
         const draft = loadFillInDraft(set.id, labels.length);
-        if (draft) {
+        if (draft?.pass) {
+          setPassDraft(draft);
+          setSeed(draft.seed);
+          setMode("pass");
+        } else if (draft) {
           setAnswers(draft.answers);
           setCheckedAnswers(draft.answers);
           setIgnored(draft.ignored);
           setStep(Math.min(draft.step, labels.length));
           setSeed(draft.seed);
           if (draft.startedAt) restore(draft.startedAt);
+          setMode("solo");
         } else {
           setSeed(newSeed());
+          setMode(canPass ? null : "solo");
         }
         setBest(getBest(set.id));
         setEngine(loaded);
       })
       .catch(() => setLoadFailed(true));
-  }, [set.id, labels.length, restore]);
+  }, [set.id, labels.length, restore, canPass]);
 
   useEffect(() => {
     const t = setTimeout(() => setCheckedAnswers(answers), CHECK_DELAY_MS);
@@ -135,6 +139,56 @@ export function FillInScreen({ set, number, total }: { set: FillInSet; number: n
       secondsLeft={timer.secondsLeft}
     />
   );
+
+  if (mode === "pass" && engine && seed !== null) {
+    return (
+      <PassGame
+        set={set}
+        parts={parts}
+        engine={engine}
+        seed={seed}
+        initial={passDraft}
+        eyebrow={`Set ${number} of ${total} · Fill-in · With a spotter`}
+        onNewGame={() => {
+          clearDraft(set.id);
+          setPassDraft(null);
+          setSeed(newSeed());
+          setMode(null);
+        }}
+      />
+    );
+  }
+
+  if (mode === null) {
+    // The first screen: solo or with a spotter.
+    return (
+      <>
+        {header}
+        {engine ? (
+          <section className="flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4">
+            <p className="font-display text-2xl font-extrabold">How are you lifting?</p>
+            <button
+              type="button"
+              onClick={() => setMode("solo")}
+              className="min-h-12 rounded-full bg-ink font-semibold text-bg"
+            >
+              Solo
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode("pass")}
+              className="min-h-12 rounded-full border border-border font-semibold"
+            >
+              With a spotter
+            </button>
+            <p className="text-sm text-muted">With a spotter, you take turns on this phone, one line each.</p>
+          </section>
+        ) : (
+          <EngineStatus loadFailed={loadFailed} />
+        )}
+      </>
+    );
+  }
 
   if (!revealed) {
     // Surprise mode, one blank at a time.
@@ -214,114 +268,3 @@ export function FillInScreen({ set, number, total }: { set: FillInSet; number: n
   );
 }
 
-// The poem card: answers in bold, or inline inputs in open mode. Echoes show
-// the answer they repeat, or a dashed gap until it's filled.
-function Poem({
-  parts,
-  answers,
-  flaggedAnswers,
-  editable,
-  onAnswer,
-}: {
-  parts: Part[];
-  answers: string[];
-  flaggedAnswers: Set<number>;
-  editable: boolean;
-  onAnswer: (index: number, value: string) => void;
-}) {
-  return (
-    <section
-      aria-label="Your poem"
-      className="rounded-2xl border border-border bg-surface p-4 text-lg leading-10 whitespace-pre-line"
-    >
-      {parts.map((part, i) => {
-        // Punctuation right after an input stays on its line. (Text never
-        // breaks before punctuation, so only inputs need this.)
-        const trailing = (p: Part | undefined) => (p?.type === "text" ? (/^[^\s\p{L}\p{N}]+/u.exec(p.text)?.[0] ?? "") : "");
-        if (part.type === "text") {
-          const skip = parts[i - 1]?.type !== "text" ? trailing(part).length : 0;
-          return <span key={i}>{part.text.slice(skip)}</span>;
-        }
-        const value = answers[part.index];
-        let filled;
-        if (part.type === "blank" && editable) {
-          filled = (
-            <AnswerInput
-              value={value}
-              label={`${part.label} (blank ${part.index + 1})`}
-              placeholder={part.label}
-              flagged={flaggedAnswers.has(part.index)}
-              onChange={(v) => onAnswer(part.index, v)}
-            />
-          );
-        } else if (!value.trim()) {
-          filled = <span className="text-muted">____</span>;
-        } else {
-          filled = (
-            <strong
-              className={
-                part.type === "blank" && flaggedAnswers.has(part.index)
-                  ? "underline decoration-coral decoration-wavy decoration-[1.5px] underline-offset-4"
-                  : undefined
-              }
-            >
-                {startsSentence(parts, i) ? capitalizeFirst(value) : value}
-            </strong>
-          );
-        }
-        return (
-          <span key={i} className={part.type === "blank" && editable ? "whitespace-nowrap" : undefined}>
-            {filled}
-            {trailing(parts[i + 1])}
-          </span>
-        );
-      })}
-    </section>
-  );
-}
-
-function AnswerInput({
-  id,
-  value,
-  label,
-  placeholder,
-  flagged,
-  disabled,
-  onChange,
-  onEnter,
-  wide,
-}: {
-  id?: string;
-  value: string;
-  label: string;
-  placeholder?: string;
-  flagged: boolean;
-  disabled?: boolean;
-  onChange: (value: string) => void;
-  onEnter?: () => void;
-  wide?: boolean;
-}) {
-  return (
-    <input
-      id={id}
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" && onEnter) onEnter();
-      }}
-      aria-label={id ? undefined : label}
-      aria-invalid={flagged}
-      placeholder={placeholder}
-      disabled={disabled}
-      autoComplete="off"
-      enterKeyHint={onEnter ? "next" : undefined}
-      // Inline blanks grow with the answer; 16px text stops iPhones zooming in.
-      style={wide ? undefined : { width: `${Math.max(value.length, placeholder?.length ?? 0, 3) + 2}ch` }}
-      className={`${wide ? "w-full rounded-xl border px-3 py-2.5" : "mx-0.5 border-b-2 px-1"} max-w-full bg-transparent text-base font-semibold outline-none placeholder:font-normal placeholder:text-muted focus:border-ink ${
-        flagged
-          ? "border-coral underline decoration-coral decoration-wavy decoration-[1.5px] underline-offset-4"
-          : "border-border"
-      }`}
-    />
-  );
-}

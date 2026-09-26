@@ -18,6 +18,7 @@ const TIPS: Record<string, [string, string, string]> = {
   tooFewSyllables: ["Find a longer word.", "Stretch it out.", "Too light. Add a syllable."],
   repeat: ["Find a new word.", "Once is enough.", "Swap it for something fresh."],
   repeatForm: ["Same word, new outfit. Find another.", "Pick a different word.", "It's still the same word."],
+  repeatEarlier: ["Find a new word.", "Someone got there first.", "Swap it for something fresh."],
   overTime: ["Faster next rep.", "The clock won this one.", "Beat the clock next time."],
   wrongFirstLetter: ["Find one that fits the letter.", "Stay on the letter.", "Wrong letter. Try again."],
   bannedLetter: ["Find a word without it.", "Rephrase around it.", "That letter is benched today."],
@@ -63,6 +64,7 @@ export function buildNotes(
     "tooFewSyllables",
     "repeat",
     "repeatForm",
+    "repeatEarlier",
   ];
   const byWord = new Map<string, Flag[]>();
   for (const f of visible) {
@@ -81,6 +83,8 @@ export function buildNotes(
         details.add(`should start with ${f.of?.toUpperCase()}`);
       } else if (f.kind === "repeat") {
         details.add("used before");
+      } else if (f.kind === "repeatEarlier") {
+        details.add("used earlier in the poem");
       } else if (f.kind === "repeatForm") {
         details.add(`same word as “${f.of}”`);
       } else if (f.kind === "bannedLetter") {

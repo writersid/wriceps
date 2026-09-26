@@ -101,6 +101,39 @@ describe("fill-in drafts", () => {
   });
 });
 
+describe("pass-the-phone games", () => {
+  const game = (phase: "handoff" | "turn" | "reveal") => ({
+    answers: ["snow", "sing"],
+    ignored: [],
+    seed: 7,
+    step: 0,
+    pass: { turn: 1, phase, shown: phase === "reveal" ? 2 : 0 },
+  });
+
+  it("keeps every turn's answers and the turn number after a reload", () => {
+    saveDraft("p", game("handoff"));
+    expect(loadFillInDraft("p", 2)).toEqual(game("handoff"));
+  });
+
+  it("reopens a turn in progress on its handoff screen", () => {
+    saveDraft("p", game("turn"));
+    expect(loadFillInDraft("p", 2)?.pass).toEqual({ turn: 1, phase: "handoff", shown: 0 });
+  });
+
+  it("keeps the reveal where it was", () => {
+    saveDraft("p", game("reveal"));
+    expect(loadFillInDraft("p", 2)?.pass).toEqual({ turn: 1, phase: "reveal", shown: 2 });
+  });
+
+  it("drops a damaged game state", () => {
+    localStorage.setItem(
+      "wriceps-draft:p",
+      '{"answers":["a","b"],"ignored":[],"seed":1,"step":0,"pass":{"turn":1,"phase":"peek","shown":0}}',
+    );
+    expect(loadFillInDraft("p", 2)).toBeNull();
+  });
+});
+
 describe("when storage is blocked", () => {
   it("fails quietly", () => {
     const blocked = () => {

@@ -1,6 +1,8 @@
 // Best scores and unsent drafts, kept in the browser's localStorage.
 // Storage can be missing or full (private windows, blocked site data), so every
 // call fails quietly instead of breaking the screen.
+import type { PassState } from "./pass";
+
 const PROGRESS_KEY = "wriceps-progress";
 const draftKey = (setId: string) => `wriceps-draft:${setId}`;
 
@@ -44,7 +46,14 @@ export function loadDraft(setId: string): Draft | null {
 
 // A fill-in round: one answer per blank, the round's seed (random letter), and
 // in surprise mode the blank on screen.
-export type FillInDraft = { answers: string[]; ignored: string[]; seed: number; step: number; startedAt?: number };
+export type FillInDraft = {
+  answers: string[];
+  ignored: string[];
+  seed: number;
+  step: number;
+  startedAt?: number;
+  pass?: PassState; // present in a pass-the-phone game
+};
 
 export function loadFillInDraft(setId: string, blanks: number): FillInDraft | null {
   const d = readJson<FillInDraft>(draftKey(setId));
@@ -56,8 +65,17 @@ export function loadFillInDraft(setId: string, blanks: number): FillInDraft | nu
     Number.isInteger(d.seed) &&
     Number.isInteger(d.step);
   if (!d || !valid) return null;
-  const { answers, ignored, seed, step, startedAt } = d;
-  return typeof startedAt === "number" ? { answers, ignored, seed, step, startedAt } : { answers, ignored, seed, step };
+  const { answers, ignored, seed, step, startedAt, pass } = d;
+  const draft: FillInDraft = { answers, ignored, seed, step };
+  if (typeof startedAt === "number") draft.startedAt = startedAt;
+  if (pass !== undefined) {
+    const phases = ["handoff", "turn", "reveal"];
+    if (!Number.isInteger(pass?.turn) || !phases.includes(pass.phase) || !Number.isInteger(pass.shown)) return null;
+    // After a refresh, a turn in progress goes back to its handoff screen, so the
+    // game never reopens on someone's answers.
+    draft.pass = { turn: pass.turn, phase: pass.phase === "turn" ? "handoff" : pass.phase, shown: pass.shown };
+  }
+  return draft;
 }
 
 export function saveDraft(setId: string, draft: Draft | FillInDraft) {

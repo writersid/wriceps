@@ -32,6 +32,14 @@ While blanks are still empty, the live score is scaled by the share of blanks fi
 Rules run on the player's answers only, not on the template text, using the constraint-writing rule engine plus one fill-in rule: every answer starts with the same letter. The letter is set by the exercise, is any letter the answers share, or is drawn at random for the round from a seed, so a challenge link replays the same letter.
 Modes: solo, and pass-the-phone for 2 players. In pass-the-phone, players take turns on one device; the app hides everything except the last few words of the previous turn, then reveals the full piece in order at the end. A page refresh mid-game must not lose turns.
 
+Pass-the-phone details (decided in Phase 3):
+- Every fill-in set offers Solo and With a spotter.
+- A turn is one line of the poem that has blanks to fill. A line with none (template text only, or echoes only) isn't a turn; it's revealed with the poem. Turns alternate between You and Spotter over the lines with blanks; the spotter takes turn 2.
+- Between turns, a handoff screen asks the next player to tap when ready. Each turn shows only the last 3 words of the previous turn. Echoes stay hidden until the reveal, and notes never name the other player's words before it (a repeat reads "used earlier in the poem").
+- There is no going back into a finished turn; Back works within your own turn. After a refresh, the game returns to the handoff screen for the current turn.
+- The poem is revealed one line at a time, then a shared team score. It doesn't count as a PR.
+- The time bonus is off with a spotter.
+
 ### 2. Constraint writing
 One rule engine. Each exercise is a combination of these rules:
 - word count: exact, minimum, or maximum
