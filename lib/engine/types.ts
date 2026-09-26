@@ -24,6 +24,8 @@ export type Flag = {
   start?: number;
   end?: number;
   level: "sure" | "doubtful";
+  // How many violations this flag stands for, such as "4 words short". Default 1.
+  count?: number;
   // Same key for every flag on the same word from the same rule, so one
   // Ignore covers them all.
   ignoreKey: string;

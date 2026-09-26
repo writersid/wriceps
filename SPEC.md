@@ -78,6 +78,7 @@ A public-domain passage is shown. The user taps words to black them out, and the
 - Exercises by Joseph Fasano or Amit Varma are included only with their permission, obtained before the app is shared with the group, and are credited in the app.
 - Quoted source text (opening lines, blackout passages) comes only from public-domain works such as Project Gutenberg, with the source recorded for each.
 - Content lives in its own file(s), separate from code, so adding an exercise means adding content, not code.
+- Exact word counts are used only for named exact-length forms: six-word story, half-dribble, dribble, drabble. All other exercises use a minimum, a maximum, or a range (a minimum and a maximum together).
 
 ## Analytics and privacy
 
