@@ -12,7 +12,7 @@ export function bandFor(score: number): Band {
   return "Warm-up";
 }
 
-const FREE_IGNORES = 2;
+export const FREE_IGNORES = 2;
 
 // Default cost of one violation: the weight split across the rule's fixed
 // maximum number of violations, or a third of it when there is no fixed maximum.

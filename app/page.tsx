@@ -1,5 +1,8 @@
+import Link from "next/link";
+import { constraintSets } from "@/content/constraint";
 import { PageFrame } from "./components/page-frame";
 
+// Placeholder home until Phase 3 part 6 builds the real one.
 export default function Home() {
   return (
     <PageFrame>
@@ -7,9 +10,18 @@ export default function Home() {
         Build your writing muscles.
       </h1>
       <p className="text-muted">Short, scored writing sets.</p>
-      <div className="rounded-2xl border border-border bg-surface p-4">
-        The first sets are on their way.
-      </div>
+      <ul className="flex flex-col gap-2">
+        {constraintSets.map((set) => (
+          <li key={set.id}>
+            <Link
+              href={`/sets/${set.id}`}
+              className="block rounded-2xl border border-border bg-surface p-4 font-semibold"
+            >
+              {set.title}
+            </Link>
+          </li>
+        ))}
+      </ul>
     </PageFrame>
   );
 }

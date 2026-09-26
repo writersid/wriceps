@@ -29,8 +29,9 @@ npm run language:eval    # rerun syllable and part-of-speech accuracy, plus bund
 
 ## Status
 
-- **Current phase:** 3 (App layer), part 1 done. Next: part 2.
-- **Phase 3 = the app layer (screens).** Wriceps has no server, so the skill's "Server / API layer" phase becomes the screens. Parts: (1) design foundation, (2) constraint-writing screen, (3) fill-in poems with pass-the-phone, (4) blackout poems, (5) result cards, sharing, and challenge links.
+- **Current phase:** 3 (App layer), part 2 built; waiting on Sid's real-phone test.
+- **Phase 3 = the app layer (screens).** Wriceps has no server, so the skill's "Server / API layer" phase becomes the screens. Parts: (1) design foundation, (2) constraint-writing screen, (3) fill-in poems with pass-the-phone, (4) blackout poems, (5) result cards, sharing, and challenge links, (6) home screen and set list, privacy page with credits from NOTICES.md, and the note that clearing browser data clears progress.
+- **Part 3 starts with:** time and repeat-word bonus rules in the rule engine (for example "finish in 90 seconds", "no word used twice"). Deferred from part 2; fill-in needs them, and the mockup's "Bonus: under 5 min" chip waits on them.
 - **Phase 1 done:** create-next-app scaffold; SPEC.md and ROADMAP.md; this file; .gitignore allows `.env.example`; private GitHub repo `writersid/wriceps`.
 - **Phase 2 done:**
   - Vitest 4.1.11 (`npm test`).
@@ -49,5 +50,6 @@ npm run language:eval    # rerun syllable and part-of-speech accuracy, plus bund
   - Mockups in `design/`.
 - **Constraint for later phases:** load compromise and the syllable list only when a constraint exercise opens, not on app load: dynamically import `lib/engine/check.ts`; `score.ts` and `tokenize.ts` stay light.
 - **Known:** `npm run language:eval` prints a harmless Node MODULE_TYPELESS_PACKAGE_JSON warning; Sid chose to leave it.
-- **Deferred:** create `.env.example` when PostHog is added (confirm its variable names from PostHog's current docs). Credits line on the privacy page linking to NOTICES.md.
-- **Next step:** plan and build Phase 3 part 2, the constraint-writing screen.
+- **Deferred:** create `.env.example` when PostHog is added (confirm its variable names from PostHog's current docs). Credits line on the privacy page linking to NOTICES.md (part 6).
+- **Phase 3 part 2 (constraint-writing screen):** `app/sets/[id]/` (static pages, unknown ids 404), `app/components/draft-editor.tsx`, `app/components/score-card.tsx`, `lib/notes.ts` (cards, chip labels, DRAFT tips), `lib/progress.ts` (best scores and drafts), 4 placeholder sets in `content/constraint.ts`. Decisions: mirror-layer underlines behind a textarea; content in `content/constraint.ts`; one note card per word ("Ignore (uses 2)" when it costs more than one); three rotating draft tips per rule for Sid to rewrite; draft saved in localStorage and cleared on "Log this set"; logging only saves the score and shows "Logged" or "New PR" until part 5.
+- **Next step:** Sid tests part 2 on his phone and rewrites the DRAFT tips in `lib/notes.ts`; then plan part 3.
