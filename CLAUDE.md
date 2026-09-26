@@ -29,7 +29,8 @@ npm run language:eval    # rerun syllable and part-of-speech accuracy, plus bund
 
 ## Status
 
-- **Current phase:** 2 (Core logic) done. Next: Phase 3.
+- **Current phase:** 3 (App layer), part 1.
+- **Phase 3 = the app layer (screens).** Wriceps has no server, so the skill's "Server / API layer" phase becomes the screens. Parts: (1) design foundation, (2) constraint-writing screen, (3) fill-in poems with pass-the-phone, (4) blackout poems, (5) result cards, sharing, and challenge links.
 - **Phase 1 done:** create-next-app scaffold; SPEC.md and ROADMAP.md; this file; .gitignore allows `.env.example`; private GitHub repo `writersid/wriceps`.
 - **Phase 2 done:**
   - Vitest 4.1.11 (`npm test`).
@@ -43,4 +44,4 @@ npm run language:eval    # rerun syllable and part-of-speech accuracy, plus bund
 - **Constraint for later phases:** load compromise and the syllable list only when a constraint exercise opens, not on app load: dynamically import `lib/engine/check.ts`; `score.ts` and `tokenize.ts` stay light.
 - **Known:** `npm run language:eval` prints a harmless Node MODULE_TYPELESS_PACKAGE_JSON warning; Sid chose to leave it.
 - **Deferred:** create `.env.example` when PostHog is added (confirm its variable names from PostHog's current docs). Credits line on the privacy page linking to NOTICES.md.
-- **Next step:** plan Phase 3 with Sid. The app has almost no server side, so decide whether to skip Phase 3 or keep it minimal, then move to the constraint-writing screen.
+- **Next step:** build Phase 3 part 1 (design foundation): Tailwind tokens, Fraunces and Inter, two-state light/dark toggle defaulting to the device setting, 512px centered page frame.

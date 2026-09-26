@@ -111,6 +111,7 @@ Usage rules:
 - Coral is never small text in light mode; use deep coral. In dark mode, coral works as text.
 - The main button uses the text color as its fill (charcoal in light, chalk in dark), not lime.
 - Violations never rely on color alone: always an underline plus a note.
+- The violation underline is deep coral in light mode (about 4.8:1 on the white surface) and coral in dark mode.
 - All text meets WCAG contrast: 4.5:1 for body text, 3:1 for text 24px and up.
 
 Dark mode tokens (from the approved mockup): background #1C1C1C, surface #262626, border #3A3A38, text #FAFAF7, muted #B8B8B0.
