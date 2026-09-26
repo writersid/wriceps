@@ -1,6 +1,128 @@
 import { describe, expect, test } from "vitest";
-import { checkWordCount } from "./rules";
+import { checkBannedLetters, checkFirstSentence, checkRequiredWords, checkWordCount } from "./rules";
 import { tokenize } from "./tokenize";
+
+describe("banned letters", () => {
+  const check = (letters: string, text: string) =>
+    checkBannedLetters({ type: "bannedLetters", id: "bl", weight: 30, letters }, tokenize(text));
+
+  test("clean text has no flags", () => {
+    expect(check("e", "A cat sat on a mat.")).toEqual([]);
+  });
+
+  test("flags each word containing the letter, with its position", () => {
+    const flags = check("e", "The cat sat here.");
+    expect(flags.map((f) => [f.word, f.start, f.end])).toEqual([["The", 0, 3], ["here", 12, 16]]);
+    expect(flags[0]).toMatchObject({ kind: "bannedLetter", level: "sure", ignoreKey: "bl:the" });
+  });
+
+  test("one flag per word, even with the letter twice", () => {
+    expect(check("e", "sleepy")).toHaveLength(1);
+  });
+
+  test("ignores case in both the text and the rule", () => {
+    expect(check("E", "Eat")).toHaveLength(1);
+    expect(check("e", "EAT")).toHaveLength(1);
+  });
+
+  test("several banned letters", () => {
+    expect(check("ae", "A dog, the fox, I").map((f) => f.word)).toEqual(["A", "the"]);
+  });
+
+  test("accented letters count as their plain letter", () => {
+    expect(check("e", "café")).toHaveLength(1);
+  });
+
+  test("checks both parts of hyphenated words and contractions", () => {
+    expect(check("e", "well-known don't")).toHaveLength(1);
+    expect(check("t", "don't")).toHaveLength(1);
+  });
+
+  test("empty text has no flags", () => {
+    expect(check("e", "")).toEqual([]);
+  });
+});
+
+describe("required words", () => {
+  const check = (words: string[], text: string) =>
+    checkRequiredWords({ type: "requiredWords", id: "rw", weight: 20, words }, tokenize(text));
+
+  test("all present: no flags", () => {
+    expect(check(["river", "stone"], "The river ran past a stone.")).toEqual([]);
+  });
+
+  test("one flag per missing word, with no position", () => {
+    const flags = check(["river", "stone", "moon"], "The river ran.");
+    expect(flags.map((f) => f.word)).toEqual(["stone", "moon"]);
+    expect(flags[0]).toMatchObject({ kind: "missingWord", ignoreKey: "rw:stone", start: undefined });
+  });
+
+  test("ignores case", () => {
+    expect(check(["River"], "RIVER deep")).toEqual([]);
+  });
+
+  test("must match exactly: 'rivers' does not satisfy 'river'", () => {
+    expect(check(["river"], "Two rivers met.")).toHaveLength(1);
+    expect(check(["river"], "A riverbank.")).toHaveLength(1);
+  });
+
+  test("curly and straight apostrophes match", () => {
+    expect(check(["don't"], "I don’t know.")).toEqual([]);
+  });
+
+  test("a hyphenated required word must appear whole", () => {
+    expect(check(["well-known"], "A well-known face.")).toEqual([]);
+    expect(check(["well"], "A well-known face.")).toHaveLength(1);
+  });
+
+  test("empty text misses everything", () => {
+    expect(check(["river"], "")).toHaveLength(1);
+  });
+});
+
+describe("required first sentence", () => {
+  const sentence = "It was a dark and stormy night.";
+  const check = (text: string, required = sentence) =>
+    checkFirstSentence({ type: "firstSentence", id: "fs", weight: 30, sentence: required }, text);
+
+  test("exact match, followed by more text: no flag", () => {
+    expect(check("It was a dark and stormy night. The rain fell.")).toEqual([]);
+  });
+
+  test("ignores case and extra spaces", () => {
+    expect(check("  it WAS a   dark and\nstormy night.  Then...")).toEqual([]);
+  });
+
+  test("ignores curly versus straight quotes", () => {
+    const quoted = `"Stop," she said. "Don't move."`;
+    expect(check(`“Stop,” she said. “Don’t move.” He froze.`, quoted)).toEqual([]);
+  });
+
+  test("a different opening is flagged over the draft's first sentence", () => {
+    const text = "It was a bright cold day. The clocks struck.";
+    const [f] = check(text);
+    expect(f).toMatchObject({ kind: "firstSentence", level: "sure", ignoreKey: "fs:" });
+    expect(text.slice(f.start, f.end)).toBe("It was a bright cold day.");
+  });
+
+  test("different punctuation is not ignored", () => {
+    expect(check("It was a dark and stormy night, and cold.")).toHaveLength(1);
+  });
+
+  test("the sentence must not run on into a longer word", () => {
+    expect(check("The ending came.", "The end")).toHaveLength(1);
+    expect(check("The end.", "The end")).toEqual([]);
+  });
+
+  test("the required sentence must come first, not later", () => {
+    expect(check("Look. It was a dark and stormy night.")).toHaveLength(1);
+  });
+
+  test("empty text is flagged with no position", () => {
+    const [f] = check("   ");
+    expect(f.start).toBeUndefined();
+  });
+});
 
 describe("word count", () => {
   const rule = (limits: { exact?: number; min?: number; max?: number }) =>
