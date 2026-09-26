@@ -2,6 +2,7 @@
 // can't silently skew the accuracy numbers.
 import { describe, expect, test } from "vitest";
 import syllables from "./syllables.json";
+import heldOut from "./syllables-heldout.json";
 import sentences from "./pos-sentences.json";
 
 // Lowercase words in a sentence, with "don't" also yielding "n't".
@@ -22,6 +23,19 @@ describe("syllables.json", () => {
     for (const s of syllables) {
       expect(s.syllables.length, s.word).toBeGreaterThan(0);
       for (const n of s.syllables) expect(n, s.word).toBeGreaterThan(0);
+    }
+  });
+});
+
+describe("syllables-heldout.json", () => {
+  test("has 100 unique lowercase words, none from the main list", () => {
+    const words = heldOut.map((s) => s.word);
+    const main = new Set(syllables.map((s) => s.word));
+    expect(words).toHaveLength(100);
+    expect(new Set(words).size).toBe(100);
+    for (const w of words) {
+      expect(w).toMatch(/^[a-z]+$/);
+      expect(main.has(w), w).toBe(false);
     }
   });
 });
