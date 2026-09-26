@@ -40,7 +40,17 @@ Rule details (decided in Phase 2):
 - Banned letters and required words ignore case. A required word must match exactly: "rivers" does not satisfy "river".
 - Required first sentence ignores case, curly versus straight quotes, and extra spaces.
 - Maximum syllables: some words have more than one valid count (fire: 1 or 2; every: 2 or 3). A word passes with no flag if any valid count is within the limit. Each part of a hyphenated word is checked separately.
-- No adverbs: never flags words on an approved allowlist of function adverbs (such as not, n't, then, now, here, there, also, too). Intensifiers such as very, really, and quite are still flagged.
+- No adverbs: never flags these allowlisted words:
+  - negation: not, n't, never
+  - time: then, now, already, yet, again, ago, once, always, often, sometimes, soon, today, tomorrow, yesterday, tonight
+  - place: here, there, home, away, back
+  - focus and addition: also, too, either, neither, else, instead
+  - question words: how, when, where, why
+  - comparison: as, more, most, less, least
+  - phrasal verb particles: up, down, out, off, in, on, over, around, through
+
+  Everything else is flagged, including intensifiers (very, really, quite, so, just, extremely, rather, pretty, totally, actually, basically), only, even, still, and manner adverbs (slowly, loudly).
+- No adjectives: never flags these allowlisted determiner-like words: first, second, third and other ordinals, last, next, previous, following, other, another, same, own, only, few, fewer, many, much, more, most, less, least, several, such, enough. Everything else is flagged, including whole, entire, little, main, particular, various, and certain. "Only" is allowed as an adjective ("the only doctor") but flagged as an adverb ("only fresh fish").
 
 ### 3. Blackout poems
 A public-domain passage is shown. The user taps words to black them out, and the remaining words form the poem, shareable as an image.
@@ -127,8 +137,8 @@ Dry and playful, never literary or cute. Gym vocabulary:
 ### 1. Rule engine accuracy (automated, Vitest)
 - Word count, banned letters, required words, required first sentence: 100% correct on test cases.
 - Syllable counting: at least 95% correct on a 200-word list including tricky words (fire, every, business).
-- Adverb and adjective flags on 100 hand-labeled sentences: at least 90% of flagged words are truly adverbs or adjectives, and at least 85% of the real ones are caught. Sentences are labeled grammatically: adjectives include predicative ones ("the sky is blue") and participles used as adjectives ("a broken window"), but not articles, possessives, numbers, or nouns used as modifiers ("stone wall"); adverbs include function adverbs such as "not" and "then". Tagger accuracy is measured against these labels, and the no-adverbs rule's flag precision is reported separately with the allowlist applied.
-- Syllable test words with more than one valid count accept any of them.
+- Adverb and adjective flags on 100 hand-labeled sentences: at least 90% of flagged words are truly adverbs or adjectives, and at least 85% of the real ones are caught. Sentences are labeled grammatically: adjectives include predicative ones ("the sky is blue") and participles used as adjectives ("a broken window"), but not articles, possessives, numbers, or nouns used as modifiers ("stone wall"); adverbs include function adverbs such as "not" and "then". Tagger accuracy is measured against these labels, and the rules' flag precision is reported separately with both allowlists applied.
+- Syllable test words with more than one valid count accept any of them. A word gets more than one count only when the CMU Pronouncing Dictionary lists more than one pronunciation; otherwise it gets the dictionary's single count.
 - Scoring is deterministic and the band cutoffs match this spec.
 
 ### 2. Features (manual checklist)
