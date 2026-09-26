@@ -48,6 +48,7 @@ Rule details (decided in Phase 2):
   - question words: how, when, where, why
   - comparison: as, more, most, less, least
   - phrasal verb particles: up, down, out, off, in, on, over, around, through
+  - politeness: please
 
   Everything else is flagged, including intensifiers (very, really, quite, so, just, extremely, rather, pretty, totally, actually, basically), only, even, still, and manner adverbs (slowly, loudly).
 - No adjectives: never flags these allowlisted determiner-like words: first, second, third and other ordinals, last, next, previous, following, other, another, same, own, only, few, fewer, many, much, more, most, less, least, several, such, enough. Everything else is flagged, including whole, entire, little, main, particular, various, and certain. "Only" is allowed as an adjective ("the only doctor") but flagged as an adverb ("only fresh fish").
