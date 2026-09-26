@@ -29,7 +29,7 @@ npm run language:eval    # rerun syllable, part-of-speech, and word-list accurac
 
 ## Status
 
-- **Current phase:** 3 (App layer), part 3b (fill-in poems, solo) built; waiting on Sid's phone test. Part 3 is split: 3a engine rules, 3b fill-in poems (solo), 3c pass-the-phone.
+- **Current phase:** 3 (App layer), part 3b (fill-in poems, solo) done. Next: 3c (pass-the-phone). Part 3 is split: 3a engine rules, 3b fill-in poems (solo), 3c pass-the-phone.
 - **Phase 3 = the app layer (screens).** Wriceps has no server, so the skill's "Server / API layer" phase becomes the screens. Parts: (1) design foundation, (2) constraint-writing screen, (3) fill-in poems with pass-the-phone, (4) blackout poems, (5) result cards, sharing, and challenge links, (6) home screen and set list, privacy page with credits from NOTICES.md, and the note that clearing browser data clears progress.
 - **Phase 1 done:** create-next-app scaffold; SPEC.md and ROADMAP.md; this file; .gitignore allows `.env.example`; private GitHub repo `writersid/wriceps`.
 - **Phase 2 done:**
@@ -61,11 +61,11 @@ npm run language:eval    # rerun syllable, part-of-speech, and word-list accurac
   - `lib/engine/word-lists.test.ts` measures the word-list sets, and runs in `npm run language:eval`: repeats 100%/100% on lists and sentences; adjectives on lists precision 100%, recall 97.6%, "either" words flagged 0/23. Thresholds in SPEC.md: 90% precision, 85% recall. The time-limit clock's saved start time and bonus loss are unit-tested in `lib/progress.test.ts`.
   - Two-Syllable Sprint is now the word-list game (exact 20, exactly 2 syllables, no adjectives, no repeats; bonus under 60 seconds).
   - Speed: `checkText` on 150 words with all text rules takes about 11 ms on desktop.
-- **Phase 3 part 3b (fill-in poems, solo) built:**
+- **Phase 3 part 3b (fill-in poems, solo) done.** Phone test passed on the Vercel preview (reported by Sid): all three sets, inline boxes at 360px, Next and Back, refresh keeping place and letter, echoes.
   - Content in `content/fill-in.ts`: 3 placeholder sets (open mode with a random letter; surprise mode with a time bonus; surprise mode with echoes). Template syntax `{label}`, `{label#name}`, `{=name}`, parsed by `lib/fill-in.ts`; `content/content.test.ts` checks every template parses and ids are unique across mechanics.
   - Rule `sameFirstLetter` (per line; in fill-ins, per answer): a set letter, the first answer's letter, or `random` drawn from the round's seed (`drawLetter`, mulberry32). The seed is saved in the draft for part 5's challenge links.
   - Rules run on the answers only, one per line (`answersText`); echoes are never checked.
   - Live score scaled by the share of blanks filled (`scaleByFilled`). Blanks and echoes that start a sentence are capitalized for display only (`startsSentence`, `capitalizeFirst`).
   - `app/sets/[id]/fill-in-screen.tsx`: open mode (inline inputs in the poem card) and surprise mode (one blank at a time, Back until logged, reveal). Logging needs every blank filled. Answers, step, seed, and clock survive a refresh (`loadFillInDraft`).
   - Shared by both screens: `app/components/set-parts.tsx` (header, note cards, log button), `use-clock.ts`, `load-engine.ts`.
-- **Next step:** Sid tests part 3b on his phone via the Vercel preview; then plan part 3c (pass-the-phone). Sid rewrites the DRAFT tips in `lib/notes.ts` when ready.
+- **Next step:** plan part 3c (pass-the-phone). Sid rewrites the DRAFT tips in `lib/notes.ts` when ready.
