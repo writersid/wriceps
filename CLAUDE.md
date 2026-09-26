@@ -29,7 +29,7 @@ npm run language:eval    # rerun syllable, part-of-speech, and word-list accurac
 
 ## Status
 
-- **Current phase:** 3 (App layer), part 3a (engine rules) built. Part 3 is split: 3a engine rules, 3b fill-in poems (solo), 3c pass-the-phone.
+- **Current phase:** 3 (App layer), part 3a (engine rules) done. Next: 3b. Part 3 is split: 3a engine rules, 3b fill-in poems (solo), 3c pass-the-phone.
 - **Phase 3 = the app layer (screens).** Wriceps has no server, so the skill's "Server / API layer" phase becomes the screens. Parts: (1) design foundation, (2) constraint-writing screen, (3) fill-in poems with pass-the-phone, (4) blackout poems, (5) result cards, sharing, and challenge links, (6) home screen and set list, privacy page with credits from NOTICES.md, and the note that clearing browser data clears progress.
 - **Phase 1 done:** create-next-app scaffold; SPEC.md and ROADMAP.md; this file; .gitignore allows `.env.example`; private GitHub repo `writersid/wriceps`.
 - **Phase 2 done:**
@@ -52,7 +52,7 @@ npm run language:eval    # rerun syllable, part-of-speech, and word-list accurac
 - **Deferred:** create `.env.example` when PostHog is added (confirm its variable names from PostHog's current docs). Credits line on the privacy page linking to NOTICES.md (part 6).
 - **Phase 3 part 2 (constraint-writing screen):** `app/sets/[id]/` (static pages, unknown ids 404), `app/components/draft-editor.tsx`, `app/components/score-card.tsx`, `lib/notes.ts` (cards, chip labels, DRAFT tips), `lib/progress.ts` (best scores and drafts), 4 placeholder sets in `content/constraint.ts`. Decisions: mirror-layer underlines behind a textarea; content in `content/constraint.ts`; one note card per word ("Ignore (uses 2)" when it costs more than one); three rotating draft tips per rule for Sid to rewrite; draft saved in localStorage and cleared on "Log this set"; logging only saves the score and shows "Logged" or "New PR" until part 5.
 - **Part 2 real-phone check passed** (reported by Sid, on a Vercel preview deploy): underlines instant, plates load per band, keyboard never covered the line being typed.
-- **Phase 3 part 3a (engine rules) built:**
+- **Phase 3 part 3a (engine rules) done.** Phone test passed on the Vercel preview (reported by Sid): repeat flags (form with Ignore, identical without), syllable flags, countdown survives a refresh, bonus drops at 60 seconds, typing feels instant.
   - Fixed a Phase 2 bug: the syllable list stored only words `syllable` gets wrong, so words like family (2 or 3) used the higher guess and were wrongly flagged under max 2. `syllableRange` now gives lowest and highest counts.
   - Rule `syllables` (replaces `maxSyllables`) with `min`/`max`; hyphen rules per SPEC.
   - Rule `noRepeats`: identical words strict; other forms matched by compromise root plus verb conjugations (verbs only match verbs), ignorable. Known tagger error: "Turn left, then leave." reads left as leave.
@@ -61,4 +61,4 @@ npm run language:eval    # rerun syllable, part-of-speech, and word-list accurac
   - `lib/engine/word-lists.test.ts` measures the word-list sets, and runs in `npm run language:eval`: repeats 100%/100% on lists and sentences; adjectives on lists precision 100%, recall 97.6%, "either" words flagged 0/23. Thresholds in SPEC.md: 90% precision, 85% recall. The time-limit clock's saved start time and bonus loss are unit-tested in `lib/progress.test.ts`.
   - Two-Syllable Sprint is now the word-list game (exact 20, exactly 2 syllables, no adjectives, no repeats; bonus under 60 seconds).
   - Speed: `checkText` on 150 words with all text rules takes about 11 ms on desktop.
-- **Next step:** Sid tests part 3a on his phone via the Vercel preview; then plan part 3b (fill-in poems, solo). Sid rewrites the DRAFT tips in `lib/notes.ts` when ready.
+- **Next step:** plan part 3b (fill-in poems, solo). Sid rewrites the DRAFT tips in `lib/notes.ts` when ready.
