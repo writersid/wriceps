@@ -35,6 +35,13 @@ One rule engine. Each exercise is a combination of these rules:
 
 Violations are highlighted live as the user types (coral wavy underline plus a note card below the draft). Doubtful flags are shown but never block the user, and each flag has an Ignore button. This mechanic covers Amit's workshop exercises, six-word stories, drabbles (100 words), dribbles (50 words), lipograms, and opening-line exercises.
 
+Rule details (decided in Phase 2):
+- Word count: contractions ("don't"), hyphenated words ("well-known"), and numbers ("2026") count as one word each. Words joined by a dash with no spaces ("yes—no", "yes–no", "yes--no") count as two words.
+- Banned letters and required words ignore case. A required word must match exactly: "rivers" does not satisfy "river".
+- Required first sentence ignores case, curly versus straight quotes, and extra spaces.
+- Maximum syllables: some words have more than one valid count (fire: 1 or 2; every: 2 or 3). A word passes with no flag if any valid count is within the limit. Each part of a hyphenated word is checked separately.
+- No adverbs: never flags words on an approved allowlist of function adverbs (such as not, n't, then, now, here, there, also, too). Intensifiers such as very, really, and quite are still flagged.
+
 ### 3. Blackout poems
 A public-domain passage is shown. The user taps words to black them out, and the remaining words form the poem, shareable as an image.
 
@@ -45,6 +52,8 @@ A public-domain passage is shown. The user taps words to black them out, and the
 - Bands: Warm-up (0 to 39), Working set (40 to 69), Heavy lift (70 to 89), PR (90 to 100).
 - A new best score on an exercise is a PR.
 - Scoring is deterministic: the same text always gets the same score.
+- How points are earned: each exercise lists its rules and bonus rules with point weights. Each violation costs part of its rule's points, and a rule can never lose more than its weight. Ignored flags and doubtful flags cost nothing. Bonus rules add points, and the total is capped at 100.
+- The word-count rule gates the score: points scale with progress toward the word-count target, so a short draft can't reach a high band.
 
 ## Sharing
 
@@ -118,7 +127,8 @@ Dry and playful, never literary or cute. Gym vocabulary:
 ### 1. Rule engine accuracy (automated, Vitest)
 - Word count, banned letters, required words, required first sentence: 100% correct on test cases.
 - Syllable counting: at least 95% correct on a 200-word list including tricky words (fire, every, business).
-- Adverb and adjective flags on 100 hand-labeled sentences: at least 90% of flagged words are truly adverbs or adjectives, and at least 85% of the real ones are caught.
+- Adverb and adjective flags on 100 hand-labeled sentences: at least 90% of flagged words are truly adverbs or adjectives, and at least 85% of the real ones are caught. Sentences are labeled grammatically: adjectives include predicative ones ("the sky is blue") and participles used as adjectives ("a broken window"), but not articles, possessives, numbers, or nouns used as modifiers ("stone wall"); adverbs include function adverbs such as "not" and "then". Tagger accuracy is measured against these labels, and the no-adverbs rule's flag precision is reported separately with the allowlist applied.
+- Syllable test words with more than one valid count accept any of them.
 - Scoring is deterministic and the band cutoffs match this spec.
 
 ### 2. Features (manual checklist)
