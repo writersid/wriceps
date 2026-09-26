@@ -29,7 +29,7 @@ npm run language:eval    # rerun syllable and part-of-speech accuracy, plus bund
 
 ## Status
 
-- **Current phase:** 2 (Core logic), about half done.
+- **Current phase:** 2 (Core logic) done. Next: Phase 3.
 - **Phase 1 done:** create-next-app scaffold; SPEC.md and ROADMAP.md; this file; .gitignore allows `.env.example`; private GitHub repo `writersid/wriceps`.
 - **Phase 2 done:**
   - Vitest 4.1.11 (`npm test`).
@@ -38,11 +38,9 @@ npm run language:eval    # rerun syllable and part-of-speech accuracy, plus bund
   - Syllable exceptions list `lib/language/syllable-exceptions.json`: CMU counts for SCOWL level-60 words that `syllable` gets wrong (45,908 words covered, 3,013 stored, 10.9 KB gzipped).
   - Results: syllables 100% on the main set and on the held-out set; adverb and adjective rule with both allowlists at precision 94.9%, recall 96.5% (literal SPEC reading); note names the right category 94.6% of the time.
   - SPEC.md records the rule details, both allowlists, the scoring model, and the evaluation criteria. NOTICES.md holds the CMU, SCOWL, and MIT notices.
-- **Phase 2 left:**
-  - Rule engine in `lib/` (pure TypeScript, no UI): word count (exact, min, max), max syllables, no adverbs, no adjectives, banned letters, required words, required first sentence, all following SPEC.md "Rule details". Flags carry their position and a sure or doubtful level. The allowlists move into the engine, and `scripts/language/evaluate-pos.mjs` imports them from there.
-  - Scoring: rule weights, graded per-violation cost capped at each rule's weight, ignored and doubtful flags free, bonus rules, total capped at 100, word-count gating, and the four bands.
-  - Vitest tests for every rule, the band cutoffs, determinism, and awkward inputs (empty text, emoji, curly quotes, dashes), plus the SPEC accuracy thresholds as tests.
-  - Delete `node_modules/.cache/wriceps-eval` (Sid approved keeping it until the end of Phase 2).
-- **Constraint for later phases:** load compromise and the syllable list only when a constraint exercise opens, not on app load.
+  - Rule engine in `lib/engine/` (pure TypeScript, no UI), 101 Vitest tests: `tokenize.ts`, `rules.ts` (all seven rules), `language.ts` (the only file that loads compromise and the syllable list), `check.ts` (runs an exercise's rules), `score.ts` (score, band, ignored-flag count). Allowlists in `lib/language/allowlists.ts`, also imported by `evaluate-pos.mjs`. `accuracy.test.ts` enforces the SPEC accuracy thresholds.
+  - Scoring decisions recorded in SPEC.md: cost per violation (fixed-maximum split, else a third, per-exercise override), 2 free ignores on language-rule flags only, no doubtful adverb or adjective flags in v1, exact word counts vs the min/max gate. Content rule: exact counts only for six-word story, half-dribble, dribble, drabble.
+- **Constraint for later phases:** load compromise and the syllable list only when a constraint exercise opens, not on app load: dynamically import `lib/engine/check.ts`; `score.ts` and `tokenize.ts` stay light.
+- **Known:** `npm run language:eval` prints a harmless Node MODULE_TYPELESS_PACKAGE_JSON warning; Sid chose to leave it.
 - **Deferred:** create `.env.example` when PostHog is added (confirm its variable names from PostHog's current docs). Credits line on the privacy page linking to NOTICES.md.
-- **Next step:** propose the rule engine's types and file layout to Sid, then build the text tokenizer and the word-count rule with its Vitest tests, and confirm with Sid before the next rule.
+- **Next step:** plan Phase 3 with Sid. The app has almost no server side, so decide whether to skip Phase 3 or keep it minimal, then move to the constraint-writing screen.

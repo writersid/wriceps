@@ -64,7 +64,7 @@ A public-domain passage is shown. The user taps words to black them out, and the
 - A new best score on an exercise is a PR.
 - Scoring is deterministic: the same text always gets the same score.
 - How points are earned: each exercise lists its rules and bonus rules with point weights. Each violation costs part of its rule's points, and a rule can never lose more than its weight. Bonus rules add points, and the total is capped at 100.
-- Each violation costs a third of its rule's weight unless the exercise sets its own cost.
+- Default cost of a violation: the rule's weight divided by its fixed maximum number of violations. A missed required first sentence costs the full weight; each missing required word costs the weight divided by the number of required words. Rules with no fixed maximum (word count, banned letters, maximum syllables, no adverbs, no adjectives) cost a third of their weight per violation. An exercise can set its own cost for any rule.
 - Each piece gets 2 free ignores. Ignoring a word covers every flag on that word from the same rule and uses one free ignore. After 2, Ignore still hides the flag, but it costs points as usual. Only flags from the language rules can be ignored. Doubtful flags cost nothing. The result card and share text show how many flags were ignored.
 - In v1 no adverb or adjective flag is doubtful: in testing, the tagger's guessed tags were as accurate as its sure ones.
 - The word-count rule gates the score: points scale with progress toward the word-count target, so a short draft can't reach a high band. The target is the minimum, or the maximum when there is no minimum. Only a word-count rule among the main rules gates, not a bonus one. Without a word-count rule, an empty draft scores 0.

@@ -14,6 +14,14 @@ export function bandFor(score: number): Band {
 
 const FREE_IGNORES = 2;
 
+// Default cost of one violation: the weight split across the rule's fixed
+// maximum number of violations, or a third of it when there is no fixed maximum.
+function defaultCost(rule: ScoredRule): number {
+  if (rule.type === "firstSentence") return rule.weight;
+  if (rule.type === "requiredWords") return rule.weight / Math.max(1, rule.words.length);
+  return rule.weight / 3;
+}
+
 // `ignored` holds the ignoreKeys the person tapped, in order. The first two
 // are free; later ones still hide their flags but cost points as usual.
 export function scoreText(text: string, exercise: Exercise, flags: Flag[], ignored: string[]) {
@@ -29,7 +37,7 @@ export function scoreText(text: string, exercise: Exercise, flags: Flag[], ignor
   // Points each rule keeps. A tiny tolerance stops floating-point leftovers
   // (40 − 3 × 13.333…) from counting as points left.
   const pointsLeft = (rule: ScoredRule) => {
-    const lost = (rule.perViolation ?? rule.weight / 3) * (violations.get(rule.id) ?? 0);
+    const lost = (rule.perViolation ?? defaultCost(rule)) * (violations.get(rule.id) ?? 0);
     return rule.weight - lost > 1e-9 ? rule.weight - lost : 0;
   };
 

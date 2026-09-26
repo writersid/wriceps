@@ -123,6 +123,30 @@ describe("violations, ignores, and bonus rules", () => {
     expect(score(three, [], ex).score).toBe(70);
   });
 
+  test("a missed first sentence costs the rule's full weight", () => {
+    const ex: Exercise = { rules: [{ type: "firstSentence", id: "fs", weight: 40, sentence: "It rained." }] };
+    expect(run("It rained. Then it stopped.", ex).score).toBe(40);
+    expect(run("It snowed.", ex).score).toBe(0);
+  });
+
+  test("each missing required word costs the weight divided by the number of words", () => {
+    const ex: Exercise = { rules: [{ type: "requiredWords", id: "rw", weight: 40, words: ["river", "stone", "moon", "salt"] }] };
+    expect(run("river stone moon salt", ex).score).toBe(40);
+    expect(run("river stone moon", ex).score).toBe(30);
+    expect(run("river", ex).score).toBe(10);
+    expect(run("nothing here", ex).score).toBe(0);
+  });
+
+  test("an exercise's own cost overrides the fixed-maximum default", () => {
+    const ex: Exercise = {
+      rules: [
+        { type: "firstSentence", id: "fs", weight: 40, sentence: "It rained.", perViolation: 10 },
+        { type: "requiredWords", id: "rw", weight: 40, words: ["river", "stone"], perViolation: 5 },
+      ],
+    };
+    expect(run("It snowed.", ex).score).toBe(60);
+  });
+
   test("the first two ignores are free", () => {
     expect(score(three, ["adv:slowly", "adv:quickly"])).toEqual({ score: 70, band: "Heavy lift", ignoredFlags: 2 });
   });
@@ -153,8 +177,7 @@ describe("violations, ignores, and bonus rules", () => {
       bonus: [{ type: "requiredWords", id: "rw", weight: 20, words: ["river"] }],
     };
     expect(run("the river", ex).score).toBe(90);
-    // One missing word is one violation: a third of the bonus.
-    expect(run("the lake", ex).score).toBe(83);
+    expect(run("the lake", ex).score).toBe(70);
     const big: Exercise = { ...ex, bonus: [{ type: "requiredWords", id: "rw", weight: 50, words: ["river"] }] };
     expect(run("the river", big).score).toBe(100);
   });
