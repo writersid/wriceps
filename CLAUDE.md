@@ -29,7 +29,7 @@ npm run language:eval    # rerun syllable and part-of-speech accuracy, plus bund
 
 ## Status
 
-- **Current phase:** 3 (App layer), part 2 done except the real-phone check. Next: part 3.
+- **Current phase:** 3 (App layer), part 2 done. Next: part 3.
 - **Phase 3 = the app layer (screens).** Wriceps has no server, so the skill's "Server / API layer" phase becomes the screens. Parts: (1) design foundation, (2) constraint-writing screen, (3) fill-in poems with pass-the-phone, (4) blackout poems, (5) result cards, sharing, and challenge links, (6) home screen and set list, privacy page with credits from NOTICES.md, and the note that clearing browser data clears progress.
 - **Phase 1 done:** create-next-app scaffold; SPEC.md and ROADMAP.md; this file; .gitignore allows `.env.example`; private GitHub repo `writersid/wriceps`.
 - **Phase 2 done:**
@@ -51,6 +51,6 @@ npm run language:eval    # rerun syllable and part-of-speech accuracy, plus bund
 - **Known:** `npm run language:eval` prints a harmless Node MODULE_TYPELESS_PACKAGE_JSON warning; Sid chose to leave it.
 - **Deferred:** create `.env.example` when PostHog is added (confirm its variable names from PostHog's current docs). Credits line on the privacy page linking to NOTICES.md (part 6).
 - **Phase 3 part 2 (constraint-writing screen):** `app/sets/[id]/` (static pages, unknown ids 404), `app/components/draft-editor.tsx`, `app/components/score-card.tsx`, `lib/notes.ts` (cards, chip labels, DRAFT tips), `lib/progress.ts` (best scores and drafts), 4 placeholder sets in `content/constraint.ts`. Decisions: mirror-layer underlines behind a textarea; content in `content/constraint.ts`; one note card per word ("Ignore (uses 2)" when it costs more than one); three rotating draft tips per rule for Sid to rewrite; draft saved in localStorage and cleared on "Log this set"; logging only saves the score and shows "Logged" or "New PR" until part 5.
-- **Pending real-phone check (after a preview deploy):** Sid's local network blocks phone testing, so the part 2 phone checks move to the first preview deploy: 360px layout, keyboard not covering the typed line, feedback within 200ms on a mid-range Android phone.
+- **Part 2 real-phone check passed** (reported by Sid, on a Vercel preview deploy): underlines instant, plates load per band, keyboard never covered the line being typed.
 - **Part 3 engine work (in SPEC.md):** strict no-repeated-words rule (opt-in per exercise), a minimum-syllables setting on the syllable rule, and the time bonus. The Two-Syllable Sprint placeholder becomes an original word-list game: 20 different two-syllable words, no adjectives (exact count 20, exactly 2 syllables, no adjectives, no repeated words; bonus: under 60 seconds).
 - **Next step:** plan part 3, starting with those rules. Sid rewrites the DRAFT tips in `lib/notes.ts` when ready.
