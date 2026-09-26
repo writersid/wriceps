@@ -1,0 +1,161 @@
+# Wriceps v1 spec
+
+Wriceps: build your writing muscles. A web app of short, fun writing exercises that sharpen writing skills.
+
+Status: approved by Sid on 2026-09-26. Change this file only with Sid's approval.
+
+## Goal and success
+
+A fun, well-built web app that Sid is proud to put his name on, shared with Amit Varma's Art of Clear Writing community. Success for v1 means it is live on a public URL, shared in the group, and people play it. Growth is not a v1 goal. Anything beyond v1 lives in ROADMAP.md.
+
+## First users
+
+Members of the Art of Clear Writing community, mostly arriving from WhatsApp links on their phones.
+
+## Platform
+
+- Mobile-first web app that also works on desktop. English only, US spelling.
+- No accounts. Progress and scores are saved in the browser (localStorage). The app tells people that clearing browser data clears their progress.
+- Light and dark mode, with a toggle. Default follows the device setting.
+
+## The three mechanics
+
+### 1. Fill-in poems
+Templates with labeled blanks (noun, verb, adjective, question). The finished poem is shown as a card.
+Modes: solo, and pass-the-phone for 2 players. In pass-the-phone, players take turns on one device; the app hides everything except the last few words of the previous turn, then reveals the full piece in order at the end. A page refresh mid-game must not lose turns.
+
+### 2. Constraint writing
+One rule engine. Each exercise is a combination of these rules:
+- word count: exact, minimum, or maximum
+- maximum syllables per word
+- banned word types: adverbs, adjectives
+- banned letters
+- required words
+- required first sentence
+
+Violations are highlighted live as the user types (coral wavy underline plus a note card below the draft). Doubtful flags are shown but never block the user, and each flag has an Ignore button. This mechanic covers Amit's workshop exercises, six-word stories, drabbles (100 words), dribbles (50 words), lipograms, and opening-line exercises.
+
+### 3. Blackout poems
+A public-domain passage is shown. The user taps words to black them out, and the remaining words form the poem, shareable as an image.
+
+## Scoring
+
+- Every exercise has at least one measurable rule or bonus rule, so every score is earned. Examples: "no word used twice," "every blank starts with the same letter," "finish in 90 seconds," "keep between 10 and 20 words," "your poem must keep the word river."
+- Every exercise gets a score from 0 to 100, shown as a barbell meter that loads a plate per band.
+- Bands: Warm-up (0 to 39), Working set (40 to 69), Heavy lift (70 to 89), PR (90 to 100).
+- A new best score on an exercise is a PR.
+- Scoring is deterministic: the same text always gets the same score.
+
+## Sharing
+
+- Each finished piece produces a result card (image and text) for WhatsApp, including the app's URL.
+- Challenge link: opens the same exercise with the same random elements (same seed), so a friend plays the identical round and compares scores.
+
+## Content
+
+- 30 exercises at launch: about 10 fill-in, 14 constraint, 6 blackout.
+- Original exercises written by Sid, with Claude drafting options for him to edit.
+- Exercises by Joseph Fasano or Amit Varma are included only with their permission, obtained before the app is shared with the group, and are credited in the app.
+- Quoted source text (opening lines, blackout passages) comes only from public-domain works such as Project Gutenberg, with the source recorded for each.
+- Content lives in its own file(s), separate from code, so adding an exercise means adding content, not code.
+
+## Analytics and privacy
+
+- PostHog Cloud free tier, configured cookieless. Confirm config from current PostHog docs at install time.
+- Five events only: exercise started, exercise completed, result shared, challenge link opened, challenge completed.
+- Nothing the user writes is ever sent to analytics. Writing leaves the device only when the user shares it.
+- A short privacy note page explains this in plain language.
+
+## Design (locked)
+
+Theme: Word Gym. Building writing muscle runs through the UI and the copy.
+
+Typefaces (Google Fonts):
+- Headings: Fraunces, heavy weights (800 to 900) for impact
+- Body and interface: Inter
+
+Colors:
+- Chalk white #FAFAF7 (light background)
+- Charcoal #222222 (light text; basis of dark background)
+- Coral #FF6B4A (rule violations: underlines and accents)
+- Deep coral #C8462C (coral used as text in light mode, for contrast)
+- Electric lime #D4FF3A (earned things only: loaded plates, PR badge)
+
+Usage rules:
+- Lime is never text in light mode. Charcoal text on a lime fill is fine.
+- Coral is never small text in light mode; use deep coral. In dark mode, coral works as text.
+- The main button uses the text color as its fill (charcoal in light, chalk in dark), not lime.
+- Violations never rely on color alone: always an underline plus a note.
+- All text meets WCAG contrast: 4.5:1 for body text, 3:1 for text 24px and up.
+
+Dark mode tokens (from the approved mockup): background #1C1C1C, surface #262626, border #3A3A38, text #FAFAF7, muted #B8B8B0.
+Light mode tokens: background #FAFAF7, surface #FFFFFF, border #E3E1D8, text #222222, muted #5C5C56.
+
+Approved mockup: the constraint writing screen, light and dark, on Sid's Wriceps Word Gym design canvas.
+
+## Voice and vocabulary
+
+Dry and playful, never literary or cute. Gym vocabulary:
+- exercises are sets; each piece is a rep
+- quick exercises are warm-ups
+- the pass-the-phone partner is the spotter
+- a new best score is a PR
+- the main action on an exercise is "Log this set"
+
+## Stack (approved)
+
+- Next.js (App Router) with TypeScript, ESLint, Tailwind CSS, created with create-next-app recommended defaults
+- No database or auth in v1
+- Hosting: Vercel Hobby plan (personal, non-commercial; move to Pro if Wriceps ever charges money)
+- Analytics: PostHog Cloud free tier, cookieless
+- Language rules: small open-source libraries for syllable counting and part-of-speech tagging, chosen in Phase 2 by testing candidates against our test set
+- Tests: Vitest for the rule engine; a written manual checklist for screens on real phones
+- Error tracking: Sentry free tier, added at deployment
+- Domain: wriceps.com if available, else wriceps.app (Sid buys it)
+
+## Evaluation criteria ("done when")
+
+### 1. Rule engine accuracy (automated, Vitest)
+- Word count, banned letters, required words, required first sentence: 100% correct on test cases.
+- Syllable counting: at least 95% correct on a 200-word list including tricky words (fire, every, business).
+- Adverb and adjective flags on 100 hand-labeled sentences: at least 90% of flagged words are truly adverbs or adjectives, and at least 85% of the real ones are caught.
+- Scoring is deterministic and the band cutoffs match this spec.
+
+### 2. Features (manual checklist)
+- All 30 exercises load, complete, and score on Chrome for Android, Safari on iPhone, and desktop Chrome.
+- Pass-the-phone hides and reveals correctly and survives a refresh.
+- Challenge links open the identical round on another device, including from inside WhatsApp on Android and iPhone.
+- Share card generates in under 2 seconds, is readable on a phone, and includes the URL.
+- Progress survives closing the browser; clearing browser data starts fresh without errors.
+
+### 3. Experience
+- From a WhatsApp link to a first exercise in under 10 seconds, no signup.
+- Works at 360px width; tap targets at least 44px; the keyboard never covers the text being typed.
+- Live checker feedback within 200ms of typing on a mid-range Android phone.
+- Lighthouse mobile: 90+ for performance and accessibility.
+- All copy dry and playful, US English, no typos; each exercise's instructions fit on one phone screen.
+
+### 4. Content
+- 30 exercises in the 10 / 14 / 6 split, each with at least one scored rule or bonus rule.
+- Every quoted source confirmed public domain, source recorded.
+- Permission recorded for any credited exercise before launch.
+
+### 5. Security and privacy
+- /security-audit passes, plus /security-review as a second opinion.
+- No secrets in the repo.
+- Analytics cookieless; no user writing sent anywhere unless the user shares it.
+- Privacy note page live.
+
+### 6. Code and process
+- All tests pass, TypeScript reports no errors, lint is clean.
+- Every working change committed.
+- README explains how to run the project; the Status section in CLAUDE.md is current.
+
+### 7. Launch
+- Deployed on the custom domain with HTTPS.
+- Analytics events visible in PostHog.
+- Sid and 3 to 5 friends have played it on real phones before it goes to the group.
+
+## Out of scope for v1
+
+Everything in ROADMAP.md.
