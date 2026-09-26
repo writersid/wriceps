@@ -29,7 +29,7 @@ npm run language:eval    # rerun syllable and part-of-speech accuracy, plus bund
 
 ## Status
 
-- **Current phase:** 3 (App layer), part 1.
+- **Current phase:** 3 (App layer), part 1 done. Next: part 2.
 - **Phase 3 = the app layer (screens).** Wriceps has no server, so the skill's "Server / API layer" phase becomes the screens. Parts: (1) design foundation, (2) constraint-writing screen, (3) fill-in poems with pass-the-phone, (4) blackout poems, (5) result cards, sharing, and challenge links.
 - **Phase 1 done:** create-next-app scaffold; SPEC.md and ROADMAP.md; this file; .gitignore allows `.env.example`; private GitHub repo `writersid/wriceps`.
 - **Phase 2 done:**
@@ -41,7 +41,13 @@ npm run language:eval    # rerun syllable and part-of-speech accuracy, plus bund
   - SPEC.md records the rule details, both allowlists, the scoring model, and the evaluation criteria. NOTICES.md holds the CMU, SCOWL, and MIT notices.
   - Rule engine in `lib/engine/` (pure TypeScript, no UI), 101 Vitest tests: `tokenize.ts`, `rules.ts` (all seven rules), `language.ts` (the only file that loads compromise and the syllable list), `check.ts` (runs an exercise's rules), `score.ts` (score, band, ignored-flag count). Allowlists in `lib/language/allowlists.ts`, also imported by `evaluate-pos.mjs`. `accuracy.test.ts` enforces the SPEC accuracy thresholds.
   - Scoring decisions recorded in SPEC.md: cost per violation (fixed-maximum split, else a third, per-exercise override), 2 free ignores on language-rule flags only, no doubtful adverb or adjective flags in v1, exact word counts vs the min/max gate. Content rule: exact counts only for six-word story, half-dribble, dribble, drabble.
+- **Phase 3 part 1 done (design foundation):**
+  - Tokens in `app/globals.css` (`bg`, `surface`, `border`, `ink`, `muted`, `coral`, `lime`, `charcoal`) with the SPEC usage rules as comments. `coral` is deep coral in light mode and coral in dark mode, for text and violation underlines. Every text pair meets 4.5:1.
+  - Fraunces (with the optical-size axis, `font-display`) and Inter (`font-sans`) via `next/font/google`.
+  - Theme: a head script in `app/layout.tsx` sets `data-theme` before paint from localStorage `wriceps-theme`, else the device setting. Two-state toggle in `app/components/theme-toggle.tsx`; `dark:` utilities follow `data-theme`.
+  - `app/components/page-frame.tsx`: optional back link, wordmark, toggle, 512px column with 16px padding. `app/page.tsx` is a placeholder home.
+  - Mockups in `design/`.
 - **Constraint for later phases:** load compromise and the syllable list only when a constraint exercise opens, not on app load: dynamically import `lib/engine/check.ts`; `score.ts` and `tokenize.ts` stay light.
 - **Known:** `npm run language:eval` prints a harmless Node MODULE_TYPELESS_PACKAGE_JSON warning; Sid chose to leave it.
 - **Deferred:** create `.env.example` when PostHog is added (confirm its variable names from PostHog's current docs). Credits line on the privacy page linking to NOTICES.md.
-- **Next step:** build Phase 3 part 1 (design foundation): Tailwind tokens, Fraunces and Inter, two-state light/dark toggle defaulting to the device setting, 512px centered page frame.
+- **Next step:** plan and build Phase 3 part 2, the constraint-writing screen.
