@@ -1,6 +1,6 @@
 # Wriceps roadmap
 
-Features deliberately kept out of v1. Decide what moves up based on v1 usage numbers and feedback from the community.
+Features deliberately kept out of v1. Decide what moves up based on v1 usage numbers and feedback from early users.
 
 ## v1.1
 - Play by link: two people complete a piece asynchronously. Player one does their half and sends a link on WhatsApp; player two adds theirs; both see the result. The unfinished piece travels inside the link, so no database is needed.

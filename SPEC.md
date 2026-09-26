@@ -1,16 +1,16 @@
 # Wriceps v1 spec
 
-Wriceps: build your writing muscles. A web app of short, fun writing exercises that sharpen writing skills.
+Wriceps: build your writing muscles. A web app of short, fun writing exercises that sharpen writing skills: a gym of exercises and prompts drawn from writing craft everywhere, plus original games. It is not tied to any one teacher or workshop.
 
-Status: approved by Sid on 2026-09-26. Change this file only with Sid's approval.
+Status: approved by Sid on 2026-09-26, revised 2026-09-27. Change this file only with Sid's approval.
 
 ## Goal and success
 
-A fun, well-built web app that Sid is proud to put his name on, shared with Amit Varma's Art of Clear Writing community. Success for v1 means it is live on a public URL, shared in the group, and people play it. Growth is not a v1 goal. Anything beyond v1 lives in ROADMAP.md.
+A fun, well-built web app that Sid is proud to put his name on, shared with an initial group of writers from writing communities. Success for v1 means it is live on a public URL, shared with those writers, and people play it. Growth is not a v1 goal. Anything beyond v1 lives in ROADMAP.md.
 
 ## First users
 
-Members of the Art of Clear Writing community, mostly arriving from WhatsApp links on their phones.
+An initial group of writers from writing communities, mostly arriving from WhatsApp links on their phones.
 
 ## Platform
 
@@ -27,19 +27,21 @@ Modes: solo, and pass-the-phone for 2 players. In pass-the-phone, players take t
 ### 2. Constraint writing
 One rule engine. Each exercise is a combination of these rules:
 - word count: exact, minimum, or maximum
-- maximum syllables per word
+- syllables per word: a maximum, a minimum, or both
 - banned word types: adverbs, adjectives
 - banned letters
 - required words
 - required first sentence
+- no repeated words (only in exercises that include it)
 
-Violations are highlighted live as the user types (coral wavy underline plus a note card below the draft). Doubtful flags are shown but never block the user. Flags from the language rules (no adverbs, no adjectives, maximum syllables) have an Ignore button, since the checker can be wrong on those. Flags from word count, banned letters, required words, and required first sentence have none, since those checks are exact. This mechanic covers Amit's workshop exercises, six-word stories, drabbles (100 words), dribbles (50 words), lipograms, and opening-line exercises.
+Violations are highlighted live as the user types (coral wavy underline plus a note card below the draft). Doubtful flags are shown but never block the user. Flags from the language rules (no adverbs, no adjectives, syllables per word) have an Ignore button, since the checker can be wrong on those. Flags from word count, banned letters, required words, and required first sentence have none, since those checks are exact. No repeated words has an Ignore button only on repeats matched by root form, since that match is the checker's guess (see Rule details). This mechanic covers general craft exercises (such as cutting adverbs and adjectives), six-word stories, drabbles (100 words), dribbles (50 words), lipograms, opening-line exercises, and original word-list games.
 
 Rule details (decided in Phase 2):
 - Word count: contractions ("don't"), hyphenated words ("well-known"), and numbers ("2026") count as one word each. Words joined by a dash with no spaces ("yes—no", "yes–no", "yes--no") count as two words.
 - Banned letters and required words ignore case. A required word must match exactly: "rivers" does not satisfy "river".
 - Required first sentence ignores case, curly versus straight quotes, and extra spaces.
-- Maximum syllables: some words have more than one valid count (fire: 1 or 2; every: 2 or 3). A word passes with no flag if any valid count is within the limit. Each part of a hyphenated word is checked separately.
+- Syllables per word: some words have more than one valid count (fire: 1 or 2; every: 2 or 3). A word passes with no flag if any valid count is within the limits (at most the maximum, at least the minimum). Setting both to the same number means "exactly". Hyphenated words: a maximum checks each part separately; a minimum checks the whole word. When the minimum and maximum are equal ("exactly"), the maximum is also checked on the whole word. So "well-known" passes "exactly 2", and "forget-me-not" (4 syllables) fails it.
+- No repeated words: strict, with no exemptions. No word may appear more than once, and forms of the same word count as a repeat (window/windows, run/runs/running, mouse/mice, go/went), matched by compromise's root form. Matching ignores case. Every occurrence after the first is one violation. A repeat of the identical word ("the"/"the") has no Ignore button. A repeat matched only by root form has one, and counts as a language-rule flag for ignores, since the checker can pick the wrong root (left as "leave" or as a direction). Exercises that don't include the rule are unaffected.
 - No adverbs: never flags these allowlisted words:
   - negation: not, n't, never
   - time: then, now, already, yet, again, ago, once, always, often, sometimes, soon, today, tomorrow, yesterday, tonight
@@ -64,8 +66,8 @@ A public-domain passage is shown. The user taps words to black them out, and the
 - A new best score on an exercise is a PR.
 - Scoring is deterministic: the same text always gets the same score.
 - How points are earned: each exercise lists its rules and bonus rules with point weights. Each violation costs part of its rule's points, and a rule can never lose more than its weight. Bonus rules add points, and the total is capped at 100.
-- Default cost of a violation: the rule's weight divided by its fixed maximum number of violations. A missed required first sentence costs the full weight; each missing required word costs the weight divided by the number of required words. Rules with no fixed maximum (word count, banned letters, maximum syllables, no adverbs, no adjectives) cost a third of their weight per violation. An exercise can set its own cost for any rule.
-- Each piece gets 2 free ignores. Ignoring a word covers every flag on that word from the same rule and uses one free ignore. After 2, Ignore still hides the flag, but it costs points as usual. Only flags from the language rules can be ignored. Doubtful flags cost nothing. The result card and share text show how many flags were ignored.
+- Default cost of a violation: the rule's weight divided by its fixed maximum number of violations. A missed required first sentence costs the full weight; each missing required word costs the weight divided by the number of required words. Rules with no fixed maximum (word count, banned letters, syllables per word, no adverbs, no adjectives, no repeated words) cost a third of their weight per violation. An exercise can set its own cost for any rule.
+- Each piece gets 2 free ignores. Ignoring a word covers every flag on that word from the same rule and uses one free ignore. After 2, Ignore still hides the flag, but it costs points as usual. Only flags from the language rules, and repeats matched by root form, can be ignored. Doubtful flags cost nothing. The result card and share text show how many flags were ignored.
 - In v1 no adverb or adjective flag is doubtful: in testing, the tagger's guessed tags were as accurate as its sure ones.
 - The word-count rule gates the score: points scale with progress toward the word-count target, so a short draft can't reach a high band. The target is the minimum, or the maximum when there is no minimum. Only a word-count rule among the main rules gates, not a bonus one. Without a word-count rule, an empty draft scores 0.
 - Exact word counts work differently. Each word short or over costs one violation, so being under and over cost the same. While the word-count rule still has points left, there is no gate. Once its points are used up, a gate scales the score by the draft's distance from the target: words ÷ target when short, target ÷ words when over.
@@ -79,10 +81,10 @@ A public-domain passage is shown. The user taps words to black them out, and the
 
 - 30 exercises at launch: about 10 fill-in, 14 constraint, 6 blackout.
 - Original exercises written by Sid, with Claude drafting options for him to edit.
-- Exercises by Joseph Fasano or Amit Varma are included only with their permission, obtained before the app is shared with the group, and are credited in the app.
+- Exercises by other authors are used only with their permission, obtained before the app is shared, and are credited in the app.
 - Quoted source text (opening lines, blackout passages) comes only from public-domain works such as Project Gutenberg, with the source recorded for each.
 - Content lives in its own file(s), separate from code, so adding an exercise means adding content, not code.
-- Exact word counts are used only for named exact-length forms: six-word story, half-dribble, dribble, drabble. All other exercises use a minimum, a maximum, or a range (a minimum and a maximum together).
+- Exact word counts are used only for named exact-length forms (six-word story, half-dribble, dribble, drabble) and word-list games. All other exercises use a minimum, a maximum, or a range (a minimum and a maximum together).
 
 ## Analytics and privacy
 
@@ -185,7 +187,7 @@ Dry and playful, never literary or cute. Gym vocabulary:
 ### 7. Launch
 - Deployed on the custom domain with HTTPS.
 - Analytics events visible in PostHog.
-- Sid and 3 to 5 friends have played it on real phones before it goes to the group.
+- Sid and 3 to 5 friends have played it on real phones before it is shared with the initial group of writers.
 
 ## Out of scope for v1
 

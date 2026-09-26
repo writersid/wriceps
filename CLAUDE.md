@@ -2,7 +2,7 @@
 
 # Wriceps
 
-Wriceps is a mobile-first web app of short, scored writing exercises with a Word Gym theme. It is built for Amit Varma's Art of Clear Writing community, whose members mostly arrive from WhatsApp links on their phones. There are no accounts. Progress is saved in the browser (localStorage).
+Wriceps is a mobile-first web app of short, scored writing exercises with a Word Gym theme: exercises and prompts drawn from writing craft everywhere, plus original games, not tied to any one teacher or workshop. Its first users are an initial group of writers from writing communities, who mostly arrive from WhatsApp links on their phones. There are no accounts. Progress is saved in the browser (localStorage).
 
 - `SPEC.md`: the approved v1 spec. Change it only with Sid's approval.
 - `ROADMAP.md`: everything deliberately kept out of v1.
@@ -31,7 +31,6 @@ npm run language:eval    # rerun syllable and part-of-speech accuracy, plus bund
 
 - **Current phase:** 3 (App layer), part 2 done except the real-phone check. Next: part 3.
 - **Phase 3 = the app layer (screens).** Wriceps has no server, so the skill's "Server / API layer" phase becomes the screens. Parts: (1) design foundation, (2) constraint-writing screen, (3) fill-in poems with pass-the-phone, (4) blackout poems, (5) result cards, sharing, and challenge links, (6) home screen and set list, privacy page with credits from NOTICES.md, and the note that clearing browser data clears progress.
-- **Part 3 starts with:** time and repeat-word bonus rules in the rule engine (for example "finish in 90 seconds", "no word used twice"). Deferred from part 2; fill-in needs them, and the mockup's "Bonus: under 5 min" chip waits on them.
 - **Phase 1 done:** create-next-app scaffold; SPEC.md and ROADMAP.md; this file; .gitignore allows `.env.example`; private GitHub repo `writersid/wriceps`.
 - **Phase 2 done:**
   - Vitest 4.1.11 (`npm test`).
@@ -41,7 +40,7 @@ npm run language:eval    # rerun syllable and part-of-speech accuracy, plus bund
   - Results: syllables 100% on the main set and on the held-out set; adverb and adjective rule with both allowlists at precision 94.9%, recall 96.5% (literal SPEC reading); note names the right category 94.6% of the time.
   - SPEC.md records the rule details, both allowlists, the scoring model, and the evaluation criteria. NOTICES.md holds the CMU, SCOWL, and MIT notices.
   - Rule engine in `lib/engine/` (pure TypeScript, no UI), 101 Vitest tests: `tokenize.ts`, `rules.ts` (all seven rules), `language.ts` (the only file that loads compromise and the syllable list), `check.ts` (runs an exercise's rules), `score.ts` (score, band, ignored-flag count). Allowlists in `lib/language/allowlists.ts`, also imported by `evaluate-pos.mjs`. `accuracy.test.ts` enforces the SPEC accuracy thresholds.
-  - Scoring decisions recorded in SPEC.md: cost per violation (fixed-maximum split, else a third, per-exercise override), 2 free ignores on language-rule flags only, no doubtful adverb or adjective flags in v1, exact word counts vs the min/max gate. Content rule: exact counts only for six-word story, half-dribble, dribble, drabble.
+  - Scoring decisions recorded in SPEC.md: cost per violation (fixed-maximum split, else a third, per-exercise override), 2 free ignores on language-rule flags only, no doubtful adverb or adjective flags in v1, exact word counts vs the min/max gate. Content rule: exact counts only for six-word story, half-dribble, dribble, drabble, and word-list games.
 - **Phase 3 part 1 done (design foundation):**
   - Tokens in `app/globals.css` (`bg`, `surface`, `border`, `ink`, `muted`, `coral`, `lime`, `charcoal`) with the SPEC usage rules as comments. `coral` is deep coral in light mode and coral in dark mode, for text and violation underlines. Every text pair meets 4.5:1.
   - Fraunces (with the optical-size axis, `font-display`) and Inter (`font-sans`) via `next/font/google`.
@@ -53,4 +52,5 @@ npm run language:eval    # rerun syllable and part-of-speech accuracy, plus bund
 - **Deferred:** create `.env.example` when PostHog is added (confirm its variable names from PostHog's current docs). Credits line on the privacy page linking to NOTICES.md (part 6).
 - **Phase 3 part 2 (constraint-writing screen):** `app/sets/[id]/` (static pages, unknown ids 404), `app/components/draft-editor.tsx`, `app/components/score-card.tsx`, `lib/notes.ts` (cards, chip labels, DRAFT tips), `lib/progress.ts` (best scores and drafts), 4 placeholder sets in `content/constraint.ts`. Decisions: mirror-layer underlines behind a textarea; content in `content/constraint.ts`; one note card per word ("Ignore (uses 2)" when it costs more than one); three rotating draft tips per rule for Sid to rewrite; draft saved in localStorage and cleared on "Log this set"; logging only saves the score and shows "Logged" or "New PR" until part 5.
 - **Pending real-phone check (after a preview deploy):** Sid's local network blocks phone testing, so the part 2 phone checks move to the first preview deploy: 360px layout, keyboard not covering the typed line, feedback within 200ms on a mid-range Android phone.
-- **Next step:** plan part 3, starting with the time and repeat-word bonus rules. Sid rewrites the DRAFT tips in `lib/notes.ts` when ready.
+- **Part 3 engine work (in SPEC.md):** strict no-repeated-words rule (opt-in per exercise), a minimum-syllables setting on the syllable rule, and the time bonus. The Two-Syllable Sprint placeholder becomes an original word-list game: 20 different two-syllable words, no adjectives (exact count 20, exactly 2 syllables, no adjectives, no repeated words; bonus: under 60 seconds).
+- **Next step:** plan part 3, starting with those rules. Sid rewrites the DRAFT tips in `lib/notes.ts` when ready.
