@@ -4,12 +4,12 @@ import { useEffect, useMemo, useState } from "react";
 import { DraftEditor } from "@/app/components/draft-editor";
 import { loadEngine, type Engine } from "@/app/components/load-engine";
 import { ScoreCard } from "@/app/components/score-card";
-import { EngineStatus, LogButton, NoteCards, SetHeader, type Logged } from "@/app/components/set-parts";
+import { EngineStatus, LogButton, NoteCards, SetHeader, StartOver, type Logged } from "@/app/components/set-parts";
 import { useClock } from "@/app/components/use-clock";
 import type { ConstraintSet } from "@/content/constraint";
 import { scoreText } from "@/lib/engine/score";
 import { buildNotes } from "@/lib/notes";
-import { clearDraft, getBest, loadDraft, logScore, saveDraft } from "@/lib/progress";
+import { clearDraft, getBest, loadDraft, logScore, saveDraft, workInProgress } from "@/lib/progress";
 
 // How long typing must pause before the draft is rechecked.
 const CHECK_DELAY_MS = 150;
@@ -84,6 +84,16 @@ export function ConstraintScreen({ set, number, total }: { set: ConstraintSet; n
     clearDraft(set.id);
   }
 
+  // Discards the draft, its ignores, and the clock. The best score stays.
+  function startOver() {
+    clearDraft(set.id);
+    setText("");
+    setCheckedText("");
+    setIgnored([]);
+    setLogged(null);
+    timer.stop();
+  }
+
   return (
     <>
       <SetHeader
@@ -105,6 +115,7 @@ export function ConstraintScreen({ set, number, total }: { set: ConstraintSet; n
       <NoteCards notes={notes} ignoredCount={ignored.length} onIgnore={ignore} />
       <ScoreCard score={score} band={band} best={best} />
       <LogButton onLog={log} disabled={!engine || !text.trim()} logged={logged} best={best} />
+      {workInProgress([text]) && <StartOver onConfirm={startOver} />}
     </>
   );
 }

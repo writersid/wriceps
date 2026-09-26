@@ -74,6 +74,6 @@ npm run language:eval    # rerun syllable, part-of-speech, and word-list accurac
   - `app/sets/[id]/pass-game.tsx`: handoff screen, turn screen (one line, inline boxes), line-by-line reveal, team score (not a PR), New game. No time bonus with a spotter.
   - Saved in the fill-in draft's `pass` field; a turn in progress reopens on its handoff screen after a refresh.
   - `Poem` and `AnswerInput` moved to `app/sets/[id]/poem.tsx`.
-  - "Start a new round" (`NewRound` in `set-parts.tsx`, inline confirm) shows whenever a fill-in round is in progress (`roundInProgress`), solo or with a spotter; it clears the saved round and returns to the Solo / With a spotter choice. Fixes resumed solo rounds hiding the choice (found by Sid on his phone).
+  - "Start over" (`StartOver` in `set-parts.tsx`, inline confirm) shows on every set with work in progress (`workInProgress` in `lib/progress.ts`): constraint drafts (clears text, ignores, clock; keeps the best score) and fill-in rounds, solo or with a spotter (returns to the Solo / With a spotter choice). Fixes resumed solo rounds hiding the choice (found by Sid on his phone).
 - **Watch out:** in Windows PowerShell 5.1, `Get-Content`/`Set-Content` read and write the wrong encoding and corrupt characters like "·" and "…". Use the Edit tool, or `[IO.File]` with UTF-8 (no BOM).
 - **Next step:** Sid tests part 3c on his phone via the Vercel preview (passing it to someone); then Phase 3 part 4 (blackout poems). Sid rewrites the DRAFT tips in `lib/notes.ts` when ready.

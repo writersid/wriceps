@@ -78,6 +78,12 @@ export function loadFillInDraft(setId: string, blanks: number): FillInDraft | nu
   return draft;
 }
 
+// Whether a set has work to discard before starting over: any text typed (a
+// constraint draft, or any fill-in answer), or a spotter game under way.
+export function workInProgress(texts: string[], spotterGame = false): boolean {
+  return spotterGame || texts.some((t) => t.trim());
+}
+
 export function saveDraft(setId: string, draft: Draft | FillInDraft) {
   writeJson(draftKey(setId), draft);
 }

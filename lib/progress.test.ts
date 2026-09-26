@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { constraintSets } from "../content/constraint";
 import { checkText } from "./engine/check";
 import { scoreText } from "./engine/score";
-import { clearDraft, getBest, loadDraft, loadFillInDraft, logScore, saveDraft } from "./progress";
+import { clearDraft, getBest, loadDraft, loadFillInDraft, logScore, saveDraft, workInProgress } from "./progress";
 
 // Tests run in Node, which has no localStorage, so stand in a simple one.
 function fakeStorage() {
@@ -131,6 +131,36 @@ describe("pass-the-phone games", () => {
       '{"answers":["a","b"],"ignored":[],"seed":1,"step":0,"pass":{"turn":1,"phase":"peek","shown":0}}',
     );
     expect(loadFillInDraft("p", 2)).toBeNull();
+  });
+});
+
+describe("starting over", () => {
+  it("offers it once there's work: text in a constraint draft", () => {
+    expect(workInProgress([""])).toBe(false);
+    expect(workInProgress(["  \n "])).toBe(false);
+    expect(workInProgress(["The tea went cold."])).toBe(true);
+  });
+
+  it("offers it once there's work: any fill-in answer, or a spotter game", () => {
+    expect(workInProgress(["", " "])).toBe(false);
+    expect(workInProgress(["", "snow"])).toBe(true);
+    expect(workInProgress(["", ""], true)).toBe(true);
+  });
+
+  it("discards the saved work of either kind of set", () => {
+    saveDraft("c", { text: "The tea went cold.", ignored: ["x"], startedAt: 1 });
+    saveDraft("f", { answers: ["snow", ""], ignored: [], seed: 3, step: 1, pass: { turn: 1, phase: "handoff", shown: 0 } });
+    clearDraft("c");
+    clearDraft("f");
+    expect(loadDraft("c")).toBeNull();
+    expect(loadFillInDraft("f", 2)).toBeNull();
+  });
+
+  it("keeps the best score", () => {
+    logScore("c", 70);
+    saveDraft("c", { text: "Another rep.", ignored: [] });
+    clearDraft("c");
+    expect(getBest("c")).toBe(70);
   });
 });
 

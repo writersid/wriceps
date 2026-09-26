@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { loadEngine, type Engine } from "@/app/components/load-engine";
 import { ScoreCard } from "@/app/components/score-card";
-import { EngineStatus, LogButton, NewRound, NoteCards, SetHeader, type Logged } from "@/app/components/set-parts";
+import { EngineStatus, LogButton, NoteCards, SetHeader, StartOver, type Logged } from "@/app/components/set-parts";
 import { useClock } from "@/app/components/use-clock";
 import type { FillInSet } from "@/content/fill-in";
 import { bandFor, scoreText } from "@/lib/engine/score";
@@ -14,12 +14,19 @@ import {
   newSeed,
   parseTemplate,
   resolveRound,
-  roundInProgress,
   scaleByFilled,
 } from "@/lib/fill-in";
 import { buildNotes } from "@/lib/notes";
 import { splitLines, turnLines } from "@/lib/pass";
-import { clearDraft, getBest, loadFillInDraft, logScore, saveDraft, type FillInDraft } from "@/lib/progress";
+import {
+  clearDraft,
+  getBest,
+  loadFillInDraft,
+  logScore,
+  saveDraft,
+  workInProgress,
+  type FillInDraft,
+} from "@/lib/progress";
 import { PassGame } from "./pass-game";
 import { AnswerInput, Poem } from "./poem";
 
@@ -138,7 +145,7 @@ export function FillInScreen({ set, number, total }: { set: FillInSet; number: n
   }
 
   // Discards the round in progress and goes back to choosing solo or a spotter.
-  function newRound() {
+  function startOver() {
     clearDraft(set.id);
     const empty = labels.map(() => "");
     setAnswers(empty);
@@ -151,7 +158,7 @@ export function FillInScreen({ set, number, total }: { set: FillInSet; number: n
     setSeed(newSeed());
     setMode(canPass ? null : "solo");
   }
-  const newRoundControl = roundInProgress(answers, false) && <NewRound onConfirm={newRound} />;
+  const startOverControl = workInProgress(answers) && <StartOver onConfirm={startOver} />;
 
   const header = (
     <SetHeader
@@ -173,7 +180,7 @@ export function FillInScreen({ set, number, total }: { set: FillInSet; number: n
         seed={seed}
         initial={passDraft}
         eyebrow={`Set ${number} of ${total} · Fill-in · With a spotter`}
-        onNewRound={newRound}
+        onStartOver={startOver}
       />
     );
   }
@@ -255,7 +262,7 @@ export function FillInScreen({ set, number, total }: { set: FillInSet; number: n
         </section>
         {!engine && <EngineStatus loadFailed={loadFailed} />}
         <NoteCards notes={notesFor(here)} ignoredCount={ignored.length} onIgnore={ignore} />
-        {newRoundControl}
+        {startOverControl}
       </>
     );
   }
@@ -284,7 +291,7 @@ export function FillInScreen({ set, number, total }: { set: FillInSet; number: n
       <ScoreCard score={score} band={band} best={best} />
       <LogButton onLog={log} disabled={!engine || !complete} logged={logged} best={best} />
       {!complete && <p className="-mt-2 text-center text-sm text-muted">Fill every blank to log the set.</p>}
-      {newRoundControl}
+      {startOverControl}
     </>
   );
 }

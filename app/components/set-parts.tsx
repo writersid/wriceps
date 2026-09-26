@@ -105,8 +105,8 @@ export function NoteCards({
   );
 }
 
-// Starts over, after an inline confirm, since it discards the current round.
-export function NewRound({ onConfirm }: { onConfirm: () => void }) {
+// Starts over, after an inline confirm, since it discards the current work.
+export function StartOver({ onConfirm }: { onConfirm: () => void }) {
   const [confirming, setConfirming] = useState(false);
   if (!confirming) {
     return (
@@ -115,13 +115,13 @@ export function NewRound({ onConfirm }: { onConfirm: () => void }) {
         onClick={() => setConfirming(true)}
         className="min-h-11 self-center px-3 text-sm font-medium text-muted underline underline-offset-4"
       >
-        Start a new round
+        Start over
       </button>
     );
   }
   return (
-    <section role="alertdialog" aria-label="Start a new round?" className="flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4">
-      <p className="font-semibold">Start over? This round&apos;s answers will be lost.</p>
+    <section role="alertdialog" aria-label="Start over?" className="flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4">
+      <p className="font-semibold">Start over? Your current work will be lost.</p>
       <div className="flex gap-2">
         <button
           type="button"
@@ -138,7 +138,7 @@ export function NewRound({ onConfirm }: { onConfirm: () => void }) {
           }}
           className="min-h-11 flex-1 rounded-full bg-ink font-semibold text-bg"
         >
-          Start a new round
+          Start over
         </button>
       </div>
     </section>

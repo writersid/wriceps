@@ -10,7 +10,6 @@ import {
   drawLetter,
   parseTemplate,
   resolveRound,
-  roundInProgress,
   scaleByFilled,
   startsSentence,
 } from "./fill-in";
@@ -94,14 +93,6 @@ describe("random letter from a seed", () => {
     const round = resolveRound(exercise, 42);
     expect(round.rules[0]).toMatchObject({ letter: drawLetter(42), random: false });
     expect(round.rules[1]).toBe(exercise.rules[1]);
-  });
-});
-
-describe("round in progress", () => {
-  it("is true once any answer is typed, or during a spotter game", () => {
-    expect(roundInProgress(["", " "], false)).toBe(false);
-    expect(roundInProgress(["", "snow"], false)).toBe(true);
-    expect(roundInProgress(["", ""], true)).toBe(true);
   });
 });
 
