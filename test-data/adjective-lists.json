@@ -1,0 +1,30 @@
+{
+  "about": "No-adjectives test set for bare word lists (no sentence context). DRAFT by Claude for Sid's review. 'adjectives' = words whose main use is as an adjective; the rule should flag them. 'either' = words commonly used as both a noun or verb and an adjective (yellow, open); how the rule should treat them is a question for Sid, and they are measured separately. Everything else should not be flagged. Numbers are not adjectives, as in the Phase 2 labels.",
+  "lists": [
+    { "id": 1, "text": "window, happy, river, quiet, table", "adjectives": ["happy", "quiet"], "either": [] },
+    { "id": 2, "text": "garden, silver, yellow, pencil, gentle", "adjectives": ["gentle"], "either": ["silver", "yellow"] },
+    { "id": 3, "text": "open, basket, pretty, marble, running", "adjectives": ["pretty"], "either": ["open"] },
+    { "id": 4, "text": "hollow\ncandle\nempty\nbutton\nsimple", "adjectives": ["simple"], "either": ["hollow", "empty"] },
+    { "id": 5, "text": "rabbit, clever, orange, tiger, narrow", "adjectives": ["clever", "narrow"], "either": ["orange"] },
+    { "id": 6, "text": "sudden, kitchen, humble, carpet, wooden", "adjectives": ["sudden", "humble", "wooden"], "either": [] },
+    { "id": 7, "text": "doctor finish heavy pepper lucky", "adjectives": ["heavy", "lucky"], "either": [] },
+    { "id": 8, "text": "angry, wagon, purple, dinner, frozen", "adjectives": ["angry"], "either": ["purple", "frozen"] },
+    { "id": 9, "text": "music, hungry, bottle, silent, forest", "adjectives": ["hungry", "silent"], "either": [] },
+    { "id": 10, "text": "yellow, mellow, fellow, pillow, hollow", "adjectives": ["mellow"], "either": ["yellow", "hollow"] },
+    { "id": 11, "text": "summer, winter, early, water, shallow", "adjectives": ["shallow"], "either": ["early"] },
+    { "id": 12, "text": "broken, spoken, token, open, woken", "adjectives": [], "either": ["broken", "spoken", "open", "woken"] },
+    { "id": 13, "text": "paper\ncrazy\nmonkey\nlazy\nbutter", "adjectives": ["crazy", "lazy"], "either": [] },
+    { "id": 14, "text": "ugly, cabbage, muddy, rocket, busy", "adjectives": ["ugly", "muddy", "busy"], "either": [] },
+    { "id": 15, "text": "lemon, bitter, sugar, sweeter, salty", "adjectives": ["bitter", "sweeter", "salty"], "either": [] },
+    { "id": 16, "text": "sister, brother, little, mother, tiny", "adjectives": ["little", "tiny"], "either": [] },
+    { "id": 17, "text": "handsome, ribbon, velvet, famous, island", "adjectives": ["handsome", "famous"], "either": [] },
+    { "id": 18, "text": "dragon golden magic hidden planet", "adjectives": ["golden"], "either": ["magic", "hidden"] },
+    { "id": 19, "text": "morning, evening, sleepy, cozy, dusty", "adjectives": ["sleepy", "cozy", "dusty"], "either": [] },
+    { "id": 20, "text": "shadow, noisy, thunder, stormy, lightning", "adjectives": ["noisy", "stormy"], "either": [] },
+    { "id": 21, "text": "rapid, robin, solid, salad, valid", "adjectives": ["rapid", "valid"], "either": ["solid"] },
+    { "id": 22, "text": "common, cotton, modern, mountain, polite", "adjectives": ["modern", "polite"], "either": ["common"] },
+    { "id": 23, "text": "private, pirate, public, puppet, perfect", "adjectives": [], "either": ["private", "public", "perfect"] },
+    { "id": 24, "text": "able, cable, fable, stable, table", "adjectives": ["able"], "either": ["stable"] },
+    { "id": 25, "text": "dirty, thirty, forty, pretty, party", "adjectives": ["dirty", "pretty"], "either": [] }
+  ]
+}

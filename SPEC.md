@@ -33,6 +33,7 @@ One rule engine. Each exercise is a combination of these rules:
 - required words
 - required first sentence
 - no repeated words (only in exercises that include it)
+- time limit (bonus rules only)
 
 Violations are highlighted live as the user types (coral wavy underline plus a note card below the draft). Doubtful flags are shown but never block the user. Flags from the language rules (no adverbs, no adjectives, syllables per word) have an Ignore button, since the checker can be wrong on those. Flags from word count, banned letters, required words, and required first sentence have none, since those checks are exact. No repeated words has an Ignore button only on repeats matched by root form, since that match is the checker's guess (see Rule details). This mechanic covers general craft exercises (such as cutting adverbs and adjectives), six-word stories, drabbles (100 words), dribbles (50 words), lipograms, opening-line exercises, and original word-list games.
 
@@ -42,6 +43,7 @@ Rule details (decided in Phase 2):
 - Required first sentence ignores case, curly versus straight quotes, and extra spaces.
 - Syllables per word: some words have more than one valid count (fire: 1 or 2; every: 2 or 3). A word passes with no flag if any valid count is within the limits (at most the maximum, at least the minimum). Setting both to the same number means "exactly". Hyphenated words: a maximum checks each part separately; a minimum checks the whole word. When the minimum and maximum are equal ("exactly"), the maximum is also checked on the whole word. So "well-known" passes "exactly 2", and "forget-me-not" (4 syllables) fails it.
 - No repeated words: strict, with no exemptions. No word may appear more than once, and forms of the same word count as a repeat (window/windows, run/runs/running, mouse/mice, go/went), matched by compromise's root form. Matching ignores case. Every occurrence after the first is one violation. A repeat of the identical word ("the"/"the") has no Ignore button. A repeat matched only by root form has one, and counts as a language-rule flag for ignores, since the checker can pick the wrong root (left as "leave" or as a direction). Exercises that don't include the rule are unaffected.
+- Time limit (bonus rules only): the clock starts at the first keystroke and stops at "Log this set". The start time is saved with the draft, so a refresh doesn't reset it. Logging after the limit loses the bonus's full weight.
 - No adverbs: never flags these allowlisted words:
   - negation: not, n't, never
   - time: then, now, already, yet, again, ago, once, always, often, sometimes, soon, today, tomorrow, yesterday, tonight
@@ -64,7 +66,7 @@ A public-domain passage is shown. The user taps words to black them out, and the
 - Every exercise gets a score from 0 to 100, shown as a barbell meter that loads a plate per band.
 - Bands: Warm-up (0 to 39), Working set (40 to 69), Heavy lift (70 to 89), PR (90 to 100).
 - A new best score on an exercise is a PR.
-- Scoring is deterministic: the same text always gets the same score.
+- Scoring is deterministic: the same text and time taken always get the same score.
 - How points are earned: each exercise lists its rules and bonus rules with point weights. Each violation costs part of its rule's points, and a rule can never lose more than its weight. Bonus rules add points, and the total is capped at 100.
 - Default cost of a violation: the rule's weight divided by its fixed maximum number of violations. A missed required first sentence costs the full weight; each missing required word costs the weight divided by the number of required words. Rules with no fixed maximum (word count, banned letters, syllables per word, no adverbs, no adjectives, no repeated words) cost a third of their weight per violation. An exercise can set its own cost for any rule.
 - Each piece gets 2 free ignores. Ignoring a word covers every flag on that word from the same rule and uses one free ignore. After 2, Ignore still hides the flag, but it costs points as usual. Only flags from the language rules, and repeats matched by root form, can be ignored. Doubtful flags cost nothing. The result card and share text show how many flags were ignored.
