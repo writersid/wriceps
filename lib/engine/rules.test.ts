@@ -20,7 +20,7 @@ describe("max syllables", () => {
 
   test("flags each word over the limit, with its position", () => {
     const flags = checkMaxSyllables({ type: "maxSyllables", id: "ms", weight: 30, max: 1 }, tokenize("A happy dog"), countSyllables);
-    expect(flags).toEqual([{ ruleId: "ms", kind: "tooManySyllables", word: "happy", start: 2, end: 7, level: "sure", ignoreKey: "ms:happy" }]);
+    expect(flags).toEqual([{ ruleId: "ms", kind: "tooManySyllables", word: "happy", start: 2, end: 7, level: "sure", ignorable: true, ignoreKey: "ms:happy" }]);
   });
 
   test("a word with several valid counts passes if any is within the limit", () => {
@@ -65,7 +65,7 @@ describe("no adverbs and no adjectives", () => {
   test("flags manner adverbs and plain adjectives, with positions", () => {
     const text = "The old man walked slowly to the quiet harbor.";
     expect(check("noAdverbs", text)).toEqual([
-      { ruleId: "noAdverbs", kind: "adverb", word: "slowly", start: 19, end: 25, level: "sure", ignoreKey: "noAdverbs:slowly" },
+      { ruleId: "noAdverbs", kind: "adverb", word: "slowly", start: 19, end: 25, level: "sure", ignorable: true, ignoreKey: "noAdverbs:slowly" },
     ]);
     expect(words("noAdjectives", text)).toEqual(["old", "quiet"]);
   });
@@ -120,7 +120,7 @@ describe("banned letters", () => {
   test("flags each word containing the letter, with its position", () => {
     const flags = check("e", "The cat sat here.");
     expect(flags.map((f) => [f.word, f.start, f.end])).toEqual([["The", 0, 3], ["here", 12, 16]]);
-    expect(flags[0]).toMatchObject({ kind: "bannedLetter", level: "sure", ignoreKey: "bl:the" });
+    expect(flags[0]).toMatchObject({ kind: "bannedLetter", level: "sure", ignorable: false, ignoreKey: "bl:the" });
   });
 
   test("one flag per word, even with the letter twice", () => {
@@ -161,7 +161,7 @@ describe("required words", () => {
   test("one flag per missing word, with no position", () => {
     const flags = check(["river", "stone", "moon"], "The river ran.");
     expect(flags.map((f) => f.word)).toEqual(["stone", "moon"]);
-    expect(flags[0]).toMatchObject({ kind: "missingWord", ignoreKey: "rw:stone", start: undefined });
+    expect(flags[0]).toMatchObject({ kind: "missingWord", ignorable: false, ignoreKey: "rw:stone", start: undefined });
   });
 
   test("ignores case", () => {
@@ -208,7 +208,7 @@ describe("required first sentence", () => {
   test("a different opening is flagged over the draft's first sentence", () => {
     const text = "It was a bright cold day. The clocks struck.";
     const [f] = check(text);
-    expect(f).toMatchObject({ kind: "firstSentence", level: "sure", ignoreKey: "fs:" });
+    expect(f).toMatchObject({ kind: "firstSentence", level: "sure", ignorable: false, ignoreKey: "fs:" });
     expect(text.slice(f.start, f.end)).toBe("It was a bright cold day.");
   });
 
@@ -244,13 +244,13 @@ describe("word count", () => {
   test("exact: each extra word is one flag, on that word", () => {
     const flags = check({ exact: 6 }, "For sale: baby shoes, never worn. Sad.");
     expect(flags).toHaveLength(1);
-    expect(flags[0]).toMatchObject({ ruleId: "wc", kind: "tooManyWords", word: "Sad", start: 34, end: 37, level: "sure", ignoreKey: "wc:sad" });
+    expect(flags[0]).toMatchObject({ ruleId: "wc", kind: "tooManyWords", word: "Sad", start: 34, end: 37, level: "sure", ignorable: false, ignoreKey: "wc:sad" });
   });
 
   describe("six-word story (exact 6)", () => {
     test("5 words: one draft-level flag worth 1 violation", () => {
       expect(check({ exact: 6 }, "For sale: baby shoes, never.")).toEqual([
-        { ruleId: "wc", kind: "tooFewWords", word: "", level: "sure", ignoreKey: "wc:", count: 1 },
+        { ruleId: "wc", kind: "tooFewWords", word: "", level: "sure", ignorable: false, ignoreKey: "wc:", count: 1 },
       ]);
     });
 

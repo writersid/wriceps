@@ -26,6 +26,9 @@ export type Flag = {
   level: "sure" | "doubtful";
   // How many violations this flag stands for, such as "4 words short". Default 1.
   count?: number;
+  // Only the language rules (no adverbs, no adjectives, max syllables) can be
+  // wrong, so only their flags get an Ignore button.
+  ignorable: boolean;
   // Same key for every flag on the same word from the same rule, so one
   // Ignore covers them all.
   ignoreKey: string;

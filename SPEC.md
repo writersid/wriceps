@@ -33,7 +33,7 @@ One rule engine. Each exercise is a combination of these rules:
 - required words
 - required first sentence
 
-Violations are highlighted live as the user types (coral wavy underline plus a note card below the draft). Doubtful flags are shown but never block the user, and each flag has an Ignore button. This mechanic covers Amit's workshop exercises, six-word stories, drabbles (100 words), dribbles (50 words), lipograms, and opening-line exercises.
+Violations are highlighted live as the user types (coral wavy underline plus a note card below the draft). Doubtful flags are shown but never block the user. Flags from the language rules (no adverbs, no adjectives, maximum syllables) have an Ignore button, since the checker can be wrong on those. Flags from word count, banned letters, required words, and required first sentence have none, since those checks are exact. This mechanic covers Amit's workshop exercises, six-word stories, drabbles (100 words), dribbles (50 words), lipograms, and opening-line exercises.
 
 Rule details (decided in Phase 2):
 - Word count: contractions ("don't"), hyphenated words ("well-known"), and numbers ("2026") count as one word each. Words joined by a dash with no spaces ("yes—no", "yes–no", "yes--no") count as two words.
@@ -63,8 +63,11 @@ A public-domain passage is shown. The user taps words to black them out, and the
 - Bands: Warm-up (0 to 39), Working set (40 to 69), Heavy lift (70 to 89), PR (90 to 100).
 - A new best score on an exercise is a PR.
 - Scoring is deterministic: the same text always gets the same score.
-- How points are earned: each exercise lists its rules and bonus rules with point weights. Each violation costs part of its rule's points, and a rule can never lose more than its weight. Ignored flags and doubtful flags cost nothing. Bonus rules add points, and the total is capped at 100.
-- The word-count rule gates the score: points scale with progress toward the word-count target, so a short draft can't reach a high band.
+- How points are earned: each exercise lists its rules and bonus rules with point weights. Each violation costs part of its rule's points, and a rule can never lose more than its weight. Bonus rules add points, and the total is capped at 100.
+- Each violation costs a third of its rule's weight unless the exercise sets its own cost.
+- Each piece gets 2 free ignores. Ignoring a word covers every flag on that word from the same rule and uses one free ignore. After 2, Ignore still hides the flag, but it costs points as usual. Only flags from the language rules can be ignored. Doubtful flags cost nothing. The result card and share text show how many flags were ignored.
+- In v1 no adverb or adjective flag is doubtful: in testing, the tagger's guessed tags were as accurate as its sure ones.
+- The word-count rule gates the score: points scale with progress toward the word-count target, so a short draft can't reach a high band. The target is the minimum, or the maximum when there is no minimum. Only a word-count rule among the main rules gates, not a bonus one. Without a word-count rule, an empty draft scores 0.
 - Exact word counts work differently. Each word short or over costs one violation, so being under and over cost the same. While the word-count rule still has points left, there is no gate. Once its points are used up, a gate scales the score by the draft's distance from the target: words ÷ target when short, target ÷ words when over.
 
 ## Sharing

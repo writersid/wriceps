@@ -5,6 +5,8 @@ import type { Flag, Rule, ScoredRule, Token } from "./types";
 
 type RuleOf<T extends Rule["type"]> = Extract<ScoredRule, { type: T }>;
 
+const IGNORABLE: ReadonlySet<Rule["type"]> = new Set(["noAdverbs", "noAdjectives", "maxSyllables"]);
+
 function flag(rule: ScoredRule, kind: string, word: string, pos?: Token): Flag {
   return {
     ruleId: rule.id,
@@ -13,6 +15,7 @@ function flag(rule: ScoredRule, kind: string, word: string, pos?: Token): Flag {
     start: pos?.start,
     end: pos?.end,
     level: "sure",
+    ignorable: IGNORABLE.has(rule.type),
     ignoreKey: `${rule.id}:${normalizeWord(word)}`,
   };
 }
