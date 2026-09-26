@@ -51,7 +51,7 @@ Rule details (decided in Phase 2):
   - politeness: please
 
   Everything else is flagged, including intensifiers (very, really, quite, so, just, extremely, rather, pretty, totally, actually, basically), only, even, still, and manner adverbs (slowly, loudly).
-- No adjectives: never flags these allowlisted determiner-like words: first, second, third and other ordinals, last, next, previous, following, other, another, same, own, only, few, fewer, many, much, more, most, less, least, several, such, enough. Everything else is flagged, including whole, entire, little, main, particular, various, and certain. "Only" is allowed as an adjective ("the only doctor") but flagged as an adverb ("only fresh fish").
+- No adjectives: never flags these allowlisted determiner-like words: first, second, third and other ordinals, last, next, previous, following, other, another, same, own, only, all, few, fewer, many, much, more, most, less, least, several, such, enough. Everything else is flagged, including whole, entire, little, main, particular, various, and certain. "Only" is allowed as an adjective ("the only doctor") but flagged as an adverb ("only fresh fish").
 
 ### 3. Blackout poems
 A public-domain passage is shown. The user taps words to black them out, and the remaining words form the poem, shareable as an image.
@@ -128,7 +128,10 @@ Dry and playful, never literary or cute. Gym vocabulary:
 - No database or auth in v1
 - Hosting: Vercel Hobby plan (personal, non-commercial; move to Pro if Wriceps ever charges money)
 - Analytics: PostHog Cloud free tier, cookieless
-- Language rules: small open-source libraries for syllable counting and part-of-speech tagging, chosen in Phase 2 by testing candidates against our test set
+- Language rules (chosen in Phase 2 by testing candidates against our test sets):
+  - Adverbs and adjectives: compromise, using its smaller compromise/two build
+  - Syllables: a CMU Pronouncing Dictionary word list trimmed to common English words (under about 150 KB gzipped), with the syllable package as the fallback for words not on the list
+  - Both load only when a constraint exercise opens, not on app load
 - Tests: Vitest for the rule engine; a written manual checklist for screens on real phones
 - Error tracking: Sentry free tier, added at deployment
 - Domain: wriceps.com if available, else wriceps.app (Sid buys it)
@@ -138,8 +141,9 @@ Dry and playful, never literary or cute. Gym vocabulary:
 ### 1. Rule engine accuracy (automated, Vitest)
 - Word count, banned letters, required words, required first sentence: 100% correct on test cases.
 - Syllable counting: at least 95% correct on a 200-word list including tricky words (fire, every, business).
-- Adverb and adjective flags on 100 hand-labeled sentences: at least 90% of flagged words are truly adverbs or adjectives, and at least 85% of the real ones are caught. Sentences are labeled grammatically: adjectives include predicative ones ("the sky is blue") and participles used as adjectives ("a broken window"), but not articles, possessives, numbers, or nouns used as modifiers ("stone wall"); adverbs include function adverbs such as "not" and "then". Tagger accuracy is measured against these labels, and the rules' flag precision is reported separately with both allowlists applied.
+- Adverb and adjective flags on 100 hand-labeled sentences: at least 90% of flagged words are truly adverbs or adjectives, and at least 85% of the real ones are caught. Sentences are labeled grammatically: adjectives include predicative ones ("the sky is blue") and participles used as adjectives ("a broken window"), but not articles, possessives, numbers, or nouns used as modifiers ("stone wall"); adverbs include function adverbs such as "not" and "then". Tagger accuracy is measured against these labels, and the rules' flag precision is reported separately with both allowlists applied. Pass/fail uses the literal reading: a flag counts as correct if the word is an adverb or an adjective, even when the tagger names the wrong one of the two. How often the note names the right category is reported but does not decide pass or fail.
 - Syllable test words with more than one valid count accept any of them. A word gets more than one count when the CMU Pronouncing Dictionary lists more than one pronunciation, or when Sid's review accepts a common everyday pronunciation that CMU omits (such as flower, tired, chocolate). Otherwise it gets the dictionary's single count. Words ending in -ire are checked by hand, because CMU often lists only their longer form.
+- Syllable counting: at least 90% correct on a held-out list of 100 words that are not in the 200-word list, labeled from Merriam-Webster rather than CMU, so the check does not grade the CMU word list against itself.
 - Scoring is deterministic and the band cutoffs match this spec.
 
 ### 2. Features (manual checklist)
