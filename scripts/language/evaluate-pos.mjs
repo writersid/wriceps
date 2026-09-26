@@ -4,16 +4,9 @@
 // Run: npm run language:eval
 import nlp from "compromise/two";
 import { readJson } from "./sources.mjs";
+import { isAllowed } from "../../lib/language/allowlists.ts";
 
-// Mirrors the allowlists in SPEC.md. Replace with the rule engine's lists once it exists.
-const ADV_ALLOW = new Set(
-  "not n't never then now already yet again ago once always often sometimes soon today tomorrow yesterday tonight here there home away back also too either neither else instead how when where why as more most less least up down out off in on over around through please".split(" "),
-);
-const ADJ_ALLOW = new Set(
-  "last next previous following other another same own only all few fewer many much more most less least several such enough".split(" "),
-);
-const ORDINALS = /^(first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth|\d+(st|nd|rd|th))$/;
-const allowed = { adj: (w) => ADJ_ALLOW.has(w) || ORDINALS.test(w), adv: (w) => ADV_ALLOW.has(w) };
+const allowed = { adj: (w) => isAllowed("adjective", w), adv: (w) => isAllowed("adverb", w) };
 
 function tag(text) {
   const out = [];

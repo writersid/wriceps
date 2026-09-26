@@ -65,6 +65,7 @@ A public-domain passage is shown. The user taps words to black them out, and the
 - Scoring is deterministic: the same text always gets the same score.
 - How points are earned: each exercise lists its rules and bonus rules with point weights. Each violation costs part of its rule's points, and a rule can never lose more than its weight. Ignored flags and doubtful flags cost nothing. Bonus rules add points, and the total is capped at 100.
 - The word-count rule gates the score: points scale with progress toward the word-count target, so a short draft can't reach a high band.
+- Exact word counts work differently. Each word short or over costs one violation, so being under and over cost the same. While the word-count rule still has points left, there is no gate. Once its points are used up, a gate scales the score by the draft's distance from the target: words ÷ target when short, target ÷ words when over.
 
 ## Sharing
 

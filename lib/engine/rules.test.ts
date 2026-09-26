@@ -1,6 +1,113 @@
 import { describe, expect, test } from "vitest";
-import { checkBannedLetters, checkFirstSentence, checkRequiredWords, checkWordCount } from "./rules";
+import { countSyllables, tagWords } from "./language";
+import {
+  checkBannedLetters,
+  checkBannedWordType,
+  checkFirstSentence,
+  checkMaxSyllables,
+  checkRequiredWords,
+  checkWordCount,
+} from "./rules";
 import { tokenize } from "./tokenize";
+
+describe("max syllables", () => {
+  const check = (max: number, text: string) =>
+    checkMaxSyllables({ type: "maxSyllables", id: "ms", weight: 30, max }, tokenize(text), countSyllables).map((f) => f.word);
+
+  test("words within the limit pass", () => {
+    expect(check(1, "The cat sat on the mat.")).toEqual([]);
+  });
+
+  test("flags each word over the limit, with its position", () => {
+    const flags = checkMaxSyllables({ type: "maxSyllables", id: "ms", weight: 30, max: 1 }, tokenize("A happy dog"), countSyllables);
+    expect(flags).toEqual([{ ruleId: "ms", kind: "tooManySyllables", word: "happy", start: 2, end: 7, level: "sure", ignoreKey: "ms:happy" }]);
+  });
+
+  test("a word with several valid counts passes if any is within the limit", () => {
+    expect(check(1, "fire hour")).toEqual([]);
+    expect(check(2, "every")).toEqual([]);
+    expect(check(1, "every")).toEqual(["every"]);
+  });
+
+  test("tricky words from the test set", () => {
+    expect(check(2, "business")).toEqual([]);
+    expect(check(1, "business")).toEqual(["business"]);
+  });
+
+  test("each part of a hyphenated word is checked separately", () => {
+    expect(check(1, "well-known")).toEqual([]);
+    expect(check(1, "sun-dappled")).toEqual(["sun-dappled"]);
+  });
+
+  test("contractions and curly apostrophes", () => {
+    expect(check(1, "don't won’t")).toEqual([]);
+    expect(check(1, "couldn't")).toEqual(["couldn't"]);
+  });
+
+  test("case does not matter", () => {
+    expect(check(1, "HAPPY")).toEqual(["HAPPY"]);
+  });
+
+  test("numbers are not checked", () => {
+    expect(check(1, "In 2026")).toEqual([]);
+  });
+
+  test("empty text has no flags", () => {
+    expect(check(1, "")).toEqual([]);
+  });
+});
+
+describe("no adverbs and no adjectives", () => {
+  const check = (type: "noAdverbs" | "noAdjectives", text: string) =>
+    checkBannedWordType({ type, id: type, weight: 30 }, tagWords(text, tokenize(text)));
+  const words = (type: "noAdverbs" | "noAdjectives", text: string) => check(type, text).map((f) => f.word);
+
+  test("flags manner adverbs and plain adjectives, with positions", () => {
+    const text = "The old man walked slowly to the quiet harbor.";
+    expect(check("noAdverbs", text)).toEqual([
+      { ruleId: "noAdverbs", kind: "adverb", word: "slowly", start: 19, end: 25, level: "sure", ignoreKey: "noAdverbs:slowly" },
+    ]);
+    expect(words("noAdjectives", text)).toEqual(["old", "quiet"]);
+  });
+
+  test("flags intensifiers, only, even, still", () => {
+    expect(words("noAdverbs", "It was very cold, and I was really tired.")).toEqual(["very", "really"]);
+    expect(words("noAdverbs", "He even smiled.")).toEqual(["even"]);
+  });
+
+  test("never flags allowlisted adverbs", () => {
+    expect(words("noAdverbs", "I never go there now, and she won't come back again.")).toEqual([]);
+    expect(words("noAdverbs", "Please sit down.")).toEqual([]);
+  });
+
+  test("never flags allowlisted adjectives, including ordinals", () => {
+    expect(words("noAdjectives", "The first and last trains left on the same day.")).toEqual([]);
+    expect(words("noAdjectives", "She won her 21st race.")).toEqual([]);
+  });
+
+  test("'only' passes as an adjective but is flagged as an adverb", () => {
+    expect(words("noAdjectives", "He was the only doctor in town.")).toEqual([]);
+    expect(words("noAdverbs", "They sell only fresh fish.")).toEqual(["only"]);
+  });
+
+  test("predicative adjectives and participles used as adjectives", () => {
+    expect(words("noAdjectives", "The sky is blue.")).toEqual(["blue"]);
+    expect(words("noAdjectives", "A broken window rattled.")).toEqual(["broken"]);
+  });
+
+  test("a flag inside a hyphenated word underlines the whole word", () => {
+    expect(words("noAdjectives", "A well-known man arrived.")).toEqual(["well-known"]);
+  });
+
+  test("curly quotes and apostrophes don't break tagging", () => {
+    expect(words("noAdverbs", "“Walk slowly,” she said. I didn’t.")).toEqual(["slowly"]);
+  });
+
+  test("text with no words, or only emoji, has no flags", () => {
+    expect(words("noAdverbs", "")).toEqual([]);
+    expect(words("noAdjectives", "🙂 🙂")).toEqual([]);
+  });
+});
 
 describe("banned letters", () => {
   const check = (letters: string, text: string) =>
