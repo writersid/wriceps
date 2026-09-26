@@ -139,7 +139,7 @@ Dry and playful, never literary or cute. Gym vocabulary:
 - Word count, banned letters, required words, required first sentence: 100% correct on test cases.
 - Syllable counting: at least 95% correct on a 200-word list including tricky words (fire, every, business).
 - Adverb and adjective flags on 100 hand-labeled sentences: at least 90% of flagged words are truly adverbs or adjectives, and at least 85% of the real ones are caught. Sentences are labeled grammatically: adjectives include predicative ones ("the sky is blue") and participles used as adjectives ("a broken window"), but not articles, possessives, numbers, or nouns used as modifiers ("stone wall"); adverbs include function adverbs such as "not" and "then". Tagger accuracy is measured against these labels, and the rules' flag precision is reported separately with both allowlists applied.
-- Syllable test words with more than one valid count accept any of them. A word gets more than one count only when the CMU Pronouncing Dictionary lists more than one pronunciation; otherwise it gets the dictionary's single count.
+- Syllable test words with more than one valid count accept any of them. A word gets more than one count when the CMU Pronouncing Dictionary lists more than one pronunciation, or when Sid's review accepts a common everyday pronunciation that CMU omits (such as flower, tired, chocolate). Otherwise it gets the dictionary's single count. Words ending in -ire are checked by hand, because CMU often lists only their longer form.
 - Scoring is deterministic and the band cutoffs match this spec.
 
 ### 2. Features (manual checklist)
