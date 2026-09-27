@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-// The home page footer. See SPEC.md "Help pages and footer".
+// The home page footer. See SPEC.md "Home, help, footer, and privacy".
 export function SiteFooter() {
   const link = "min-h-11 inline-flex items-center underline underline-offset-4";
   return (
