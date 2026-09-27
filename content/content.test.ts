@@ -5,6 +5,7 @@ import { parseTemplate } from "../lib/fill-in";
 import { blackoutSets } from "./blackout";
 import { constraintSets } from "./constraint";
 import { fillInSets } from "./fill-in";
+import { howToPlay } from "./how-to-play";
 
 const allSets = [...constraintSets, ...fillInSets, ...blackoutSets];
 
@@ -41,6 +42,13 @@ describe("content", () => {
       for (const rule of set.rules) {
         if (rule.type === "requiredWords") for (const word of rule.words) expect(words, `${set.id}: ${word}`).toContain(normalizeWord(word));
       }
+    }
+  });
+
+  it("has How to play text for every mechanic", () => {
+    for (const mechanic of ["constraint", "fill-in", "blackout"] as const) {
+      const info = howToPlay[mechanic];
+      expect(info.name && info.intro && info.steps.length > 0, mechanic).toBeTruthy();
     }
   });
 

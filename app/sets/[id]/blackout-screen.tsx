@@ -139,6 +139,7 @@ export function BlackoutScreen({ set, number, total }: { set: BlackoutSet; numbe
     <>
       <SetHeader
         eyebrow={`Set ${number} of ${total} · Blackout`}
+        mechanic="blackout"
         title={set.title}
         blurb={set.blurb}
         rules={set.rules}

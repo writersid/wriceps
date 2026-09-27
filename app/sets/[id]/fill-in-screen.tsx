@@ -214,6 +214,7 @@ export function FillInScreen({ set, number, total }: { set: FillInSet; number: n
   const header = (
     <SetHeader
       eyebrow={`Set ${number} of ${total} · Fill-in`}
+      mechanic="fill-in"
       title={set.title}
       blurb={set.blurb}
       rules={round.rules}

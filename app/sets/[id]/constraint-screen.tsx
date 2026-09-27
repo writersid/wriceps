@@ -121,6 +121,7 @@ export function ConstraintScreen({ set, number, total }: { set: ConstraintSet; n
     <>
       <SetHeader
         eyebrow={`Set ${number} of ${total} · Constraint`}
+        mechanic="constraint"
         title={set.title}
         blurb={set.blurb}
         rules={set.rules}

@@ -106,6 +106,7 @@ export function PassGame({
   const header = (
     <SetHeader
       eyebrow={eyebrow}
+      mechanic="fill-in"
       title={set.title}
       blurb={set.blurb}
       rules={round.rules}
