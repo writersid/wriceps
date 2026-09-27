@@ -29,7 +29,7 @@ npm run language:eval    # rerun syllable, part-of-speech, and word-list accurac
 
 ## Status
 
-- **Current phase:** 3 (App layer), part 3c (pass-the-phone) built; waiting on Sid's phone test. Part 3 is split: 3a engine rules, 3b fill-in poems (solo), 3c pass-the-phone.
+- **Current phase:** 3 (App layer), part 4 (blackout poems) built; waiting on Sid's phone test (part 3c's phone test is also still to report). Part 3 is split: 3a engine rules, 3b fill-in poems (solo), 3c pass-the-phone.
 - **Phase 3 = the app layer (screens).** Wriceps has no server, so the skill's "Server / API layer" phase becomes the screens. Parts: (1) design foundation, (2) constraint-writing screen, (3) fill-in poems with pass-the-phone, (4) blackout poems, (5) result cards, sharing, and challenge links, (6) home screen and set list, privacy page with credits from NOTICES.md, and the note that clearing browser data clears progress.
 - **Phase 1 done:** create-next-app scaffold; SPEC.md and ROADMAP.md; this file; .gitignore allows `.env.example`; private GitHub repo `writersid/wriceps`.
 - **Phase 2 done:**
@@ -75,5 +75,12 @@ npm run language:eval    # rerun syllable, part-of-speech, and word-list accurac
   - Saved in the fill-in draft's `pass` field; a turn in progress reopens on its handoff screen after a refresh.
   - `Poem` and `AnswerInput` moved to `app/sets/[id]/poem.tsx`.
   - "Start over" (`StartOver` in `set-parts.tsx`, inline confirm) shows on every set with work in progress (`workInProgress` in `lib/progress.ts`): constraint drafts (clears text, ignores, clock; keeps the best score) and fill-in rounds, solo or with a spotter (returns to the Solo / With a spotter choice). Fixes resumed solo rounds hiding the choice (found by Sid on his phone).
+- **Phase 3 part 4 (blackout poems) built:**
+  - Rules in SPEC.md "Blackout details". Tap to keep (Sid's choice over tap to black out: fewer taps, and an untouched passage scores 0 with no scoring change). "Black out the rest" / "Back to picking" toggle.
+  - The passage is always a paper page (`.paper` in `app/globals.css` resets the color tokens to light values): chalk, charcoal text and bars, deep coral underlines. Recorded in SPEC.md's design rules.
+  - `lib/blackout.ts`: `passageWords`, `poemText` (kept words in passage order, single spaces, no punctuation), `keptWordAt` (flag position back to the passage word), `toggleKept`.
+  - `app/sets/[id]/blackout-screen.tsx`; draft in `lib/progress.ts` (`BlackoutDraft`, `loadBlackoutDraft`). Punctuation right after a word stays on its line and joins its bar.
+  - 3 placeholder sets in `content/blackout.ts` (Dickens, Melville, Grahame), each copied word for word from Project Gutenberg's plain text and checked against it, source recorded. `content/content.test.ts` allows only word count, required words, banned letters, syllables, no repeats, and a time bonus in blackout sets, and checks required words appear in the passage.
+  - Left for Sid's phone test: passage length, whether unpicked words should fade while picking, and touching outlines on adjacent kept words. Some shared DRAFT tips read oddly for blackout ("Cut the weakest sentence").
 - **Watch out:** in Windows PowerShell 5.1, `Get-Content`/`Set-Content` read and write the wrong encoding and corrupt characters like "·" and "…". Use the Edit tool, or `[IO.File]` with UTF-8 (no BOM).
-- **Next step:** Sid tests part 3c on his phone via the Vercel preview (passing it to someone); then Phase 3 part 4 (blackout poems). Sid rewrites the DRAFT tips in `lib/notes.ts` when ready.
+- **Next step:** Sid tests part 4 (and part 3c, passing it to someone) on his phone via the Vercel preview; then Phase 3 part 5 (result cards, sharing, challenge links). Sid rewrites the DRAFT tips in `lib/notes.ts` when ready.
