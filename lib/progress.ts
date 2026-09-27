@@ -78,13 +78,30 @@ export function loadFillInDraft(setId: string, blanks: number): FillInDraft | nu
   return draft;
 }
 
+// A blackout round: the kept words' positions in the passage, and whether the
+// blacked-out page is showing.
+export type BlackoutDraft = { kept: number[]; ignored: string[]; blackedOut: boolean; startedAt?: number };
+
+export function loadBlackoutDraft(setId: string, words: number): BlackoutDraft | null {
+  const d = readJson<BlackoutDraft>(draftKey(setId));
+  const valid =
+    Array.isArray(d?.kept) &&
+    d.kept.every((i) => Number.isInteger(i) && i >= 0 && i < words) &&
+    Array.isArray(d.ignored) &&
+    typeof d.blackedOut === "boolean";
+  if (!d || !valid) return null;
+  const draft: BlackoutDraft = { kept: [...new Set(d.kept)].sort((a, b) => a - b), ignored: d.ignored, blackedOut: d.blackedOut };
+  if (typeof d.startedAt === "number") draft.startedAt = d.startedAt;
+  return draft;
+}
+
 // Whether a set has work to discard before starting over: any text typed (a
 // constraint draft, or any fill-in answer), or a spotter game under way.
 export function workInProgress(texts: string[], spotterGame = false): boolean {
   return spotterGame || texts.some((t) => t.trim());
 }
 
-export function saveDraft(setId: string, draft: Draft | FillInDraft) {
+export function saveDraft(setId: string, draft: Draft | FillInDraft | BlackoutDraft) {
   writeJson(draftKey(setId), draft);
 }
 

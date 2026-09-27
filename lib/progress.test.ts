@@ -2,7 +2,16 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { constraintSets } from "../content/constraint";
 import { checkText } from "./engine/check";
 import { scoreText } from "./engine/score";
-import { clearDraft, getBest, loadDraft, loadFillInDraft, logScore, saveDraft, workInProgress } from "./progress";
+import {
+  clearDraft,
+  getBest,
+  loadBlackoutDraft,
+  loadDraft,
+  loadFillInDraft,
+  logScore,
+  saveDraft,
+  workInProgress,
+} from "./progress";
 
 // Tests run in Node, which has no localStorage, so stand in a simple one.
 function fakeStorage() {
@@ -131,6 +140,32 @@ describe("pass-the-phone games", () => {
       '{"answers":["a","b"],"ignored":[],"seed":1,"step":0,"pass":{"turn":1,"phase":"peek","shown":0}}',
     );
     expect(loadFillInDraft("p", 2)).toBeNull();
+  });
+});
+
+describe("blackout drafts", () => {
+  const draft = { kept: [2, 7, 30], ignored: ["k"], blackedOut: true, startedAt: 1_700_000_000_000 };
+
+  it("saves and restores kept words, ignores, view, and clock", () => {
+    saveDraft("b", draft);
+    expect(loadBlackoutDraft("b", 85)).toEqual(draft);
+  });
+
+  it("drops a draft that points past the end of the passage", () => {
+    saveDraft("b", draft);
+    expect(loadBlackoutDraft("b", 30)).toBeNull();
+  });
+
+  it("drops damaged drafts", () => {
+    localStorage.setItem("wriceps-draft:b", '{"kept":[1,"two"],"ignored":[],"blackedOut":false}');
+    expect(loadBlackoutDraft("b", 85)).toBeNull();
+    localStorage.setItem("wriceps-draft:b", '{"kept":[1],"ignored":[]}');
+    expect(loadBlackoutDraft("b", 85)).toBeNull();
+  });
+
+  it("puts kept words back in passage order without duplicates", () => {
+    localStorage.setItem("wriceps-draft:b", '{"kept":[9,3,9],"ignored":[],"blackedOut":false}');
+    expect(loadBlackoutDraft("b", 85)?.kept).toEqual([3, 9]);
   });
 });
 

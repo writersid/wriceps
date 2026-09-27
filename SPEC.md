@@ -74,7 +74,15 @@ Rule details (decided in Phase 2):
 - No adjectives: never flags these allowlisted determiner-like words: first, second, third and other ordinals, last, next, previous, following, other, another, same, own, only, all, few, fewer, many, much, more, most, less, least, several, such, enough. Everything else is flagged, including whole, entire, little, main, particular, various, and certain. "Only" is allowed as an adjective ("the only doctor") but flagged as an adverb ("only fresh fish"). In word-list games, where a bare list gives no context, it also skips a reviewed list of about 125 words used as often as nouns, verbs, or adverbs (yellow, open, early).
 
 ### 3. Blackout poems
-A public-domain passage is shown. The user taps words to black them out, and the remaining words form the poem, shareable as an image.
+A public-domain passage is shown. The user taps the words to keep; the rest are blacked out, and the kept words form the poem, shareable as an image.
+
+Blackout details (decided in Phase 3):
+- Tap a word to keep it (outlined); tap again to drop it. Punctuation isn't tappable. Nothing is kept at the start, so an untouched passage scores 0.
+- The poem is the kept words in passage order, joined by single spaces, cased as in the source, without the source's punctuation. Rules run on it; flags underline the kept word on the page, with the usual note cards.
+- "Black out the rest" shows the finished page: every dropped word, and all punctuation, becomes a bar the width of the text, so the page keeps its shape. "Back to picking" returns to editing.
+- Blackout sets use only word count (minimum and maximum), required words, banned letters, syllables per word, no repeated words, and a time-limit bonus. No adverbs, no adjectives, required first sentence, and same first letter don't apply: the tagger can't judge words pulled out of their sentences, and the poem has no lines or sentences of its own.
+- The clock starts at the first tap. "Log this set" needs at least one kept word. Kept words, ignores, the clock, and the view survive a refresh.
+- No pass-the-phone mode.
 
 ## Scoring
 
@@ -133,6 +141,7 @@ Usage rules:
 - Violations never rely on color alone: always an underline plus a note.
 - The violation underline is deep coral in light mode (about 4.8:1 on the white surface) and coral in dark mode.
 - All text meets WCAG contrast: 4.5:1 for body text, 3:1 for text 24px and up.
+- The blackout passage is always a paper page, in both themes: chalk background, charcoal text and bars, deep coral underlines. The rest of the screen follows the theme.
 
 Dark mode tokens (from the approved mockup): background #1C1C1C, surface #262626, border #3A3A38, text #FAFAF7, muted #B8B8B0.
 Light mode tokens: background #FAFAF7, surface #FFFFFF, border #E3E1D8, text #222222, muted #5C5C56.

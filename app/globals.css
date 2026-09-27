@@ -30,6 +30,18 @@
   --coral: #ff6b4a;
 }
 
+/* The blackout passage is always a paper page, in both themes: chalk, charcoal text and bars, deep coral underlines. */
+.paper {
+  color-scheme: light;
+  --bg: #fafaf7;
+  --border: #e3e1d8;
+  --ink: #222222;
+  --muted: #5c5c56;
+  --coral: #c8462c;
+  background: var(--bg);
+  color: var(--ink);
+}
+
 @theme inline {
   --color-bg: var(--bg);
   --color-surface: var(--surface);
