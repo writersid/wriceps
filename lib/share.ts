@@ -89,6 +89,16 @@ export function shareMessage(r: {
 
 export type Share = { card: Card; message: string; fileName: string };
 
+// How to share. Phones (a finger as the main pointer) use the share sheet:
+// with the image where they allow it, else the message alone. Desktops skip
+// the system share (Windows' share window drops the message) and get our panel.
+export function shareRoute(device: { touch: boolean; canShareImage: boolean; canShareText: boolean }): "image" | "text" | "panel" {
+  if (!device.touch) return "panel";
+  if (device.canShareImage) return "image";
+  if (device.canShareText) return "text";
+  return "panel";
+}
+
 // Everything the share button needs, built once when the set is logged.
 // `origin` is the address the app was opened on, so links work on any deploy.
 export function buildShare(r: {

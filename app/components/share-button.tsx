@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { Card } from "@/lib/share";
+import { shareRoute, type Card } from "@/lib/share";
 import { drawResultCard } from "./result-card";
 
-// Shares the result card and message: with the image where the phone allows
-// it, else the message alone, else Download / Copy / Open WhatsApp. The card
+// Shares the result card and message (see shareRoute): on a phone, the share
+// sheet with the image, else the message alone; on a desktop, or where
+// sharing fails, Download / Copy / Open WhatsApp. The card
 // is drawn when this appears, so a tap shares at once (iPhones allow sharing
 // only right after a tap).
 export function ShareButton({ card, message, fileName }: { card: Card; message: string; fileName: string }) {
@@ -13,6 +14,7 @@ export function ShareButton({ card, message, fileName }: { card: Card; message: 
   const [drawFailed, setDrawFailed] = useState(false);
   const [fallback, setFallback] = useState(false);
   const [copied, setCopied] = useState<"yes" | "no" | null>(null);
+  const [autoCopied, setAutoCopied] = useState(false);
 
   useEffect(() => {
     let url = "";
@@ -31,14 +33,23 @@ export function ShareButton({ card, message, fileName }: { card: Card; message: 
   }, [card]);
 
   async function share() {
+    const file = image && new File([image.blob], fileName, { type: "image/png" });
+    const route = shareRoute({
+      touch: matchMedia("(pointer: coarse)").matches,
+      canShareImage: !!file && !!navigator.canShare?.({ files: [file] }),
+      canShareText: !!navigator.share,
+    });
+    if (route === "panel") return setFallback(true);
+    // Copied in the same tap, since some apps drop the message sent with an image.
+    navigator.clipboard?.writeText(message).then(
+      () => setAutoCopied(true),
+      () => {},
+    );
     try {
-      const file = image && new File([image.blob], fileName, { type: "image/png" });
-      if (file && navigator.canShare?.({ files: [file] })) return await navigator.share({ files: [file], text: message });
-      if (navigator.share) return await navigator.share({ text: message });
+      await navigator.share(route === "image" ? { files: [file!], text: message } : { text: message });
     } catch (e) {
-      if (e instanceof DOMException && e.name === "AbortError") return; // closed the share sheet
+      if (!(e instanceof DOMException && e.name === "AbortError")) setFallback(true); // AbortError: closed the share sheet
     }
-    setFallback(true);
   }
 
   async function copy() {
@@ -61,6 +72,12 @@ export function ShareButton({ card, message, fileName }: { card: Card; message: 
       >
         {ready ? "Share this rep" : "Making the card…"}
       </button>
+      {autoCopied && !fallback && (
+        // DRAFT wording, for Sid to rewrite.
+        <p className="-mt-2 text-center text-sm text-muted" role="status">
+          Message copied. Paste it if it doesn&apos;t come through.
+        </p>
+      )}
       {fallback && (
         <section aria-label="Share" className="flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4">
           {image && (

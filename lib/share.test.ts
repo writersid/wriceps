@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { passageWords } from "./blackout";
 import { layoutRuns } from "./card-layout";
 import { parseTemplate } from "./fill-in";
-import { blackoutRuns, fillInRuns, fillInText, shareMessage, trimWords, type Run } from "./share";
+import { blackoutRuns, fillInRuns, fillInText, shareMessage, shareRoute, trimWords, type Run } from "./share";
 
 describe("share message", () => {
   const base = { title: "Weather Report", score: 82, ignoredFlags: 0, piece: "Snow sings.", link: "https://x.test/sets/w" };
@@ -21,6 +21,23 @@ describe("share message", () => {
     expect(text).toContain("Weather Report · Team score 82 (Heavy lift) · With a spotter");
     expect(text).toContain("Play it: https://x.test/sets/w");
     expect(text).not.toContain("Beat it");
+  });
+});
+
+describe("choosing how to share", () => {
+  const phone = { touch: true, canShareImage: true, canShareText: true };
+
+  it("shares the image from a phone's share sheet where it can", () => {
+    expect(shareRoute(phone)).toBe("image");
+  });
+
+  it("falls back to the message alone, then to the panel, on a phone", () => {
+    expect(shareRoute({ ...phone, canShareImage: false })).toBe("text");
+    expect(shareRoute({ touch: true, canShareImage: false, canShareText: false })).toBe("panel");
+  });
+
+  it("always shows the panel on a desktop, even where the system share exists", () => {
+    expect(shareRoute({ ...phone, touch: false })).toBe("panel");
   });
 });
 

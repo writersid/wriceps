@@ -107,7 +107,7 @@ Sharing details (decided in Phase 3):
 - "Share this rep" appears after "Log this set", and on the team-score screen of a spotter game. The card and message match the logged score.
 - The card is drawn in the browser (canvas), so nothing is sent anywhere until the player shares. It is always paper-light (chalk, charcoal, lime plates), portrait 1080×1350, with the wordmark, mechanic, title, the piece, score, band, plate meter, ignored-flag count, "With a spotter" on team cards, and the app's address. Blackout cards show the blacked-out page. Long pieces shrink to fit, then end with "…".
 - The message: a score line, then the piece (whole if it has at most 60 words, else its first 60 words and "…"), then the link: "Beat it:" for solo, "Play it:" (a plain link to the set) for spotter games. All share wording is a draft for Sid to rewrite.
-- Sharing uses the phone's share sheet with the image and message; else the message alone; else Download image, Copy message, and Open WhatsApp.
+- On a phone, sharing uses the share sheet with the image and message, else the message alone, and also copies the message, since some apps drop it when an image comes with it. On a desktop (or where sharing fails), a panel offers Download image, Copy message, and Open WhatsApp; the desktop system share is skipped because it can drop the message.
 
 ## Content
 
