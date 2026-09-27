@@ -4,7 +4,7 @@ import { useState } from "react";
 import type { ScoredRule } from "@/lib/engine/types";
 import { FREE_IGNORES } from "@/lib/engine/score";
 import { ruleLabel, type Note } from "@/lib/notes";
-import type { Share } from "@/lib/share";
+import { challengeResult, type Share } from "@/lib/share";
 import { clockText } from "./use-clock";
 
 // Pieces shared by the constraint and fill-in screens.
@@ -140,6 +140,38 @@ export function StartOver({ onConfirm }: { onConfirm: () => void }) {
           className="min-h-11 flex-1 rounded-full bg-ink font-semibold text-bg"
         >
           Start over
+        </button>
+      </div>
+    </section>
+  );
+}
+
+// The score a challenge link asks the player to beat. DRAFT wording.
+export function ChallengeBanner({ score }: { score: number }) {
+  return (
+    <p className="rounded-2xl border-2 border-ink p-3 text-center font-semibold" role="status">
+      Challenge: beat {score}.
+    </p>
+  );
+}
+
+// After logging a challenge: both scores and who won.
+export function ChallengeResult({ mine, theirs }: { mine: number; theirs: number }) {
+  return <p className="-mt-2 text-center font-display text-xl font-extrabold">{challengeResult(mine, theirs)}</p>;
+}
+
+// A challenge link arrived while this set has a round in progress with a
+// different letter: play the challenge (losing the round) or keep the round.
+export function ChallengeConflict({ onStart, onKeep }: { onStart: () => void; onKeep: () => void }) {
+  return (
+    <section role="alertdialog" aria-label="Start the challenge?" className="flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4">
+      <p className="font-semibold">Start the challenge? Your set in progress will be lost.</p>
+      <div className="flex flex-col gap-2">
+        <button type="button" onClick={onStart} className="min-h-11 rounded-full bg-ink font-semibold text-bg">
+          Start the challenge
+        </button>
+        <button type="button" onClick={onKeep} className="min-h-11 rounded-full border border-border font-semibold">
+          Keep my set
         </button>
       </div>
     </section>

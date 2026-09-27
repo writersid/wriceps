@@ -2,7 +2,19 @@ import { describe, expect, it } from "vitest";
 import { passageWords } from "./blackout";
 import { layoutRuns } from "./card-layout";
 import { parseTemplate } from "./fill-in";
-import { blackoutRuns, fillInRuns, fillInText, shareMessage, shareRoute, trimWords, type Run } from "./share";
+import {
+  blackoutRuns,
+  buildShare,
+  challengeLink,
+  challengeResult,
+  fillInRuns,
+  fillInText,
+  parseChallenge,
+  shareMessage,
+  shareRoute,
+  trimWords,
+  type Run,
+} from "./share";
 
 describe("share message", () => {
   const base = { title: "Weather Report", score: 82, ignoredFlags: 0, piece: "Snow sings.", link: "https://x.test/sets/w" };
@@ -21,6 +33,42 @@ describe("share message", () => {
     expect(text).toContain("Weather Report · Team score 82 (Heavy lift) · With a spotter");
     expect(text).toContain("Play it: https://x.test/sets/w");
     expect(text).not.toContain("Beat it");
+  });
+});
+
+describe("challenge links", () => {
+  it("carries the score, and the seed for a fill-in", () => {
+    expect(challengeLink("https://x.test", "call-me", { score: 82 })).toBe("https://x.test/sets/call-me?c=82");
+    expect(challengeLink("https://x.test", "weather-report", { score: 40, seed: 123 })).toBe(
+      "https://x.test/sets/weather-report?c=40&seed=123",
+    );
+  });
+
+  it("reads back what it wrote", () => {
+    expect(parseChallenge("?c=40&seed=4294967295")).toEqual({ score: 40, seed: 4294967295 });
+    expect(parseChallenge("?c=100")).toEqual({ score: 100 });
+    expect(parseChallenge("?c=0")).toEqual({ score: 0 });
+  });
+
+  it("ignores a broken or out-of-range score, so the set opens normally", () => {
+    for (const bad of ["", "?c=", "?c=101", "?c=-5", "?c=8.5", "?c=abc", "?seed=12"]) expect(parseChallenge(bad), bad).toBeNull();
+  });
+
+  it("drops a broken seed but keeps the score", () => {
+    for (const bad of ["x", "-1", "4294967296", "1.5"]) expect(parseChallenge(`?c=50&seed=${bad}`), bad).toEqual({ score: 50 });
+  });
+
+  it("puts a challenge link in solo shares and a plain link in team shares", () => {
+    const common = { origin: "https://x.test", setId: "w", mechanic: "Fill-in" as const, title: "W", runs: [], piece: "", score: 70, ignoredFlags: 0 };
+    expect(buildShare({ ...common, seed: 9 }).message).toContain("Beat it: https://x.test/sets/w?c=70&seed=9");
+    expect(buildShare({ ...common, seed: 9, team: true }).message).toContain("Play it: https://x.test/sets/w");
+    expect(buildShare({ ...common, seed: 9, team: true }).message).not.toContain("?c=");
+  });
+
+  it("compares scores", () => {
+    expect(challengeResult(85, 82)).toBe("You 85 · Them 82. You win.");
+    expect(challengeResult(82, 82)).toBe("You 82 · Them 82. A tie.");
+    expect(challengeResult(70, 82)).toBe("You 70 · Them 82. They win this one.");
   });
 });
 

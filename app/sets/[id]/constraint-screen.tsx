@@ -4,13 +4,22 @@ import { useEffect, useMemo, useState } from "react";
 import { DraftEditor } from "@/app/components/draft-editor";
 import { loadEngine, type Engine } from "@/app/components/load-engine";
 import { ScoreCard } from "@/app/components/score-card";
-import { EngineStatus, LogButton, NoteCards, SetHeader, StartOver, type Logged } from "@/app/components/set-parts";
+import {
+  ChallengeBanner,
+  ChallengeResult,
+  EngineStatus,
+  LogButton,
+  NoteCards,
+  SetHeader,
+  StartOver,
+  type Logged,
+} from "@/app/components/set-parts";
 import { ShareButton } from "@/app/components/share-button";
 import { useClock } from "@/app/components/use-clock";
 import type { ConstraintSet } from "@/content/constraint";
 import { scoreText } from "@/lib/engine/score";
 import { buildNotes } from "@/lib/notes";
-import { buildShare, constraintRuns } from "@/lib/share";
+import { buildShare, constraintRuns, parseChallenge, type Challenge } from "@/lib/share";
 import { clearDraft, getBest, loadDraft, logScore, saveDraft, workInProgress } from "@/lib/progress";
 
 // How long typing must pause before the draft is rechecked.
@@ -24,6 +33,7 @@ export function ConstraintScreen({ set, number, total }: { set: ConstraintSet; n
   const [loadFailed, setLoadFailed] = useState(false);
   const [best, setBest] = useState<number | null>(null);
   const [logged, setLogged] = useState<Logged | null>(null);
+  const [challenge, setChallenge] = useState<Challenge | null>(null);
   const timeRule = set.bonus?.find((r) => r.type === "timeLimit");
   const timer = useClock(timeRule?.type === "timeLimit" ? timeRule.seconds : undefined);
   const { restore } = timer;
@@ -39,6 +49,7 @@ export function ConstraintScreen({ set, number, total }: { set: ConstraintSet; n
           setIgnored(draft.ignored);
           if (draft.startedAt) restore(draft.startedAt);
         }
+        setChallenge(parseChallenge(location.search));
         setBest(getBest(set.id));
         setEngine(loaded);
       })
@@ -116,6 +127,7 @@ export function ConstraintScreen({ set, number, total }: { set: ConstraintSet; n
         bonus={set.bonus}
         secondsLeft={timer.secondsLeft}
       />
+      {challenge && <ChallengeBanner score={challenge.score} />}
       <DraftEditor
         value={text}
         onChange={edit}
@@ -127,6 +139,7 @@ export function ConstraintScreen({ set, number, total }: { set: ConstraintSet; n
       <NoteCards notes={notes} ignoredCount={ignored.length} onIgnore={ignore} />
       <ScoreCard score={score} band={band} best={best} />
       <LogButton onLog={log} disabled={!engine || !text.trim()} logged={logged} best={best} />
+      {logged && challenge && <ChallengeResult mine={logged.score} theirs={challenge.score} />}
       {logged && <ShareButton {...logged.share} />}
       {workInProgress([text]) && <StartOver onConfirm={startOver} />}
     </>

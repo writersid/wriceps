@@ -89,6 +89,33 @@ export function shareMessage(r: {
 
 export type Share = { card: Card; message: string; fileName: string };
 
+// A challenge: the score to beat and, for a fill-in, the round's seed, so the
+// friend plays the identical round. Carried in the link: ?c=82&seed=123.
+export type Challenge = { score: number; seed?: number };
+
+export function challengeLink(origin: string, setId: string, challenge: Challenge): string {
+  const seed = challenge.seed === undefined ? "" : `&seed=${challenge.seed}`;
+  return `${origin}/sets/${setId}?c=${challenge.score}${seed}`;
+}
+
+// Reads a challenge from a link's query string. A broken or out-of-range value
+// means no challenge (or no seed), so the set just opens normally.
+export function parseChallenge(search: string): Challenge | null {
+  const params = new URLSearchParams(search);
+  const c = params.get("c") ?? "";
+  const seed = params.get("seed") ?? "";
+  if (!/^\d{1,3}$/.test(c) || Number(c) > 100) return null;
+  const challenge: Challenge = { score: Number(c) };
+  if (/^\d{1,10}$/.test(seed) && Number(seed) < 2 ** 32) challenge.seed = Number(seed);
+  return challenge;
+}
+
+// DRAFT wording, for Sid to rewrite.
+export function challengeResult(mine: number, theirs: number): string {
+  const verdict = mine > theirs ? "You win." : mine === theirs ? "A tie." : "They win this one.";
+  return `You ${mine} · Them ${theirs}. ${verdict}`;
+}
+
 // How to share. Phones (a finger as the main pointer) use the share sheet:
 // with the image where they allow it, else the message alone. Desktops skip
 // the system share (Windows' share window drops the message) and get our panel.
@@ -111,8 +138,12 @@ export function buildShare(r: {
   score: number;
   ignoredFlags: number;
   team?: boolean;
+  seed?: number; // a fill-in round's seed, for the challenge link
 }): Share {
-  const link = `${r.origin}/sets/${r.setId}`;
+  // Solo shares carry a challenge to beat this score; team shares link to the set.
+  const link = r.team
+    ? `${r.origin}/sets/${r.setId}`
+    : challengeLink(r.origin, r.setId, { score: r.score, seed: r.seed });
   return {
     card: { mechanic: r.mechanic, title: r.title, runs: r.runs, score: r.score, ignoredFlags: r.ignoredFlags, team: r.team, url: link },
     message: shareMessage({ title: r.title, score: r.score, ignoredFlags: r.ignoredFlags, piece: r.piece, link, team: r.team }),

@@ -3,7 +3,17 @@
 import { useEffect, useMemo, useState } from "react";
 import { loadEngine, type Engine } from "@/app/components/load-engine";
 import { ScoreCard } from "@/app/components/score-card";
-import { EngineStatus, LogButton, NoteCards, SetHeader, StartOver, type Logged } from "@/app/components/set-parts";
+import {
+  ChallengeBanner,
+  ChallengeConflict,
+  ChallengeResult,
+  EngineStatus,
+  LogButton,
+  NoteCards,
+  SetHeader,
+  StartOver,
+  type Logged,
+} from "@/app/components/set-parts";
 import { ShareButton } from "@/app/components/share-button";
 import { useClock } from "@/app/components/use-clock";
 import type { FillInSet } from "@/content/fill-in";
@@ -19,7 +29,7 @@ import {
 } from "@/lib/fill-in";
 import { buildNotes } from "@/lib/notes";
 import { splitLines, turnLines } from "@/lib/pass";
-import { buildShare, fillInRuns, fillInText } from "@/lib/share";
+import { buildShare, fillInRuns, fillInText, parseChallenge, type Challenge } from "@/lib/share";
 import {
   clearDraft,
   getBest,
@@ -54,12 +64,22 @@ export function FillInScreen({ set, number, total }: { set: FillInSet; number: n
   const [passDraft, setPassDraft] = useState<FillInDraft | null>(null);
   // Pass-the-phone needs at least two turns.
   const canPass = useMemo(() => turnLines(splitLines(parts)).length >= 2, [parts]);
+  const [challenge, setChallenge] = useState<Challenge | null>(null);
+  // A challenge link that would replace a round in progress waits for the player's answer.
+  const [pendingChallenge, setPendingChallenge] = useState<Challenge | null>(null);
 
   // The saved round loads with the engine, so nothing typed before then gets replaced.
   useEffect(() => {
     loadEngine()
       .then((loaded) => {
-        const draft = loadFillInDraft(set.id, labels.length);
+        let draft = loadFillInDraft(set.id, labels.length);
+        // A challenge plays the linked round (its seed, solo). A saved round
+        // with another seed is dropped if empty, else the player decides.
+        const linked = parseChallenge(location.search);
+        const clash = linked?.seed !== undefined && draft !== null && draft.seed !== linked.seed;
+        if (clash && !workInProgress(draft!.answers, !!draft!.pass)) draft = null;
+        if (clash && draft) setPendingChallenge(linked);
+        else setChallenge(linked);
         if (draft?.pass) {
           setPassDraft(draft);
           setSeed(draft.seed);
@@ -73,8 +93,8 @@ export function FillInScreen({ set, number, total }: { set: FillInSet; number: n
           if (draft.startedAt) restore(draft.startedAt);
           setMode("solo");
         } else {
-          setSeed(newSeed());
-          setMode(canPass ? null : "solo");
+          setSeed(linked?.seed ?? newSeed());
+          setMode(linked || !canPass ? "solo" : null);
         }
         setBest(getBest(set.id));
         setEngine(loaded);
@@ -150,14 +170,33 @@ export function FillInScreen({ set, number, total }: { set: FillInSet; number: n
       piece: fillInText(parts, answers),
       score: final.score,
       ignoredFlags: final.ignoredFlags,
+      seed: seed ?? undefined,
     });
     setLogged({ score: final.score, isNewPR: result.isNewPR, share });
     timer.stop();
     clearDraft(set.id);
   }
 
-  // Discards the round in progress and goes back to choosing solo or a spotter.
+  // Discards the round in progress and goes back to choosing solo or a
+  // spotter. In a challenge, the new round replays the challenge's seed, solo.
   function startOver() {
+    resetRound(challenge?.seed ?? newSeed(), challenge || !canPass ? "solo" : null);
+  }
+
+  function startChallenge() {
+    setChallenge(pendingChallenge);
+    setPendingChallenge(null);
+    resetRound(pendingChallenge?.seed ?? newSeed(), "solo");
+  }
+
+  // Keeps the round in progress and drops the challenge from the address, so
+  // a refresh doesn't ask again.
+  function keepRound() {
+    setPendingChallenge(null);
+    history.replaceState(null, "", location.pathname);
+  }
+
+  function resetRound(nextSeed: number, nextMode: "solo" | null) {
     clearDraft(set.id);
     const empty = labels.map(() => "");
     setAnswers(empty);
@@ -167,8 +206,8 @@ export function FillInScreen({ set, number, total }: { set: FillInSet; number: n
     setLogged(null);
     timer.stop();
     setPassDraft(null);
-    setSeed(newSeed());
-    setMode(canPass ? null : "solo");
+    setSeed(nextSeed);
+    setMode(nextMode);
   }
   const startOverControl = workInProgress(answers) && <StartOver onConfirm={startOver} />;
 
@@ -182,6 +221,17 @@ export function FillInScreen({ set, number, total }: { set: FillInSet; number: n
       secondsLeft={timer.secondsLeft}
     />
   );
+
+  const banner = challenge && <ChallengeBanner score={challenge.score} />;
+
+  if (pendingChallenge) {
+    return (
+      <>
+        {header}
+        <ChallengeConflict onStart={startChallenge} onKeep={keepRound} />
+      </>
+    );
+  }
 
   if (mode === "pass" && engine && seed !== null) {
     return (
@@ -235,6 +285,7 @@ export function FillInScreen({ set, number, total }: { set: FillInSet; number: n
     return (
       <>
         {header}
+        {banner}
         <section className="flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4">
           <p className="text-sm text-muted">
             Blank {step + 1} of {labels.length}
@@ -282,6 +333,7 @@ export function FillInScreen({ set, number, total }: { set: FillInSet; number: n
   return (
     <>
       {header}
+      {banner}
       <Poem
         parts={parts}
         answers={answers}
@@ -303,6 +355,7 @@ export function FillInScreen({ set, number, total }: { set: FillInSet; number: n
       <ScoreCard score={score} band={band} best={best} />
       <LogButton onLog={log} disabled={!engine || !complete} logged={logged} best={best} />
       {!complete && <p className="-mt-2 text-center text-sm text-muted">Fill every blank to log the set.</p>}
+      {logged && challenge && <ChallengeResult mine={logged.score} theirs={challenge.score} />}
       {logged && <ShareButton {...logged.share} />}
       {startOverControl}
     </>

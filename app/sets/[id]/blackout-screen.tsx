@@ -3,14 +3,23 @@
 import { useEffect, useMemo, useState } from "react";
 import { loadEngine, type Engine } from "@/app/components/load-engine";
 import { ScoreCard } from "@/app/components/score-card";
-import { EngineStatus, LogButton, NoteCards, SetHeader, StartOver, type Logged } from "@/app/components/set-parts";
+import {
+  ChallengeBanner,
+  ChallengeResult,
+  EngineStatus,
+  LogButton,
+  NoteCards,
+  SetHeader,
+  StartOver,
+  type Logged,
+} from "@/app/components/set-parts";
 import { ShareButton } from "@/app/components/share-button";
 import { useClock } from "@/app/components/use-clock";
 import type { BlackoutSet } from "@/content/blackout";
 import { keptWordAt, passageWords, poemText, toggleKept } from "@/lib/blackout";
 import { scoreText } from "@/lib/engine/score";
 import { buildNotes } from "@/lib/notes";
-import { blackoutRuns, buildShare } from "@/lib/share";
+import { blackoutRuns, buildShare, parseChallenge, type Challenge } from "@/lib/share";
 import { clearDraft, getBest, loadBlackoutDraft, logScore, saveDraft } from "@/lib/progress";
 
 const UNDERLINE = "underline decoration-coral decoration-wavy decoration-[1.5px] underline-offset-4";
@@ -24,6 +33,7 @@ export function BlackoutScreen({ set, number, total }: { set: BlackoutSet; numbe
   const [loadFailed, setLoadFailed] = useState(false);
   const [best, setBest] = useState<number | null>(null);
   const [logged, setLogged] = useState<Logged | null>(null);
+  const [challenge, setChallenge] = useState<Challenge | null>(null);
   const timeRule = set.bonus?.find((r) => r.type === "timeLimit");
   const timer = useClock(timeRule?.type === "timeLimit" ? timeRule.seconds : undefined);
   const { restore } = timer;
@@ -39,6 +49,7 @@ export function BlackoutScreen({ set, number, total }: { set: BlackoutSet; numbe
           setBlackedOut(draft.blackedOut);
           if (draft.startedAt) restore(draft.startedAt);
         }
+        setChallenge(parseChallenge(location.search));
         setBest(getBest(set.id));
         setEngine(loaded);
       })
@@ -134,6 +145,7 @@ export function BlackoutScreen({ set, number, total }: { set: BlackoutSet; numbe
         bonus={set.bonus}
         secondsLeft={timer.secondsLeft}
       />
+      {challenge && <ChallengeBanner score={challenge.score} />}
       <section
         aria-label={blackedOut ? "Your blackout page" : "The passage. Tap words to keep them."}
         className="paper rounded-2xl border border-border p-4 text-lg leading-11"
@@ -196,6 +208,7 @@ export function BlackoutScreen({ set, number, total }: { set: BlackoutSet; numbe
       <NoteCards notes={notes} ignoredCount={ignored.length} onIgnore={ignore} />
       <ScoreCard score={score} band={band} best={best} />
       <LogButton onLog={log} disabled={!engine || kept.length === 0} logged={logged} best={best} />
+      {logged && challenge && <ChallengeResult mine={logged.score} theirs={challenge.score} />}
       {logged && <ShareButton {...logged.share} />}
       {kept.length > 0 && <StartOver onConfirm={startOver} />}
     </>
