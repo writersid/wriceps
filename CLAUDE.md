@@ -29,8 +29,8 @@ npm run language:eval    # rerun syllable, part-of-speech, and word-list accurac
 
 ## Status
 
-- **Current phase:** 3 (App layer), part 4 (blackout poems) built; waiting on Sid's phone test (part 3c's phone test is also still to report). Part 3 is split: 3a engine rules, 3b fill-in poems (solo), 3c pass-the-phone.
-- **Phase 3 = the app layer (screens).** Wriceps has no server, so the skill's "Server / API layer" phase becomes the screens. Parts: (1) design foundation, (2) constraint-writing screen, (3) fill-in poems with pass-the-phone, (4) blackout poems, (5) result cards, sharing, and challenge links, (6) home screen and set list, privacy page with credits from NOTICES.md, and the note that clearing browser data clears progress.
+- **Current phase:** 3 (App layer), planning part 5 (result cards, sharing, challenge links). Parts 3c and 4 passed Sid's phone tests. Part 3 is split: 3a engine rules, 3b fill-in poems (solo), 3c pass-the-phone.
+- **Phase 3 = the app layer (screens).** Wriceps has no server, so the skill's "Server / API layer" phase becomes the screens. Parts: (1) design foundation, (2) constraint-writing screen, (3) fill-in poems with pass-the-phone, (4) blackout poems, (5) result cards, sharing, and challenge links, (6) home screen and set list, privacy page with credits from NOTICES.md, and the note that clearing browser data clears progress. Part 6 also adds (Sid, after part 4; see SPEC.md "Help pages and footer"): a "How to play" page per mechanic, linked from every set near its title, and a home-page footer with a short muted line (wording from Sid) and links to Sid's GitHub, his X account, and the privacy and credits page.
 - **Phase 1 done:** create-next-app scaffold; SPEC.md and ROADMAP.md; this file; .gitignore allows `.env.example`; private GitHub repo `writersid/wriceps`.
 - **Phase 2 done:**
   - Vitest 4.1.11 (`npm test`).
@@ -68,19 +68,19 @@ npm run language:eval    # rerun syllable, part-of-speech, and word-list accurac
   - Live score scaled by the share of blanks filled (`scaleByFilled`). Blanks and echoes that start a sentence are capitalized for display only (`startsSentence`, `capitalizeFirst`).
   - `app/sets/[id]/fill-in-screen.tsx`: open mode (inline inputs in the poem card) and surprise mode (one blank at a time, Back until logged, reveal). Logging needs every blank filled. Answers, step, seed, and clock survive a refresh (`loadFillInDraft`).
   - Shared by both screens: `app/components/set-parts.tsx` (header, note cards, log button), `use-clock.ts`, `load-engine.ts`.
-- **Phase 3 part 3c (pass-the-phone) built:**
+- **Phase 3 part 3c (pass-the-phone) done.** Phone test passed (reported by Sid): pass-the-phone and Start over.
   - Rules in SPEC.md "Pass-the-phone details". Every fill-in set with at least two turn lines offers Solo and With a spotter on its first screen.
   - `lib/pass.ts`: `splitLines`, `turnLines` (only lines with blanks are turns; text-only and echo-only lines are revealed with the poem), `playerFor` (spotter second), `teaser` (last 3 words, echoes hidden), `turnFlags` (repeat notes don't name the other player's word).
   - `app/sets/[id]/pass-game.tsx`: handoff screen, turn screen (one line, inline boxes), line-by-line reveal, team score (not a PR), New game. No time bonus with a spotter.
   - Saved in the fill-in draft's `pass` field; a turn in progress reopens on its handoff screen after a refresh.
   - `Poem` and `AnswerInput` moved to `app/sets/[id]/poem.tsx`.
   - "Start over" (`StartOver` in `set-parts.tsx`, inline confirm) shows on every set with work in progress (`workInProgress` in `lib/progress.ts`): constraint drafts (clears text, ignores, clock; keeps the best score) and fill-in rounds, solo or with a spotter (returns to the Solo / With a spotter choice). Fixes resumed solo rounds hiding the choice (found by Sid on his phone).
-- **Phase 3 part 4 (blackout poems) built:**
+- **Phase 3 part 4 (blackout poems) done.** Phone test passed (reported by Sid): all three sets, picks, blackout view, refresh, dark-mode paper page, Log, Start over. Passage length is fine, no fade while picking, touching outlines are fine. Spring Cleaning's task wasn't clear from its blurb, which led to the one-sentence blurb rule in SPEC.md "Content".
   - Rules in SPEC.md "Blackout details". Tap to keep (Sid's choice over tap to black out: fewer taps, and an untouched passage scores 0 with no scoring change). "Black out the rest" / "Back to picking" toggle.
   - The passage is always a paper page (`.paper` in `app/globals.css` resets the color tokens to light values): chalk, charcoal text and bars, deep coral underlines. Recorded in SPEC.md's design rules.
   - `lib/blackout.ts`: `passageWords`, `poemText` (kept words in passage order, single spaces, no punctuation), `keptWordAt` (flag position back to the passage word), `toggleKept`.
   - `app/sets/[id]/blackout-screen.tsx`; draft in `lib/progress.ts` (`BlackoutDraft`, `loadBlackoutDraft`). Punctuation right after a word stays on its line and joins its bar.
   - 3 placeholder sets in `content/blackout.ts` (Dickens, Melville, Grahame), each copied word for word from Project Gutenberg's plain text and checked against it, source recorded. `content/content.test.ts` allows only word count, required words, banned letters, syllables, no repeats, and a time bonus in blackout sets, and checks required words appear in the passage.
-  - Left for Sid's phone test: passage length, whether unpicked words should fade while picking, and touching outlines on adjacent kept words. Some shared DRAFT tips read oddly for blackout ("Cut the weakest sentence").
+  - Some shared DRAFT tips read oddly for blackout ("Cut the weakest sentence").
 - **Watch out:** in Windows PowerShell 5.1, `Get-Content`/`Set-Content` read and write the wrong encoding and corrupt characters like "·" and "…". Use the Edit tool, or `[IO.File]` with UTF-8 (no BOM).
-- **Next step:** Sid tests part 4 (and part 3c, passing it to someone) on his phone via the Vercel preview; then Phase 3 part 5 (result cards, sharing, challenge links). Sid rewrites the DRAFT tips in `lib/notes.ts` when ready.
+- **Next step:** Sid approves the part 5 plan (result cards, sharing, challenge links). Sid rewrites the DRAFT tips in `lib/notes.ts` when ready.

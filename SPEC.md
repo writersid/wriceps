@@ -2,7 +2,7 @@
 
 Wriceps: build your writing muscles. A web app of short, fun writing exercises that sharpen writing skills: a gym of exercises and prompts drawn from writing craft everywhere, plus original games. It is not tied to any one teacher or workshop.
 
-Status: approved by Sid on 2026-09-26, revised 2026-09-27. Change this file only with Sid's approval.
+Status: approved by Sid on 2026-09-26, revised 2026-09-27 and 2026-09-28. Change this file only with Sid's approval.
 
 ## Goal and success
 
@@ -111,6 +111,12 @@ Blackout details (decided in Phase 3):
 - Quoted source text (opening lines, blackout passages) comes only from public-domain works such as Project Gutenberg, with the source recorded for each.
 - Content lives in its own file(s), separate from code, so adding an exercise means adding content, not code.
 - Exact word counts are used only for named exact-length forms (six-word story, half-dribble, dribble, drabble) and word-list games. All other exercises use a minimum, a maximum, or a range (a minimum and a maximum together).
+- Every set's blurb states the task in one plain sentence, so a player knows what to do before reading the rule chips. (Added after the part 4 phone test: Spring Cleaning's task wasn't clear.)
+
+## Help pages and footer (added in Phase 3, built in part 6)
+
+- A "How to play" page for each mechanic (constraint, fill-in, blackout), linked from every set near its title.
+- A home-page footer: a short muted line (wording by Sid) and links to Sid's GitHub, his X account, and the privacy and credits page.
 
 ## Analytics and privacy
 
