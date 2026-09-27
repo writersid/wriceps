@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { loadEngine, type Engine } from "@/app/components/load-engine";
 import { ScoreCard } from "@/app/components/score-card";
 import { EngineStatus, LogButton, NoteCards, SetHeader, StartOver, type Logged } from "@/app/components/set-parts";
+import { ShareButton } from "@/app/components/share-button";
 import { useClock } from "@/app/components/use-clock";
 import type { FillInSet } from "@/content/fill-in";
 import { bandFor, scoreText } from "@/lib/engine/score";
@@ -18,6 +19,7 @@ import {
 } from "@/lib/fill-in";
 import { buildNotes } from "@/lib/notes";
 import { splitLines, turnLines } from "@/lib/pass";
+import { buildShare, fillInRuns, fillInText } from "@/lib/share";
 import {
   clearDraft,
   getBest,
@@ -136,10 +138,20 @@ export function FillInScreen({ set, number, total }: { set: FillInSet; number: n
   function log() {
     if (!engine) return;
     const now = answersText(answers);
-    const final = scoreText(now, round, engine.checkText(now, round, timer.elapsed()), ignored).score;
-    const result = logScore(set.id, final);
+    const final = scoreText(now, round, engine.checkText(now, round, timer.elapsed()), ignored);
+    const result = logScore(set.id, final.score);
     setBest(result.best);
-    setLogged({ score: final, isNewPR: result.isNewPR });
+    const share = buildShare({
+      origin: location.origin,
+      setId: set.id,
+      mechanic: "Fill-in",
+      title: set.title,
+      runs: fillInRuns(parts, answers),
+      piece: fillInText(parts, answers),
+      score: final.score,
+      ignoredFlags: final.ignoredFlags,
+    });
+    setLogged({ score: final.score, isNewPR: result.isNewPR, share });
     timer.stop();
     clearDraft(set.id);
   }
@@ -291,6 +303,7 @@ export function FillInScreen({ set, number, total }: { set: FillInSet; number: n
       <ScoreCard score={score} band={band} best={best} />
       <LogButton onLog={log} disabled={!engine || !complete} logged={logged} best={best} />
       {!complete && <p className="-mt-2 text-center text-sm text-muted">Fill every blank to log the set.</p>}
+      {logged && <ShareButton {...logged.share} />}
       {startOverControl}
     </>
   );

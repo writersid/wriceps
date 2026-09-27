@@ -5,10 +5,12 @@ import { DraftEditor } from "@/app/components/draft-editor";
 import { loadEngine, type Engine } from "@/app/components/load-engine";
 import { ScoreCard } from "@/app/components/score-card";
 import { EngineStatus, LogButton, NoteCards, SetHeader, StartOver, type Logged } from "@/app/components/set-parts";
+import { ShareButton } from "@/app/components/share-button";
 import { useClock } from "@/app/components/use-clock";
 import type { ConstraintSet } from "@/content/constraint";
 import { scoreText } from "@/lib/engine/score";
 import { buildNotes } from "@/lib/notes";
+import { buildShare, constraintRuns } from "@/lib/share";
 import { clearDraft, getBest, loadDraft, logScore, saveDraft, workInProgress } from "@/lib/progress";
 
 // How long typing must pause before the draft is rechecked.
@@ -76,10 +78,20 @@ export function ConstraintScreen({ set, number, total }: { set: ConstraintSet; n
   function log() {
     if (!engine) return;
     // Score the text and time as they are now, not as of the last pause in typing.
-    const final = scoreText(text, set, engine.checkText(text, set, timer.elapsed()), ignored).score;
-    const result = logScore(set.id, final);
+    const final = scoreText(text, set, engine.checkText(text, set, timer.elapsed()), ignored);
+    const result = logScore(set.id, final.score);
     setBest(result.best);
-    setLogged({ score: final, isNewPR: result.isNewPR });
+    const share = buildShare({
+      origin: location.origin,
+      setId: set.id,
+      mechanic: "Constraint",
+      title: set.title,
+      runs: constraintRuns(text),
+      piece: text,
+      score: final.score,
+      ignoredFlags: final.ignoredFlags,
+    });
+    setLogged({ score: final.score, isNewPR: result.isNewPR, share });
     timer.stop();
     clearDraft(set.id);
   }
@@ -115,6 +127,7 @@ export function ConstraintScreen({ set, number, total }: { set: ConstraintSet; n
       <NoteCards notes={notes} ignoredCount={ignored.length} onIgnore={ignore} />
       <ScoreCard score={score} band={band} best={best} />
       <LogButton onLog={log} disabled={!engine || !text.trim()} logged={logged} best={best} />
+      {logged && <ShareButton {...logged.share} />}
       {workInProgress([text]) && <StartOver onConfirm={startOver} />}
     </>
   );

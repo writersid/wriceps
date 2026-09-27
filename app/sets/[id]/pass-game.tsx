@@ -4,12 +4,14 @@ import { useEffect, useMemo, useState } from "react";
 import type { Engine } from "@/app/components/load-engine";
 import { ScoreCard } from "@/app/components/score-card";
 import { NoteCards, SetHeader, StartOver } from "@/app/components/set-parts";
+import { ShareButton } from "@/app/components/share-button";
 import type { FillInSet } from "@/content/fill-in";
 import { scoreText } from "@/lib/engine/score";
 import { answerAt, answersText, resolveRound, type Part } from "@/lib/fill-in";
 import { buildNotes } from "@/lib/notes";
 import { blanksIn, joinLines, playerFor, splitLines, teaser, turnFlags, turnLines, type PassState } from "@/lib/pass";
 import { saveDraft, type FillInDraft } from "@/lib/progress";
+import { buildShare, fillInRuns, fillInText } from "@/lib/share";
 import { Poem } from "./poem";
 
 const CHECK_DELAY_MS = 150;
@@ -55,6 +57,21 @@ export function PassGame({
   );
   const text = answersText(checkedAnswers);
   const flags = useMemo(() => engine.checkText(text, round), [engine, text, round]);
+  // The team's result card, rebuilt only when the poem or its ignores change.
+  const teamShare = useMemo(() => {
+    const { score, ignoredFlags } = scoreText(text, round, flags, ignored);
+    return buildShare({
+      origin: location.origin,
+      setId: set.id,
+      mechanic: "Fill-in",
+      title: set.title,
+      runs: fillInRuns(parts, checkedAnswers),
+      piece: fillInText(parts, checkedAnswers),
+      score,
+      ignoredFlags,
+      team: true,
+    });
+  }, [text, round, flags, ignored, set.id, set.title, parts, checkedAnswers]);
   const player = playerFor(pass.turn);
   const line = lines[turns[pass.turn]];
   const blanks = blanksIn(line);
@@ -204,6 +221,7 @@ export function PassGame({
           <p className="font-display text-2xl font-extrabold">Team score</p>
           <ScoreCard score={score} band={band} best={null} />
           <p className="-mt-2 text-sm text-muted">Team scores don&apos;t count toward your PR.</p>
+          <ShareButton {...teamShare} />
           <button
             type="button"
             onClick={onStartOver}

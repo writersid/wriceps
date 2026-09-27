@@ -4,11 +4,13 @@ import { useEffect, useMemo, useState } from "react";
 import { loadEngine, type Engine } from "@/app/components/load-engine";
 import { ScoreCard } from "@/app/components/score-card";
 import { EngineStatus, LogButton, NoteCards, SetHeader, StartOver, type Logged } from "@/app/components/set-parts";
+import { ShareButton } from "@/app/components/share-button";
 import { useClock } from "@/app/components/use-clock";
 import type { BlackoutSet } from "@/content/blackout";
 import { keptWordAt, passageWords, poemText, toggleKept } from "@/lib/blackout";
 import { scoreText } from "@/lib/engine/score";
 import { buildNotes } from "@/lib/notes";
+import { blackoutRuns, buildShare } from "@/lib/share";
 import { clearDraft, getBest, loadBlackoutDraft, logScore, saveDraft } from "@/lib/progress";
 
 const UNDERLINE = "underline decoration-coral decoration-wavy decoration-[1.5px] underline-offset-4";
@@ -85,10 +87,20 @@ export function BlackoutScreen({ set, number, total }: { set: BlackoutSet; numbe
   function log() {
     if (!engine) return;
     // Score the time as it is now, not as of the last tap.
-    const final = scoreText(text, set, engine.checkText(text, set, timer.elapsed()), ignored).score;
-    const result = logScore(set.id, final);
+    const final = scoreText(text, set, engine.checkText(text, set, timer.elapsed()), ignored);
+    const result = logScore(set.id, final.score);
     setBest(result.best);
-    setLogged({ score: final, isNewPR: result.isNewPR });
+    const share = buildShare({
+      origin: location.origin,
+      setId: set.id,
+      mechanic: "Blackout",
+      title: set.title,
+      runs: blackoutRuns(set.passage, words, kept),
+      piece: text,
+      score: final.score,
+      ignoredFlags: final.ignoredFlags,
+    });
+    setLogged({ score: final.score, isNewPR: result.isNewPR, share });
     timer.stop();
     clearDraft(set.id);
   }
@@ -184,6 +196,7 @@ export function BlackoutScreen({ set, number, total }: { set: BlackoutSet; numbe
       <NoteCards notes={notes} ignoredCount={ignored.length} onIgnore={ignore} />
       <ScoreCard score={score} band={band} best={best} />
       <LogButton onLog={log} disabled={!engine || kept.length === 0} logged={logged} best={best} />
+      {logged && <ShareButton {...logged.share} />}
       {kept.length > 0 && <StartOver onConfirm={startOver} />}
     </>
   );

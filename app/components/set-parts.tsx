@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { ScoredRule } from "@/lib/engine/types";
 import { FREE_IGNORES } from "@/lib/engine/score";
 import { ruleLabel, type Note } from "@/lib/notes";
+import type { Share } from "@/lib/share";
 import { clockText } from "./use-clock";
 
 // Pieces shared by the constraint and fill-in screens.
@@ -145,7 +146,8 @@ export function StartOver({ onConfirm }: { onConfirm: () => void }) {
   );
 }
 
-export type Logged = { score: number; isNewPR: boolean };
+// `share` is built at logging, so the result card matches the logged score.
+export type Logged = { score: number; isNewPR: boolean; share: Share };
 
 export function LogButton({
   onLog,
