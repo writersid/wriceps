@@ -38,7 +38,7 @@ const plainLetters = (s: string) => s.normalize("NFD").replace(/\p{M}/gu, "").to
 
 // One flag per word that contains any banned letter.
 export function checkBannedLetters(rule: RuleOf<"bannedLetters">, words: Token[]): Flag[] {
-  const banned = [...plainLetters(rule.letters)];
+  const banned = [...plainLetters(rule.letters ?? "")];
   return words
     .filter((w) => banned.some((letter) => plainLetters(w.text).includes(letter)))
     .map((w) => flag(rule, "bannedLetter", w.text, w));
@@ -48,7 +48,7 @@ export function checkBannedLetters(rule: RuleOf<"bannedLetters">, words: Token[]
 // so "rivers" does not satisfy "river".
 export function checkRequiredWords(rule: RuleOf<"requiredWords">, words: Token[]): Flag[] {
   const present = new Set(words.map((w) => normalizeWord(w.text)));
-  return rule.words
+  return (rule.words ?? [])
     .filter((word) => !present.has(normalizeWord(word)))
     .map((word) => flag(rule, "missingWord", word));
 }
@@ -135,6 +135,31 @@ export function checkSameFirstLetter(rule: RuleOf<"sameFirstLetter">, text: stri
   return flags;
 }
 
+// A sentence ends at . ! ? or … (runs like "?!" and "..." too, with any closing
+// quotes or brackets) followed by a space or the end of the text, or at a line
+// break. Semicolons, colons, and dashes don't end one. Abbreviations ("Mr.")
+// and dialogue ("Stop!" she said) split early, which only makes sentences look
+// shorter, so the rule can miss a long one but never flags a short one.
+const SENTENCE_END = /[.!?…]+["'”’)\]]*(?=\s|$)|\n/g;
+
+// One flag per sentence over the limit. `word` holds the whole sentence (for
+// the note card); the underline covers only the words past the limit, where
+// to cut. Exact, so never ignorable.
+export function checkSentenceLength(rule: RuleOf<"sentenceLength">, text: string, words: Token[]): Flag[] {
+  const ends = [...text.matchAll(SENTENCE_END)].map((m) => m.index + m[0].length);
+  const flags: Flag[] = [];
+  let i = 0;
+  for (const end of [...ends, Infinity]) {
+    const sentence: Token[] = [];
+    while (i < words.length && words[i].start < end) sentence.push(words[i++]);
+    if (sentence.length <= rule.max) continue;
+    const whole = text.slice(sentence[0].start, sentence.at(-1)!.end);
+    const over = { text: whole, start: sentence[rule.max].start, end: sentence.at(-1)!.end };
+    flags.push(flag(rule, "longSentence", whole, over));
+  }
+  return flags;
+}
+
 // One flag, with nothing to underline, once the clock passes the limit.
 // `elapsedMs` is undefined until the first keystroke.
 export function checkTimeLimit(rule: RuleOf<"timeLimit">, elapsedMs: number | undefined): Flag[] {
@@ -149,6 +174,7 @@ const looseSentence = (s: string) =>
 // word ("The end" is not satisfied by "The ending"). The flag underlines the
 // draft's own first sentence.
 export function checkFirstSentence(rule: RuleOf<"firstSentence">, text: string): Flag[] {
+  if (rule.sentence === undefined) return [];
   const draft = looseSentence(text);
   const required = looseSentence(rule.sentence);
   if (draft.startsWith(required) && !/[\p{L}\p{N}]/u.test(draft.charAt(required.length))) return [];

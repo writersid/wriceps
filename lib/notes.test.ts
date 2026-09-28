@@ -4,8 +4,11 @@ import { checkText } from "./engine/check";
 import { syllableRange } from "./engine/language";
 import type { Exercise } from "./engine/types";
 import { buildNotes, ruleLabel } from "./notes";
+import { everyDraw } from "./round";
 
-const set = (id: string) => constraintSets.find((s) => s.id === id)!;
+// Each set with its draws fixed to their first options (E, the stormy night line,
+// lighthouse and key), so the tests don't depend on a random seed.
+const set = (id: string) => everyDraw(constraintSets.find((s) => s.id === id)!)[0];
 const notesFor = (id: string, text: string, ignored: string[] = [], elapsedMs?: number) =>
   buildNotes(checkText(text, set(id), elapsedMs), ignored, set(id), syllableRange);
 
@@ -70,6 +73,12 @@ describe("buildNotes", () => {
     expect(details).toEqual(["Start with “It was a dark and stormy night.”", "Still missing: lighthouse, key"]);
   });
 
+  it("gives one card per long sentence, named by its first words, with no Ignore", () => {
+    const text = "One two three four five six seven eight nine ten eleven twelve. Short.";
+    const notes = notesFor("short-reps", text).filter((n) => n.key.startsWith("sentence:"));
+    expect(notes.map((n) => `${n.word} · ${n.detail} · ${n.ignoreKeys.length}`)).toEqual(["One two three… · 12 words, 2 over · 0"]);
+  });
+
   it("gives every card a tip", () => {
     const notes = notesFor("stormy-night", "Hello there.");
     expect(notes.every((n) => n.tip.length > 0)).toBe(true);
@@ -91,5 +100,13 @@ describe("ruleLabel", () => {
     expect(ruleLabel({ type: "bannedLetters", letters: "e" })).toBe("No letter E");
     expect(ruleLabel({ type: "bannedLetters", letters: "ae" })).toBe("No letters A, E");
     expect(ruleLabel({ type: "requiredWords", words: ["lighthouse", "key"] })).toBe("Use: lighthouse, key");
+    expect(ruleLabel({ type: "sentenceLength", max: 10 })).toBe("Max 10 words per sentence");
+    expect(ruleLabel({ type: "wordCount", min: 100, afterFirstSentence: true })).toBe("100+ words after the opening");
+  });
+
+  it("gives rules still waiting on their draw a neutral label", () => {
+    expect(ruleLabel({ type: "bannedLetters", pool: "aoinst" })).toBe("One banned letter");
+    expect(ruleLabel({ type: "requiredWords", options: [["key"]] })).toBe("Required words");
+    expect(ruleLabel({ type: "firstSentence", options: ["Marley was dead: to begin with."] })).toBe("Start with a classic line");
   });
 });

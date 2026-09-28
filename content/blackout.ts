@@ -62,7 +62,7 @@ export const blackoutSets: BlackoutSet[] = [
   {
     id: "spring-cleaning",
     title: "Spring Cleaning",
-    blurb: "The Mole quit cleaning. You start. Keep spring, lose every E.",
+    blurb: "Keep 8 to 16 words, including spring, avoiding the letter shown.",
     passage:
       "The Mole had been working very hard all the morning, spring-cleaning his little home. First with " +
       "brooms, then with dusters; then on ladders and steps and chairs, with a brush and a pail of " +
@@ -79,7 +79,8 @@ export const blackoutSets: BlackoutSet[] = [
     rules: [
       { id: "length", type: "wordCount", min: 8, max: 16, weight: 40 },
       { id: "spring", type: "requiredWords", words: ["spring"], weight: 20 },
-      { id: "letters", type: "bannedLetters", letters: "e", weight: 40 },
+      // Only letters "spring" doesn't contain, so the required word stays usable.
+      { id: "letters", type: "bannedLetters", pool: "aeo", weight: 40 },
     ],
   },
 ];

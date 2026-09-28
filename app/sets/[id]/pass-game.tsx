@@ -7,10 +7,11 @@ import { NoteCards, SetHeader, StartOver } from "@/app/components/set-parts";
 import { ShareButton } from "@/app/components/share-button";
 import type { FillInSet } from "@/content/fill-in";
 import { scoreText } from "@/lib/engine/score";
-import { answerAt, answersText, resolveRound, type Part } from "@/lib/fill-in";
+import { answerAt, answersText, type Part } from "@/lib/fill-in";
 import { buildNotes } from "@/lib/notes";
 import { blanksIn, joinLines, playerFor, splitLines, teaser, turnFlags, turnLines, type PassState } from "@/lib/pass";
 import { saveDraft, type FillInDraft } from "@/lib/progress";
+import { resolveRound } from "@/lib/round";
 import { buildShare, fillInRuns, fillInText } from "@/lib/share";
 import { Poem } from "./poem";
 

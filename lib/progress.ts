@@ -8,7 +8,8 @@ const draftKey = (setId: string) => `wriceps-draft:${setId}`;
 
 type Progress = Record<string, { best: number }>;
 // startedAt: when the first keystroke started the clock (ms since 1970), for time-limit bonuses.
-export type Draft = { text: string; ignored: string[]; startedAt?: number };
+// seed: the round's draws (see lib/round.ts), for sets that draw.
+export type Draft = { text: string; ignored: string[]; startedAt?: number; seed?: number };
 
 function readJson<T>(key: string): T | null {
   try {
@@ -41,7 +42,10 @@ export function logScore(setId: string, score: number): { best: number; isNewPR:
 export function loadDraft(setId: string): Draft | null {
   const draft = readJson<Draft>(draftKey(setId));
   if (typeof draft?.text !== "string" || !Array.isArray(draft.ignored)) return null;
-  return typeof draft.startedAt === "number" ? draft : { text: draft.text, ignored: draft.ignored };
+  const clean: Draft = { text: draft.text, ignored: draft.ignored };
+  if (typeof draft.startedAt === "number") clean.startedAt = draft.startedAt;
+  if (Number.isInteger(draft.seed)) clean.seed = draft.seed;
+  return clean;
 }
 
 // A fill-in round: one answer per blank, the round's seed (random letter), and
@@ -80,7 +84,7 @@ export function loadFillInDraft(setId: string, blanks: number): FillInDraft | nu
 
 // A blackout round: the kept words' positions in the passage, and whether the
 // blacked-out page is showing.
-export type BlackoutDraft = { kept: number[]; ignored: string[]; blackedOut: boolean; startedAt?: number };
+export type BlackoutDraft = { kept: number[]; ignored: string[]; blackedOut: boolean; startedAt?: number; seed?: number };
 
 export function loadBlackoutDraft(setId: string, words: number): BlackoutDraft | null {
   const d = readJson<BlackoutDraft>(draftKey(setId));
@@ -92,6 +96,7 @@ export function loadBlackoutDraft(setId: string, words: number): BlackoutDraft |
   if (!d || !valid) return null;
   const draft: BlackoutDraft = { kept: [...new Set(d.kept)].sort((a, b) => a - b), ignored: d.ignored, blackedOut: d.blackedOut };
   if (typeof d.startedAt === "number") draft.startedAt = d.startedAt;
+  if (Number.isInteger(d.seed)) draft.seed = d.seed;
   return draft;
 }
 

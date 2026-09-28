@@ -9,10 +9,12 @@ import {
   checkNoRepeats,
   checkRequiredWords,
   checkSameFirstLetter,
+  checkSentenceLength,
   checkSyllables,
   checkTimeLimit,
   checkWordCount,
 } from "./rules";
+import { skippedWords } from "./score";
 import { tokenize } from "./tokenize";
 import type { Exercise, Flag } from "./types";
 
@@ -24,7 +26,7 @@ export function checkText(text: string, exercise: Exercise, elapsedMs?: number):
   return [...exercise.rules, ...(exercise.bonus ?? [])].flatMap((rule) => {
     switch (rule.type) {
       case "wordCount":
-        return checkWordCount(rule, words);
+        return checkWordCount(rule, words.slice(skippedWords(exercise)));
       case "syllables":
         return checkSyllables(rule, words, syllableRange);
       case "noAdverbs":
@@ -39,6 +41,8 @@ export function checkText(text: string, exercise: Exercise, elapsedMs?: number):
         return checkFirstSentence(rule, text);
       case "noRepeats":
         return checkNoRepeats(rule, words, wordRoots(text, words));
+      case "sentenceLength":
+        return checkSentenceLength(rule, text, words);
       case "sameFirstLetter":
         return checkSameFirstLetter(rule, text);
       case "timeLimit":

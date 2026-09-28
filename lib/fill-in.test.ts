@@ -7,9 +7,7 @@ import {
   answerAt,
   answersText,
   capitalizeFirst,
-  drawLetter,
   parseTemplate,
-  resolveRound,
   scaleByFilled,
   startsSentence,
 } from "./fill-in";
@@ -69,30 +67,6 @@ describe("same first letter", () => {
   it("skips empty answers and flags are strict", () => {
     expect(words("s", ["", "snow", "  "])).toEqual([]);
     expect(checkSameFirstLetter(rule("s"), "rain")[0]).toMatchObject({ ignorable: false, start: 0, end: 4 });
-  });
-});
-
-describe("random letter from a seed", () => {
-  it("the same seed always draws the same letter", () => {
-    expect(drawLetter(12345)).toBe(drawLetter(12345));
-  });
-
-  it("draws from the letter pool and spreads across it", () => {
-    const letters = new Set(Array.from({ length: 500 }, (_, i) => drawLetter(i * 7919)));
-    expect([...letters].every((l) => "abcdefghilmnoprstw".includes(l))).toBe(true);
-    expect(letters.size).toBeGreaterThan(12);
-  });
-
-  it("resolveRound fixes random letters and leaves other rules alone", () => {
-    const exercise: Exercise = {
-      rules: [
-        { id: "l", type: "sameFirstLetter", random: true, weight: 60 },
-        { id: "r", type: "noRepeats", weight: 40 },
-      ],
-    };
-    const round = resolveRound(exercise, 42);
-    expect(round.rules[0]).toMatchObject({ letter: drawLetter(42), random: false });
-    expect(round.rules[1]).toBe(exercise.rules[1]);
   });
 });
 

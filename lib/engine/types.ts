@@ -1,17 +1,27 @@
 // Shapes shared by the rule engine and scoring. See SPEC.md "Rule details" and "Scoring".
 
+// Some rules take a fixed value or a list to draw one from each round (`pool`,
+// `options`). lib/round.ts resolves the draw from the round's seed before
+// anything checks or scores, so the checkers only ever see the fixed value.
 export type Rule =
-  | { type: "wordCount"; exact?: number; min?: number; max?: number }
+  // afterFirstSentence: skip as many words as the required opening has, so the
+  // count is the player's own words.
+  | { type: "wordCount"; exact?: number; min?: number; max?: number; afterFirstSentence?: boolean }
   | { type: "syllables"; min?: number; max?: number }
   | { type: "noAdverbs" }
   | { type: "noAdjectives" }
-  | { type: "bannedLetters"; letters: string }
-  | { type: "requiredWords"; words: string[] }
-  | { type: "firstSentence"; sentence: string }
+  // pool: letters to draw one banned letter from, such as "aoinst".
+  | { type: "bannedLetters"; letters?: string; pool?: string }
+  // options: word groups to draw one from.
+  | { type: "requiredWords"; words?: string[]; options?: string[][] }
+  // options: opening lines to draw one from.
+  | { type: "firstSentence"; sentence?: string; options?: string[] }
   | { type: "noRepeats" }
+  // At most `max` words in every sentence.
+  | { type: "sentenceLength"; max: number }
   // Every line (in a fill-in, every answer) starts with the same letter: `letter`,
   // or whatever the first line starts with. `random` means draw the letter from
-  // the round's seed (see lib/fill-in.ts) before checking.
+  // the starting-letter pool (see lib/round.ts) before checking.
   | { type: "sameFirstLetter"; letter?: string; random?: boolean }
   // Bonus rules only.
   | { type: "timeLimit"; seconds: number };

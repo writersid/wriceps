@@ -6,11 +6,56 @@ import {
   checkFirstSentence,
   checkNoRepeats,
   checkRequiredWords,
+  checkSentenceLength,
   checkSyllables,
   checkTimeLimit,
   checkWordCount,
 } from "./rules";
 import { tokenize } from "./tokenize";
+
+describe("max words per sentence", () => {
+  const rule = { type: "sentenceLength" as const, id: "sl", weight: 50, max: 5 };
+  const check = (text: string) => checkSentenceLength(rule, text, tokenize(text));
+  const long = (text: string) => check(text).map((f) => f.word);
+
+  test("sentences within the limit pass", () => {
+    expect(long("The dog ran home. It slept! Did it dream?")).toEqual([]);
+  });
+
+  test("flags each long sentence once, underlining the words past the limit", () => {
+    const text = "One two three four five six seven. Short one. A b c d e f.";
+    const flags = check(text);
+    expect(flags.map((f) => f.word)).toEqual(["One two three four five six seven", "A b c d e f"]);
+    expect(text.slice(flags[0].start, flags[0].end)).toBe("six seven");
+    expect(text.slice(flags[1].start, flags[1].end)).toBe("f");
+    expect(flags.every((f) => !f.ignorable)).toBe(true);
+  });
+
+  test("a long run with no end punctuation is one sentence, and the last sentence needs none", () => {
+    expect(long("one two three; four five, six")).toEqual(["one two three; four five, six"]);
+    expect(long("Fine. one two three four five six")).toEqual(["one two three four five six"]);
+  });
+
+  test("line breaks end a sentence", () => {
+    expect(long("one two three\nfour five six")).toEqual([]);
+  });
+
+  test("ellipses, closing quotes, and ?! end a sentence", () => {
+    expect(long("one two three... four five six")).toEqual([]);
+    expect(long("one two three… four five six")).toEqual([]);
+    expect(long('"one two three!" four five six')).toEqual([]);
+    expect(long("one two three?! four five six")).toEqual([]);
+  });
+
+  test("decimals and dotted abbreviations inside a word don't end one", () => {
+    expect(long("It cost 3.5 dollars in the U.S.A today")).toEqual(["It cost 3.5 dollars in the U.S.A today"]);
+  });
+
+  test("an abbreviation splits early, so it can only miss, never add, a flag", () => {
+    expect(long("Mr. Smith walked to the old mill")).toEqual(["Smith walked to the old mill"]);
+    expect(long("Mr. Smith walked home")).toEqual([]);
+  });
+});
 
 describe("max syllables", () => {
   const check = (max: number, text: string) =>

@@ -18,8 +18,17 @@ export const FREE_IGNORES = 2;
 // maximum number of violations, or a third of it when there is no fixed maximum.
 function defaultCost(rule: ScoredRule): number {
   if (rule.type === "firstSentence" || rule.type === "timeLimit") return rule.weight;
-  if (rule.type === "requiredWords") return rule.weight / Math.max(1, rule.words.length);
+  if (rule.type === "requiredWords") return rule.weight / Math.max(1, rule.words?.length ?? 0);
   return rule.weight / 3;
+}
+
+// How many words a word-count rule skips at the start: the required opening
+// line's length, when the rule counts only the words after it.
+export function skippedWords(exercise: Exercise): number {
+  const count = exercise.rules.find((r) => r.type === "wordCount");
+  if (count?.type !== "wordCount" || !count.afterFirstSentence) return 0;
+  const opening = [...exercise.rules, ...(exercise.bonus ?? [])].find((r) => r.type === "firstSentence");
+  return opening?.type === "firstSentence" && opening.sentence ? tokenize(opening.sentence).length : 0;
 }
 
 // `ignored` holds the ignoreKeys the person tapped, in order. The first two
@@ -43,7 +52,8 @@ export function scoreText(text: string, exercise: Exercise, flags: Flag[], ignor
 
   const all = [...exercise.rules, ...(exercise.bonus ?? [])];
   const sum = all.reduce((total, rule) => total + pointsLeft(rule), 0);
-  const score = Math.min(100, Math.round(sum * gate(tokenize(text).length, exercise, pointsLeft)));
+  const words = Math.max(0, tokenize(text).length - skippedWords(exercise));
+  const score = Math.min(100, Math.round(sum * gate(words, exercise, pointsLeft)));
   return { score, band: bandFor(score), ignoredFlags };
 }
 

@@ -5,6 +5,7 @@ import { loadEngine, type Engine } from "@/app/components/load-engine";
 import { ScoreCard } from "@/app/components/score-card";
 import {
   ChallengeBanner,
+  ChallengeConflict,
   ChallengeResult,
   EngineStatus,
   LogButton,
@@ -21,6 +22,7 @@ import { scoreText } from "@/lib/engine/score";
 import { buildNotes } from "@/lib/notes";
 import { blackoutRuns, buildShare, parseChallenge, type Challenge } from "@/lib/share";
 import { clearDraft, getBest, loadBlackoutDraft, logScore, saveDraft } from "@/lib/progress";
+import { hasDraws, newSeed, openRound, resolveRound } from "@/lib/round";
 
 const UNDERLINE = "underline decoration-coral decoration-wavy decoration-[1.5px] underline-offset-4";
 
@@ -34,6 +36,11 @@ export function BlackoutScreen({ set, number, total }: { set: BlackoutSet; numbe
   const [best, setBest] = useState<number | null>(null);
   const [logged, setLogged] = useState<Logged | null>(null);
   const [challenge, setChallenge] = useState<Challenge | null>(null);
+  // A challenge link that would replace a round in progress waits for the player's answer.
+  const [pendingChallenge, setPendingChallenge] = useState<Challenge | null>(null);
+  // The round's seed, for sets that draw a banned letter or a required word.
+  const draws = useMemo(() => hasDraws(set), [set]);
+  const [seed, setSeed] = useState<number | null>(null);
   const timeRule = set.bonus?.find((r) => r.type === "timeLimit");
   const timer = useClock(timeRule?.type === "timeLimit" ? timeRule.seconds : undefined);
   const { restore } = timer;
@@ -42,29 +49,36 @@ export function BlackoutScreen({ set, number, total }: { set: BlackoutSet; numbe
   useEffect(() => {
     loadEngine()
       .then((loaded) => {
-        const draft = loadBlackoutDraft(set.id, words.length);
+        const linked = parseChallenge(location.search);
+        if (linked && !draws) delete linked.seed;
+        const saved = loadBlackoutDraft(set.id, words.length);
+        const { draft, challenge, pending } = openRound(saved, linked, (d) => d.kept.length > 0);
         if (draft) {
           setKept(draft.kept);
           setIgnored(draft.ignored);
           setBlackedOut(draft.blackedOut);
           if (draft.startedAt) restore(draft.startedAt);
         }
-        setChallenge(parseChallenge(location.search));
+        if (draws) setSeed(draft?.seed ?? challenge?.seed ?? newSeed());
+        setChallenge(challenge);
+        setPendingChallenge(pending);
         setBest(getBest(set.id));
         setEngine(loaded);
       })
       .catch(() => setLoadFailed(true));
-  }, [set.id, words.length, restore]);
+  }, [set.id, words.length, restore, draws]);
 
   const text = poemText(words, kept);
-  const flags = useMemo(() => (engine ? engine.checkText(text, set, timer.clock) : []), [engine, text, set, timer.clock]);
+  // This round's rules, with any draws made from the seed.
+  const round = useMemo(() => (seed === null ? set : resolveRound(set, seed)), [set, seed]);
+  const flags = useMemo(() => (engine ? engine.checkText(text, round, timer.clock) : []), [engine, text, round, timer.clock]);
   const flagged = new Set(
     flags.flatMap((f) =>
       f.start === undefined || (f.ignorable && ignored.includes(f.ignoreKey)) ? [] : [keptWordAt(words, kept, f.start)],
     ),
   );
-  const notes = engine ? buildNotes(flags, ignored, set, engine.syllableRange) : [];
-  const { score, band } = scoreText(text, set, flags, ignored);
+  const notes = engine ? buildNotes(flags, ignored, round, engine.syllableRange) : [];
+  const { score, band } = scoreText(text, round, flags, ignored);
 
   function save(next: { kept?: number[]; ignored?: string[]; blackedOut?: boolean; startedAt?: number | null }) {
     const startedAt = next.startedAt !== undefined ? next.startedAt : timer.startedAt;
@@ -73,6 +87,7 @@ export function BlackoutScreen({ set, number, total }: { set: BlackoutSet; numbe
       ignored: next.ignored ?? ignored,
       blackedOut: next.blackedOut ?? blackedOut,
       startedAt: startedAt ?? undefined,
+      seed: seed ?? undefined,
     });
   }
 
@@ -98,7 +113,7 @@ export function BlackoutScreen({ set, number, total }: { set: BlackoutSet; numbe
   function log() {
     if (!engine) return;
     // Score the time as it is now, not as of the last tap.
-    const final = scoreText(text, set, engine.checkText(text, set, timer.elapsed()), ignored);
+    const final = scoreText(text, round, engine.checkText(text, round, timer.elapsed()), ignored);
     const result = logScore(set.id, final.score);
     setBest(result.best);
     const share = buildShare({
@@ -110,20 +125,36 @@ export function BlackoutScreen({ set, number, total }: { set: BlackoutSet; numbe
       piece: text,
       score: final.score,
       ignoredFlags: final.ignoredFlags,
+      seed: seed ?? undefined,
     });
     setLogged({ score: final.score, isNewPR: result.isNewPR, share });
     timer.stop();
     clearDraft(set.id);
   }
 
-  // Discards the picks, ignores, and clock. The best score stays.
-  function startOver() {
+  // Discards the picks, ignores, and clock, and draws a new round (a challenge
+  // replays its own). The best score stays.
+  function startOver(nextChallenge = challenge) {
     clearDraft(set.id);
     setKept([]);
     setIgnored([]);
     setBlackedOut(false);
     setLogged(null);
     timer.stop();
+    if (draws) setSeed(nextChallenge?.seed ?? newSeed());
+  }
+
+  function startChallenge() {
+    setChallenge(pendingChallenge);
+    setPendingChallenge(null);
+    startOver(pendingChallenge);
+  }
+
+  // Keeps the round in progress and drops the challenge from the address, so
+  // a refresh doesn't ask again.
+  function keepRound() {
+    setPendingChallenge(null);
+    history.replaceState(null, "", location.pathname);
   }
 
   const bar = (text: string, key?: number) => (
@@ -135,17 +166,30 @@ export function BlackoutScreen({ set, number, total }: { set: BlackoutSet; numbe
   const gap = (between: string) =>
     blackedOut ? between.split(/(\s+)/).map((chunk, i) => (/\S/.test(chunk) ? bar(chunk, i) : chunk)) : between;
 
+  const header = (
+    <SetHeader
+      eyebrow={`Set ${number} of ${total} · Blackout`}
+      mechanic="blackout"
+      title={set.title}
+      blurb={set.blurb}
+      rules={round.rules}
+      bonus={round.bonus}
+      secondsLeft={timer.secondsLeft}
+    />
+  );
+
+  if (pendingChallenge) {
+    return (
+      <>
+        {header}
+        <ChallengeConflict onStart={startChallenge} onKeep={keepRound} />
+      </>
+    );
+  }
+
   return (
     <>
-      <SetHeader
-        eyebrow={`Set ${number} of ${total} · Blackout`}
-        mechanic="blackout"
-        title={set.title}
-        blurb={set.blurb}
-        rules={set.rules}
-        bonus={set.bonus}
-        secondsLeft={timer.secondsLeft}
-      />
+      {header}
       {challenge && <ChallengeBanner score={challenge.score} />}
       <section
         aria-label={blackedOut ? "Your blackout page" : "The passage. Tap words to keep them."}
@@ -211,7 +255,7 @@ export function BlackoutScreen({ set, number, total }: { set: BlackoutSet; numbe
       <LogButton onLog={log} disabled={!engine || kept.length === 0} logged={logged} best={best} />
       {logged && challenge && <ChallengeResult mine={logged.score} theirs={challenge.score} />}
       {logged && <ShareButton {...logged.share} />}
-      {kept.length > 0 && <StartOver onConfirm={startOver} />}
+      {kept.length > 0 && <StartOver onConfirm={() => startOver()} />}
     </>
   );
 }

@@ -19,16 +19,10 @@ import { useClock } from "@/app/components/use-clock";
 import type { FillInSet } from "@/content/fill-in";
 import { bandFor, scoreText } from "@/lib/engine/score";
 import type { Flag } from "@/lib/engine/types";
-import {
-  answerAt,
-  answersText,
-  newSeed,
-  parseTemplate,
-  resolveRound,
-  scaleByFilled,
-} from "@/lib/fill-in";
+import { answerAt, answersText, parseTemplate, scaleByFilled } from "@/lib/fill-in";
 import { buildNotes } from "@/lib/notes";
 import { splitLines, turnLines } from "@/lib/pass";
+import { newSeed, openRound, resolveRound } from "@/lib/round";
 import { buildShare, fillInRuns, fillInText, parseChallenge, type Challenge } from "@/lib/share";
 import {
   clearDraft,
@@ -72,14 +66,14 @@ export function FillInScreen({ set, number, total }: { set: FillInSet; number: n
   useEffect(() => {
     loadEngine()
       .then((loaded) => {
-        let draft = loadFillInDraft(set.id, labels.length);
         // A challenge plays the linked round (its seed, solo). A saved round
         // with another seed is dropped if empty, else the player decides.
         const linked = parseChallenge(location.search);
-        const clash = linked?.seed !== undefined && draft !== null && draft.seed !== linked.seed;
-        if (clash && !workInProgress(draft!.answers, !!draft!.pass)) draft = null;
-        if (clash && draft) setPendingChallenge(linked);
-        else setChallenge(linked);
+        const { draft, challenge, pending } = openRound(loadFillInDraft(set.id, labels.length), linked, (d) =>
+          workInProgress(d.answers, !!d.pass),
+        );
+        setChallenge(challenge);
+        setPendingChallenge(pending);
         if (draft?.pass) {
           setPassDraft(draft);
           setSeed(draft.seed);

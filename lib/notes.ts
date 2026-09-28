@@ -1,5 +1,5 @@
 // Turns the engine's flags into note cards, and rules into chip labels.
-import { normalizeWord } from "./engine/tokenize";
+import { normalizeWord, tokenize } from "./engine/tokenize";
 import type { Exercise, Flag, Rule } from "./engine/types";
 
 export type Note = {
@@ -24,6 +24,7 @@ const TIPS: Record<string, [string, string, string]> = {
   bannedLetter: ["Find a word without it.", "Rephrase around it.", "That letter is benched today."],
   tooManyWords: ["Trim until it fits.", "Cut the weakest sentence.", "Every word has to earn its spot."],
   tooFewWords: ["Keep going.", "A few more reps.", "Not done yet."],
+  longSentence: ["Break it in two.", "Put a period where it runs out of breath.", "Short sentences land harder."],
   missingWord: ["Work it in.", "Find a spot for it.", "It has to show up somewhere."],
   firstSentence: ["Open with it, word for word.", "The first line is set. Use it.", "Start there, then make it yours."],
 };
@@ -88,7 +89,7 @@ export function buildNotes(
       } else if (f.kind === "repeatForm") {
         details.add(`same word as “${f.of}”`);
       } else if (f.kind === "bannedLetter") {
-        const letters = [...(ruleFor(f) as Extract<Rule, { type: "bannedLetters" }>).letters.toLowerCase()];
+        const letters = [...((ruleFor(f) as Extract<Rule, { type: "bannedLetters" }>).letters ?? "").toLowerCase()];
         details.add(`contains ${letters.filter((l) => word.includes(l)).join(", ")}`);
       } else {
         details.add(f.kind);
@@ -101,6 +102,20 @@ export function buildNotes(
       detail: [...details].join(", "),
       tip: tipFor(group[0].kind, word),
       ignoreKeys: [...new Set(group.filter((f) => f.ignorable).map((f) => f.ignoreKey))],
+    });
+  }
+
+  // One card per over-long sentence, named by its first words.
+  for (const f of visible.filter((f) => f.kind === "longSentence")) {
+    const words = tokenize(f.word);
+    const max = (ruleFor(f) as Extract<Rule, { type: "sentenceLength" }>).max;
+    const opening = f.word.slice(0, words[Math.min(2, words.length - 1)].end);
+    notes.push({
+      key: `sentence:${f.start}`,
+      word: `${opening}…`,
+      detail: `${plural(words.length, "word")}, ${words.length - max} over`,
+      tip: tipFor("longSentence", f.word),
+      ignoreKeys: [],
     });
   }
 
@@ -138,11 +153,16 @@ function wholeDraft(kind: string, detail: string): Note {
 
 export function ruleLabel(rule: Rule): string {
   switch (rule.type) {
-    case "wordCount":
-      if (rule.exact !== undefined) return `Exactly ${plural(rule.exact, "word")}`;
-      if (rule.min !== undefined && rule.max !== undefined) return `${rule.min}–${rule.max} words`;
-      if (rule.min !== undefined) return `${rule.min}+ words`;
-      return `Up to ${plural(rule.max ?? 0, "word")}`;
+    case "wordCount": {
+      // DRAFT wording: " after the opening", for Sid to rewrite.
+      const after = rule.afterFirstSentence ? " after the opening" : "";
+      if (rule.exact !== undefined) return `Exactly ${plural(rule.exact, "word")}${after}`;
+      if (rule.min !== undefined && rule.max !== undefined) return `${rule.min}–${rule.max} words${after}`;
+      if (rule.min !== undefined) return `${rule.min}+ words${after}`;
+      return `Up to ${plural(rule.max ?? 0, "word")}${after}`;
+    }
+    case "sentenceLength":
+      return `Max ${plural(rule.max, "word")} per sentence`;
     case "syllables":
       if (rule.min !== undefined && rule.min === rule.max) return `Exactly ${plural(rule.min, "syllable")}`;
       if (rule.min !== undefined && rule.max !== undefined) return `${rule.min}–${rule.max} syllables`;
@@ -158,13 +178,16 @@ export function ruleLabel(rule: Rule): string {
       return "No adverbs";
     case "noAdjectives":
       return "No adjectives";
+    // Before the round's draw is made (a split second while it loads), rules
+    // with a list show a neutral label. DRAFT wording, for Sid to rewrite.
     case "bannedLetters": {
+      if (rule.letters === undefined) return "One banned letter";
       const letters = [...rule.letters.toUpperCase()];
       return `No letter${letters.length > 1 ? "s" : ""} ${letters.join(", ")}`;
     }
     case "requiredWords":
-      return `Use: ${rule.words.join(", ")}`;
+      return rule.words ? `Use: ${rule.words.join(", ")}` : "Required words";
     case "firstSentence":
-      return `Start with “${rule.sentence}”`;
+      return rule.sentence ? `Start with “${rule.sentence}”` : "Start with a classic line";
   }
 }

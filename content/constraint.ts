@@ -28,21 +28,37 @@ export const constraintSets: ConstraintSet[] = [
   {
     id: "missing-e",
     title: "The Missing E",
-    blurb: "Write 50 to 100 words without the most common letter in English.",
+    blurb: "Write 50 to 100 words without the letter shown.",
     rules: [
-      { id: "letters", type: "bannedLetters", letters: "e", weight: 60 },
+      { id: "letters", type: "bannedLetters", pool: "eaot", weight: 60 },
       { id: "length", type: "wordCount", min: 50, max: 100, weight: 40 },
     ],
   },
   {
     id: "stormy-night",
     title: "A Dark and Stormy Night",
-    blurb: "The most mocked opening line in English. Make it work anyway.",
+    blurb: "Start with the opening line shown, then write 50 to 150 words of your own.",
     rules: [
-      // Edward Bulwer-Lytton, Paul Clifford (1830). Public domain.
-      { id: "opening", type: "firstSentence", sentence: "It was a dark and stormy night.", weight: 30 },
-      { id: "length", type: "wordCount", min: 50, max: 150, weight: 40 },
+      // Edward Bulwer-Lytton, Paul Clifford (1830); Charles Dickens, A Christmas
+      // Carol (1843). Public domain. Wording to be checked against Project
+      // Gutenberg in step 2.
+      {
+        id: "opening",
+        type: "firstSentence",
+        options: ["It was a dark and stormy night.", "Marley was dead: to begin with."],
+        weight: 30,
+      },
+      { id: "length", type: "wordCount", min: 50, max: 150, afterFirstSentence: true, weight: 40 },
     ],
-    bonus: [{ id: "words", type: "requiredWords", words: ["lighthouse", "key"], weight: 30 }],
+    bonus: [{ id: "words", type: "requiredWords", options: [["lighthouse", "key"], ["kite", "coin"]], weight: 30 }],
+  },
+  {
+    id: "short-reps",
+    title: "Short Reps",
+    blurb: "Write 80 to 120 words where no sentence is longer than ten words.",
+    rules: [
+      { id: "length", type: "wordCount", min: 80, max: 120, weight: 50 },
+      { id: "sentences", type: "sentenceLength", max: 10, weight: 50 },
+    ],
   },
 ];

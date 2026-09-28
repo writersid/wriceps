@@ -183,6 +183,39 @@ describe("violations, ignores, and bonus rules", () => {
   });
 });
 
+describe("words after the opening line", () => {
+  const exercise: Exercise = {
+    rules: [
+      { id: "opening", type: "firstSentence", sentence: "Marley was dead: to begin with.", weight: 50 },
+      { id: "length", type: "wordCount", min: 10, afterFirstSentence: true, weight: 50 },
+    ],
+  };
+  const score = (text: string) => scoreText(text, exercise, checkText(text, exercise), []).score;
+  const own = (n: number) => Array.from({ length: n }, (_, i) => `w${i}`).join(" ");
+
+  test("the opening's words don't count toward the target", () => {
+    expect(score(`Marley was dead: to begin with. ${own(5)}`)).toBe(50);
+    expect(score(`Marley was dead: to begin with. ${own(10)}`)).toBe(100);
+  });
+
+  test("a maximum also counts only the words after the opening", () => {
+    const capped: Exercise = {
+      rules: [
+        { id: "opening", type: "firstSentence", sentence: "Marley was dead: to begin with.", weight: 50 },
+        { id: "length", type: "wordCount", max: 3, afterFirstSentence: true, weight: 50 },
+      ],
+    };
+    const text = `Marley was dead: to begin with. ${own(4)}`;
+    expect(checkText(text, capped).map((f) => f.word)).toEqual(["w3"]);
+  });
+
+  test("without the flag, the opening counts", () => {
+    const plain: Exercise = { rules: [exercise.rules[0], { id: "length", type: "wordCount", min: 12, weight: 50 }] };
+    const text = `Marley was dead: to begin with. ${own(6)}`;
+    expect(scoreText(text, plain, checkText(text, plain), []).score).toBe(100);
+  });
+});
+
 describe("determinism and awkward input", () => {
   const exercise: Exercise = {
     rules: [

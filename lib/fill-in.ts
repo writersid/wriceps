@@ -1,6 +1,5 @@
-// Fill-in poems: template parsing, answers as text for the rule engine, and
-// the round's random elements. See SPEC.md "Fill-in poems".
-import type { Exercise, ScoredRule } from "./engine/types";
+// Fill-in poems: template parsing and answers as text for the rule engine.
+// The round's random letter is drawn in lib/round.ts. See SPEC.md "Fill-in poems".
 
 // Template syntax: "{noun}" is a blank with its label; "{noun#shout}" also
 // names it; "{=shout}" echoes that blank's answer, filled in automatically.
@@ -81,29 +80,4 @@ export function startsSentence(parts: Part[], index: number): boolean {
 // The answer with its first letter capitalized, for display.
 export function capitalizeFirst(answer: string): string {
   return answer.replace(/\p{L}/u, (letter) => letter.toUpperCase());
-}
-
-// A random seed for a new round. Part 5's challenge links will carry it.
-export function newSeed(): number {
-  return Math.floor(Math.random() * 2 ** 32);
-}
-
-// Letters that start plenty of everyday words.
-const LETTER_POOL = "abcdefghilmnoprstw";
-
-// The same seed always draws the same letter (mulberry32, a small standard
-// random-number generator).
-export function drawLetter(seed: number): string {
-  let t = (seed + 0x6d2b79f5) >>> 0;
-  t = Math.imul(t ^ (t >>> 15), t | 1);
-  t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-  const r = ((t ^ (t >>> 14)) >>> 0) / 2 ** 32;
-  return LETTER_POOL[Math.floor(r * LETTER_POOL.length)];
-}
-
-// The exercise for this round, with random elements fixed by the seed.
-export function resolveRound<T extends Exercise>(exercise: T, seed: number): T {
-  const fix = (rule: ScoredRule): ScoredRule =>
-    rule.type === "sameFirstLetter" && rule.random ? { ...rule, letter: drawLetter(seed), random: false } : rule;
-  return { ...exercise, rules: exercise.rules.map(fix), bonus: exercise.bonus?.map(fix) };
 }

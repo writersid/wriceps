@@ -89,8 +89,9 @@ export function shareMessage(r: {
 
 export type Share = { card: Card; message: string; fileName: string };
 
-// A challenge: the score to beat and, for a fill-in, the round's seed, so the
-// friend plays the identical round. Carried in the link: ?c=82&seed=123.
+// A challenge: the score to beat and, for a set that draws (a random letter,
+// banned letter, words, or opening line), the round's seed, so the friend
+// plays the identical round. Carried in the link: ?c=82&seed=123.
 export type Challenge = { score: number; seed?: number };
 
 export function challengeLink(origin: string, setId: string, challenge: Challenge): string {
@@ -138,7 +139,7 @@ export function buildShare(r: {
   score: number;
   ignoredFlags: number;
   team?: boolean;
-  seed?: number; // a fill-in round's seed, for the challenge link
+  seed?: number; // the round's seed, for a set that draws, for the challenge link
 }): Share {
   // Solo shares carry a challenge to beat this score; team shares link to the set.
   const link = r.team
