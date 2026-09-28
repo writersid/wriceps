@@ -22,6 +22,7 @@ Every piece of player-facing text, gathered at the end of Phase 3 part 6 so Sid 
 | too few words | Keep going. · A few more reps. · Not done yet. |
 | missing word | Work it in. · Find a spot for it. · It has to show up somewhere. |
 | first sentence | Open with it, word for word. · The first line is set. Use it. · Start there, then make it yours. |
+| long sentence | Break it in two. · Put a period where it runs out of breath. · Short sentences land harder. |
 
 Note: these tips are shared by all three mechanics. "Cut the weakest sentence" reads oddly on blackout sets, where the player keeps words rather than writing sentences.
 
@@ -58,7 +59,7 @@ Note: these tips are shared by all three mechanics. "Cut the weakest sentence" r
 - Privacy bullets, `app/privacy/page.tsx`:
   - "No accounts. There's nothing to sign up for."
   - "Your writing stays on your device. It leaves only when you tap Share, and goes only where you send it."
-  - "Challenge links carry the set, your score, and the round's random letter. Never your writing."
+  - "Challenge links carry the set, your score, and the round's random letter. Never your writing." (Now also the drawn banned letter, words, or opening line; reword to cover them.)
   - "Your scores and unfinished sets are saved in this browser. Clearing browser data clears them, and another phone or browser starts fresh."
   - "Wriceps sets no cookies and doesn't track you." (must change when PostHog is added)
 
@@ -69,8 +70,11 @@ Note: these tips are shared by all three mechanics. "Cut the weakest sentence" r
   - "contains e" / "should start with S" / "3 syllables"
   - "Still missing: …" / "2 words over the limit" / "4 words short"
   - "Over the time limit, so no bonus"
+  - long sentence card: "One two three…" (its first three words) / "12 words, 2 over"
 - Rule chip labels, `lib/notes.ts` (`ruleLabel`):
   - "Exactly 6 words" / "8–15 words" / "50+ words" / "Up to 12 words"
+  - **DRAFT:** "100+ words after the opening" / "Max 10 words per sentence"
+  - **DRAFT**, shown for a split second before a round's draw is made: "One banned letter" / "Required words" / "Start with a classic line"
   - "Max 2 syllables" / "Min 2 syllables" / "Exactly 2 syllables" / "1–2 syllables"
   - "No repeated words" / "Every answer starts with S" / "Every answer starts with the same letter"
   - "No adverbs" / "No adjectives" / "No letter E" / "Use: …" / "Start with "…"" / "Under 90 seconds"
