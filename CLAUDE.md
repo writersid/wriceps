@@ -100,4 +100,11 @@ npm run language:eval    # rerun syllable, part-of-speech, and word-list accurac
   - Content test checks every draw option; blackout options must appear in the passage and banned letters must leave enough words. Not checked: a required word containing a banned letter (no launch set uses both).
   - Placeholders use draws for testing, plus a temporary `short-reps`; step 2 replaces them.
 - **Pending design item (after content is done):** mechanic labels (the eyebrow text such as "Constraint", "Fill-in", "Blackout" on set screens, and the home section headings) get an accent color in small caps. Coral (problems) and lime (earned) are taken, so it needs a new accent, or one per mechanic, meeting 4.5:1 contrast in both themes.
-- **Next step:** content step 2, loading the 31 sets from `CONTENT.md`. Then Sid rewrites all the copy in one session from `COPY.md` (every DRAFT string and the rest of the interface wording, with file locations; update it if copy moves). iPhone checks for 5a and 5b still pending.
+- **Content step 2 (launch sets) done.** Phone test passed (reported by Sid): home order, Pick Up the Bar quote and skip, Gitanjali as a poem (page and card), draws on every drawing set, Tag Team with a spotter, privacy credits.
+  - 31 sets in `content/` (15 constraint, 10 fill-in, 6 blackout), easy to hard, placeholders gone. Weights: main rules share 90, bonus 10 (SPEC "Content").
+  - Passages and opening lines copied from Project Gutenberg and checked against it by script. Pride and Prejudice uses Gutenberg's wording (no comma after "fortune"); Bulwer-Lytton is the famous fragment. Call Me uses the 58-word opening and draws from world, money, purse, shore, sail.
+  - A required opening typed as given is skipped by every other rule (`openingEnd` in `rules.ts`). Pick Up the Bar shows the drawn line once as a quote; chip "Opening: Austen"; note card only when the draft opens with something else.
+  - Blackout `poem: true` keeps a passage's line breaks (Gitanjali 35).
+  - Content test: every draw leaves enough usable blackout words after banned letters and syllable limits. Time limits of whole minutes read "Under 5 minutes".
+  - Known and accepted: Morning Stretch, Echo Canyon, and Best of Times are easy to max (Sid keeps them as warm-ups).
+- **Next step:** Sid rewrites all the copy in one session from `COPY.md` (every DRAFT string and the rest of the interface wording, with file locations; update it if copy moves). iPhone checks for 5a and 5b still pending.
