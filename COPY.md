@@ -77,7 +77,7 @@ Note: these tips are shared by all three mechanics. "Cut the weakest sentence" r
   - **DRAFT**, shown for a split second before a round's draw is made: "One banned letter" / "Required words" / "Start with a classic line"
   - "Max 2 syllables" / "Min 2 syllables" / "Exactly 2 syllables" / "1–2 syllables"
   - "No repeated words" / "Every answer starts with S" / "Every answer starts with the same letter"
-  - "No adverbs" / "No adjectives" / "No letter E" / "Use: …" / "Start with "…"" / "Under 90 seconds"
+  - "No adverbs" / "No adjectives" / "No letter E" / "Use: …" / "Start with "…"" / "Under 90 seconds" / "Under 5 minutes"
 - Shared set parts, `app/components/set-parts.tsx`:
   - checker loading: "Warming up the checker…" / "The checker didn't load. Check your connection and refresh the page."
   - ignores: "Ignore" / "Ignore (uses 2)" / "Free ignores left: 2." / "No free ignores left. Ignoring now still hides the flag, but it costs points."
@@ -95,4 +95,45 @@ Note: these tips are shared by all three mechanics. "Cut the weakest sentence" r
 - Home headline and subline, `app/page.tsx`: "Build your writing muscles." / "Short, scored writing sets."
 - Privacy page headings and credits, `app/privacy/page.tsx`: "Privacy and credits", "Credits", "Blackout passages", "Public domain, from Project Gutenberg.", "Word data and code" and its three lines, "Show full notices".
 - Site title and description, `app/layout.tsx`: "Wriceps" / "Build your writing muscles with short, scored writing exercises."
-- Set titles and blurbs in `content/constraint.ts`, `content/fill-in.ts`, and `content/blackout.ts` are placeholders for Sid's real 30 sets. Each blurb must state the task in one plain sentence (SPEC.md "Content").
+- Privacy page credits heading: "Opening lines", `app/privacy/page.tsx`.
+
+## Set titles and task lines
+
+The 31 launch sets, written by Sid and Claude in CONTENT.md. Each blurb states the task in one plain sentence (SPEC.md "Content").
+
+Constraint, `content/constraint.ts`:
+1. Six-Word Warm-Up: Tell a whole story in exactly six words.
+2. Two-Syllable Sprint: List 20 different two-syllable words, none of them adjectives.
+3. Light Bench: List 15 different words without the letter shown on screen.
+4. Twenty-Five Reps: Tell a story in exactly 25 words.
+5. Fifty Reps: Tell a story in exactly 50 words.
+6. Light Weights: Describe your morning in 60 to 80 words, using no word longer than two syllables.
+7. Short Reps: Write 80 to 120 words where no sentence is longer than ten words.
+8. No Crutches: Describe a meal in 80 to 120 words without a single adverb.
+9. Raw Lift: Describe a person in 80 to 120 words without a single adjective.
+10. Heavy Bench: Write at least 50 words without the letter shown on screen.
+11. Three-Point Circuit: Write a scene of 100 to 150 words that uses the three words shown on screen.
+12. Pick Up the Bar: Begin with the classic opening line shown on screen and write at least 100 more words.
+13. Hundred-Rep Set: Tell a story in exactly 100 words, with no adverbs.
+14. Full Body: Write 150 to 250 words with no adverbs, no adjectives, and no word over two syllables.
+15. Max Out: Tell a story in exactly 100 words with no adverbs, no adjectives, and no word over two syllables.
+
+Fill-in, `content/fill-in.ts` (blank labels and template text are in the file):
+1. Morning Stretch: Fill four blanks to describe a very strange morning.
+2. Mystery Menu: Fill five blanks to write tonight's special at a strange restaurant.
+3. Weather Report: Fill five blanks to forecast your mood for the day.
+4. Echo Canyon: Fill three blanks and hear what the canyon says back.
+5. Lost and Found: Fill six blanks to write a lost-pet poster for something that isn't a pet.
+6. Dear Neighbor: Fill six blanks to write a polite complaint about something absurd.
+7. Tag Team: Fill eight blanks to tell an old myth, one line at a time.
+8. Alliteration Circuit: Fill eight blanks, each starting with the letter shown on screen.
+9. One-Beat Poem: Fill eight blanks using only one-syllable words.
+10. Max Out: Fill-In: Fill ten blanks with short words that all start with the letter shown on screen.
+
+Blackout, `content/blackout.ts`:
+1. Best of Times: Keep 8 to 15 words to make a poem from this famous opening.
+2. Down the Rabbit Hole: Keep 10 to 20 words to make a poem from Alice's fall.
+3. Call Me: Keep 10 to 20 words, including the word shown on screen.
+4. Spring Cleaning: Keep 8 to 16 words, avoiding the letter shown on screen.
+5. Against the Current: Keep exactly 12 words, none longer than two syllables.
+6. Max Out: Blackout: Keep exactly 10 words, each one syllable.

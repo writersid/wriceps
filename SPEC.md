@@ -117,12 +117,13 @@ Sharing details (decided in Phase 3):
 
 ## Content
 
-- 30 exercises at launch: about 10 fill-in, 14 constraint, 6 blackout.
+- 31 exercises at launch: 15 constraint, 10 fill-in, 6 blackout. The sets, and the choices behind them, are in CONTENT.md. Each mechanic's sets run easy to hard.
+- Point weights: a set's main rules share 90 points, split equally (any rounding goes to the word count), and its bonus rule is worth 10. A clean rep without the bonus scores 90, still a PR; only the bonus reaches 100.
 - Original exercises written by Sid, with Claude drafting options for him to edit.
 - Exercises by other authors are used only with their permission, obtained before the app is shared, and are credited in the app.
 - Quoted source text (opening lines, blackout passages) comes only from public-domain works such as Project Gutenberg, with the source recorded for each.
 - Content lives in its own file(s), separate from code, so adding an exercise means adding content, not code.
-- Exact word counts are used only for named exact-length forms (six-word story, half-dribble, dribble, drabble) and word-list games. All other exercises use a minimum, a maximum, or a range (a minimum and a maximum together).
+- Exact word counts are used only for named exact-length forms (six-word story, half-dribble, dribble, drabble) and word-list games, plus heavy-lift blackout sets, where keeping exactly N words is a clear, fair target. All other exercises use a minimum, a maximum, or a range (a minimum and a maximum together).
 - Every set's blurb states the task in one plain sentence, so a player knows what to do before reading the rule chips. (Added after the part 4 phone test: Spring Cleaning's task wasn't clear.)
 
 ## Home, help, footer, and privacy (added in Phase 3, built in part 6)
@@ -130,7 +131,7 @@ Sharing details (decided in Phase 3):
 - "How to play" for each mechanic (constraint, fill-in, blackout) opens as a bottom sheet over the current screen, from each mechanic's section on the home screen and from every set near its title. The phone's back button, a tap outside, and a close button all close it, and it never disturbs a draft in progress.
 - A home-page footer: a short muted line (wording by Sid) and links to Sid's GitHub, his X account, and the privacy and credits page.
 - The home screen lists sets grouped by mechanic, each with its title, blurb, and PR once there is one, and says that progress lives in this browser.
-- One privacy and credits page (/privacy): a plain-language privacy note, the blackout passage sources, and the third-party notices from NOTICES.md.
+- One privacy and credits page (/privacy): a plain-language privacy note, the blackout passage sources, the opening-line sources, and the third-party notices from NOTICES.md.
 
 ## Analytics and privacy
 
@@ -203,7 +204,7 @@ Dry and playful, never literary or cute. Gym vocabulary:
 - Scoring is deterministic and the band cutoffs match this spec.
 
 ### 2. Features (manual checklist)
-- All 30 exercises load, complete, and score on Chrome for Android, Safari on iPhone, and desktop Chrome.
+- All 31 exercises load, complete, and score on Chrome for Android, Safari on iPhone, and desktop Chrome.
 - Pass-the-phone hides and reveals correctly and survives a refresh.
 - Challenge links open the identical round on another device, including from inside WhatsApp on Android and iPhone.
 - Share card generates in under 2 seconds, is readable on a phone, and includes the URL.
@@ -217,7 +218,7 @@ Dry and playful, never literary or cute. Gym vocabulary:
 - All copy dry and playful, US English, no typos; each exercise's instructions fit on one phone screen.
 
 ### 4. Content
-- 30 exercises in the 10 / 14 / 6 split, each with at least one scored rule or bonus rule.
+- 31 exercises in the 15 / 10 / 6 split, each with at least one scored rule or bonus rule.
 - Every quoted source confirmed public domain, source recorded.
 - Permission recorded for any credited exercise before launch.
 
