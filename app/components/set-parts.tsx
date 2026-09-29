@@ -5,14 +5,17 @@ import type { ScoredRule } from "@/lib/engine/types";
 import { FREE_IGNORES } from "@/lib/engine/score";
 import { ruleLabel, type Note } from "@/lib/notes";
 import { challengeResult, type Share } from "@/lib/share";
-import type { Mechanic } from "@/content/how-to-play";
+import { howToPlay, type Mechanic } from "@/content/how-to-play";
 import { HowToPlaySheet } from "./how-to-play-sheet";
 import { clockText } from "./use-clock";
 
 // Pieces shared by the constraint and fill-in screens.
 
+// The eyebrow reads "Set 12 of 15 · Constraint", plus " · With a spotter"
+// (`note`) in a spotter game. Only the mechanic name takes the violet accent.
 export function SetHeader({
-  eyebrow,
+  position,
+  note,
   mechanic,
   title,
   blurb,
@@ -20,7 +23,8 @@ export function SetHeader({
   bonus,
   secondsLeft,
 }: {
-  eyebrow: string;
+  position: string;
+  note?: string;
   mechanic: Mechanic;
   title: string;
   blurb: string;
@@ -31,7 +35,10 @@ export function SetHeader({
   return (
     <>
       <div className="-my-3 flex items-center justify-between gap-3">
-        <p className="text-xs font-semibold tracking-widest text-muted uppercase">{eyebrow}</p>
+        <p className="text-xs font-semibold tracking-widest text-muted uppercase">
+          {position} · <span className="text-violet">{howToPlay[mechanic].name}</span>
+          {note && ` · ${note}`}
+        </p>
         <HowToPlaySheet mechanic={mechanic} />
       </div>
       <h1 className="-mt-2 font-display text-4xl leading-tight font-extrabold">{title}</h1>

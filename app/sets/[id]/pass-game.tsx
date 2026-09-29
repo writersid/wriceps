@@ -26,7 +26,7 @@ export function PassGame({
   engine,
   seed,
   initial,
-  eyebrow,
+  position,
   onStartOver,
 }: {
   set: FillInSet;
@@ -34,7 +34,7 @@ export function PassGame({
   engine: Engine;
   seed: number;
   initial: FillInDraft | null;
-  eyebrow: string;
+  position: string; // "Set 7 of 10", for the eyebrow
   onStartOver: () => void;
 }) {
   const blankCount = parts.filter((p) => p.type === "blank").length;
@@ -106,7 +106,8 @@ export function PassGame({
 
   const header = (
     <SetHeader
-      eyebrow={eyebrow}
+      position={position}
+      note="With a spotter"
       mechanic="fill-in"
       title={set.title}
       blurb={set.blurb}

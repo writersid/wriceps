@@ -9,6 +9,8 @@
   - coral is for violation underlines and coral text. It is deep coral in light mode and coral in dark mode, so it always meets contrast.
   - The main button fills with ink and uses bg for its text. Never lime.
   - Violations never rely on color alone: always an underline plus a note.
+  - violet is for mechanic names as labels only ("Constraint", "Fill-in", "Blackout"). Never for problems, earned things, or buttons.
+    #6a45c2 in light mode (6.2:1 on bg), #b59cff in dark mode (7.4:1 on bg).
 */
 :root {
   color-scheme: light;
@@ -18,6 +20,7 @@
   --ink: #222222;
   --muted: #5c5c56;
   --coral: #c8462c;
+  --violet: #6a45c2;
 }
 
 [data-theme="dark"] {
@@ -28,6 +31,7 @@
   --ink: #fafaf7;
   --muted: #b8b8b0;
   --coral: #ff6b4a;
+  --violet: #b59cff;
 }
 
 /* The blackout passage is always a paper page, in both themes: chalk, charcoal text and bars, deep coral underlines. */
@@ -49,6 +53,7 @@
   --color-ink: var(--ink);
   --color-muted: var(--muted);
   --color-coral: var(--coral);
+  --color-violet: var(--violet);
   --color-lime: #d4ff3a;
   --color-charcoal: #222222;
   --font-sans: var(--font-inter);

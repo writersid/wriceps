@@ -58,7 +58,7 @@ export function HowToPlaySheet({ mechanic }: { mechanic: Mechanic }) {
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="text-xs font-semibold tracking-widest text-muted uppercase">How to play</p>
-              <h2 id={`how-to-play-${mechanic}`} className="font-display text-3xl font-extrabold">
+              <h2 id={`how-to-play-${mechanic}`} className="font-display text-3xl font-extrabold text-violet">
                 {info.name}
               </h2>
             </div>

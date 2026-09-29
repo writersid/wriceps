@@ -157,6 +157,7 @@ Colors:
 - Coral #FF6B4A (rule violations: underlines and accents)
 - Deep coral #C8462C (coral used as text in light mode, for contrast)
 - Electric lime #D4FF3A (earned things only: loaded plates, PR badge)
+- Violet #6A45C2 in light mode, #B59CFF in dark mode (mechanic names as labels only). Added after content step 2.
 
 Usage rules:
 - Lime is never text in light mode. Charcoal text on a lime fill is fine.
@@ -165,6 +166,7 @@ Usage rules:
 - Violations never rely on color alone: always an underline plus a note.
 - The violation underline is deep coral in light mode (about 4.8:1 on the white surface) and coral in dark mode.
 - All text meets WCAG contrast: 4.5:1 for body text, 3:1 for text 24px and up.
+- Violet marks a mechanic name ("Constraint", "Fill-in", "Blackout") wherever it appears as a label: the set eyebrow (only the name, not "Set 12 of 15" or "With a spotter"), home section headings, the How to play sheet title, and the result card (always the light shade there). Labels keep their style: small, spaced-out capitals, no small caps. Violet is never used for problems, earned things, or buttons. Contrast: 6.2:1 on the light background, 7.4:1 on the dark one.
 - The blackout passage is always a paper page, in both themes: chalk background, charcoal text and bars, deep coral underlines. The rest of the screen follows the theme.
 
 Dark mode tokens (from the approved mockup): background #1C1C1C, surface #262626, border #3A3A38, text #FAFAF7, muted #B8B8B0.

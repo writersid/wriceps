@@ -10,6 +10,7 @@ const PAD = 80;
 const CHALK = "#fafaf7";
 const CHARCOAL = "#222222";
 const MUTED = "#5c5c56";
+const VIOLET = "#6a45c2";
 const RULE = "#e3e1d8";
 const LIME = "#d4ff3a";
 // The piece shrinks to fit, from the largest size to the smallest, then trims.
@@ -50,7 +51,11 @@ export async function drawResultCard(card: Card): Promise<Blob> {
 
   // Header: wordmark, mechanic, title (up to two lines).
   text("wriceps", PAD, 128, `900 44px ${display}`);
-  text([card.mechanic, ...(card.team ? ["With a spotter"] : [])].join(" · ").toUpperCase(), PAD, 212, `600 26px ${sans}`, MUTED);
+  // The mechanic name in violet (the light-mode accent; the card is always
+  // paper-light), then " · WITH A SPOTTER" in gray on team cards.
+  const label = `600 26px ${sans}`;
+  const nameWidth = text(card.mechanic.toUpperCase(), PAD, 212, label, VIOLET);
+  if (card.team) text(" · WITH A SPOTTER", PAD + nameWidth, 212, label, MUTED);
   let titleSize = 72;
   let titleLines: Placed[][];
   do {

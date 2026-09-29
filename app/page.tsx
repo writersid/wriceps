@@ -22,7 +22,7 @@ export default function Home() {
       {sections.map(({ mechanic, sets }) => (
         <section key={mechanic} aria-labelledby={`section-${mechanic}`} className="mt-2 flex flex-col gap-2">
           <div className="flex items-center justify-between gap-3">
-            <h2 id={`section-${mechanic}`} className="text-xs font-semibold tracking-widest text-muted uppercase">
+            <h2 id={`section-${mechanic}`} className="text-xs font-semibold tracking-widest text-violet uppercase">
               {howToPlay[mechanic].name}
             </h2>
             <HowToPlaySheet mechanic={mechanic} />

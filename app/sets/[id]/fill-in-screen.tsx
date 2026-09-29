@@ -207,7 +207,7 @@ export function FillInScreen({ set, number, total }: { set: FillInSet; number: n
 
   const header = (
     <SetHeader
-      eyebrow={`Set ${number} of ${total} · Fill-in`}
+      position={`Set ${number} of ${total}`}
       mechanic="fill-in"
       title={set.title}
       blurb={set.blurb}
@@ -236,7 +236,7 @@ export function FillInScreen({ set, number, total }: { set: FillInSet; number: n
         engine={engine}
         seed={seed}
         initial={passDraft}
-        eyebrow={`Set ${number} of ${total} · Fill-in · With a spotter`}
+        position={`Set ${number} of ${total}`}
         onStartOver={startOver}
       />
     );
