@@ -110,5 +110,9 @@ npm run language:eval    # rerun syllable, part-of-speech, and word-list accurac
   - Blackout `poem: true` keeps a passage's line breaks (Gitanjali 35).
   - Content test: every draw leaves enough usable blackout words after banned letters and syllable limits. Time limits of whole minutes read "Under 5 minutes".
   - Known and accepted: Morning Stretch, Echo Canyon, and Best of Times are easy to max (Sid keeps them as warm-ups).
-- **Final copy applied, awaiting Sid's phone test.** Tips per mechanic with the round's letter, top band renamed "Top set", every approved line in place, no DRAFT markers left. `COPY.md` is now the voice guide: new copy follows it.
-- **Next step:** Sid's phone test of the final copy. iPhone checks for 5a and 5b still pending.
+- **Final copy done.** Phone test passed (reported by Sid): letter tips and notes, blackout tips, Top set on score and card, share messages, and every screen-text change.
+  - Tips per mechanic in `lib/notes.ts` (`TIPS`: constraint list, plus fill-in and blackout lists where they differ); `buildNotes` takes the mechanic. `{letter}` becomes the expected starting letter or the banned letter in the word; `{a}` picks a or an ("a B word", "an S word").
+  - Top band renamed "Top set" (`BANDS` in `lib/engine/score.ts`, used by the meter and card). "PR" only means a personal best.
+  - Share messages: "Just lifted 82 on …" / "Your turn:" (solo, with ignores in parentheses), "We lifted 82 on …, taking turns on one phone." / "Try it with a friend:" (spotter, no ignore count).
+  - No DRAFT markers left; strings COPY.md didn't list kept their wording. `COPY.md` is now the voice guide and vocabulary: all new copy follows it.
+- **Next step:** Phase 3 is complete apart from the iPhone checks for 5a and 5b (Sid, together). Then Phase 4: PostHog analytics (create `.env.example` from PostHog's current docs). Sentry comes at deployment.
