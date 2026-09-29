@@ -284,7 +284,8 @@ Bonus: under 2 minutes.
 **3. Call Me**
 Passage: Herman Melville, Moby-Dick (1851), the opening.
 Task: Keep 10 to 20 words, including the word shown on screen.
-Rules: 10 to 20 words, one required word drawn from: sea, world, water, city. Keep only options that appear in the chosen excerpt, and tell me if the list needs changing.
+Excerpt: the opening, "Call me Ishmael." to "…regulating the circulation." (58 words; Sid approved it under the usual 60).
+Rules: 10 to 20 words, one required word drawn from words in the excerpt: world, money, purse, shore, sail. (The first list, sea, world, water, city, had only "world" in the opening.)
 Bonus: no repeated words.
 
 **4. Spring Cleaning**

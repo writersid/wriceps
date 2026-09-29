@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { passageWords } from "../lib/blackout";
+import { syllableRange } from "../lib/engine/language";
+import { checkBannedLetters, checkSyllables } from "../lib/engine/rules";
 import { normalizeWord } from "../lib/engine/tokenize";
 import { parseTemplate } from "../lib/fill-in";
 import { everyDraw } from "../lib/round";
@@ -62,19 +64,26 @@ describe("content", () => {
     }
   });
 
-  it("leaves enough blackout words for the word count after every banned letter", () => {
+  // Usable words pass the round's banned letter and syllable limits; when the
+  // main rules ban repeats, only distinct words count. So an impossible set
+  // (too few one-syllable words, or a letter that blanks the page) fails here.
+  it("leaves enough usable blackout words for the word count in every draw", () => {
     for (const set of blackoutSets) {
       const count = set.rules.find((r) => r.type === "wordCount");
       const needed = count?.type === "wordCount" ? (count.exact ?? count.min ?? 1) : 1;
-      const distinct = [...set.rules, ...(set.bonus ?? [])].some((r) => r.type === "noRepeats");
+      const distinct = set.rules.some((r) => r.type === "noRepeats");
       for (const round of everyDraw(set)) {
+        const usable = passageWords(set.passage).filter((w) =>
+          round.rules.every((rule) => {
+            if (rule.type === "bannedLetters") return checkBannedLetters(rule, [w]).length === 0;
+            if (rule.type === "syllables") return checkSyllables(rule, [w], syllableRange).length === 0;
+            return true;
+          }),
+        );
+        const available = distinct ? new Set(usable.map((w) => normalizeWord(w.text))).size : usable.length;
         const banned = round.rules.find((r) => r.type === "bannedLetters");
-        if (banned?.type !== "bannedLetters") continue;
-        const usable = passageWords(set.passage)
-          .map((w) => normalizeWord(w.text))
-          .filter((w) => ![...(banned.letters ?? "").toLowerCase()].some((l) => w.includes(l)));
-        const available = distinct ? new Set(usable).size : usable.length;
-        expect(available, `${set.id}: without ${banned.letters}`).toBeGreaterThanOrEqual(needed);
+        const label = banned?.type === "bannedLetters" ? ` without ${banned.letters}` : "";
+        expect(available, `${set.id}${label}`).toBeGreaterThanOrEqual(needed);
       }
     }
   });
