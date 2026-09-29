@@ -171,6 +171,8 @@ export function ruleLabel(rule: Rule): string {
     case "noRepeats":
       return "No repeated words";
     case "timeLimit":
+      // Whole minutes from 2 up read as minutes ("Under 5 minutes").
+      if (rule.seconds >= 120 && rule.seconds % 60 === 0) return `Under ${rule.seconds / 60} minutes`;
       return `Under ${rule.seconds} seconds`;
     case "sameFirstLetter":
       return rule.letter ? `Every answer starts with ${rule.letter.toUpperCase()}` : "Every answer starts with the same letter";

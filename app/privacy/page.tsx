@@ -3,6 +3,7 @@ import path from "node:path";
 import type { Metadata } from "next";
 import { PageFrame } from "@/app/components/page-frame";
 import { blackoutSets } from "@/content/blackout";
+import { openingLines } from "@/content/constraint";
 
 export const metadata: Metadata = { title: "Privacy and credits · Wriceps" };
 
@@ -40,6 +41,18 @@ export default function PrivacyPage() {
         <ul className="flex list-disc flex-col gap-1 pl-5">
           {blackoutSets.map(({ id, source }) => (
             <li key={id}>
+              <a href={source.url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4">
+                <cite>{source.title}</cite>
+              </a>
+              , {source.author} ({source.year})
+            </li>
+          ))}
+        </ul>
+        <h3 className="mt-2 font-semibold">Opening lines</h3>
+        <p className="-mt-1 text-sm text-muted">Public domain, from Project Gutenberg.</p>
+        <ul className="flex list-disc flex-col gap-1 pl-5">
+          {openingLines.map(({ source }) => (
+            <li key={source.url}>
               <a href={source.url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4">
                 <cite>{source.title}</cite>
               </a>

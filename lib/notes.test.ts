@@ -1,14 +1,33 @@
 import { describe, expect, it } from "vitest";
-import { constraintSets } from "../content/constraint";
 import { checkText } from "./engine/check";
 import { syllableRange } from "./engine/language";
 import type { Exercise } from "./engine/types";
 import { buildNotes, ruleLabel } from "./notes";
-import { everyDraw } from "./round";
 
-// Each set with its draws fixed to their first options (E, the stormy night line,
-// lighthouse and key), so the tests don't depend on a random seed.
-const set = (id: string) => everyDraw(constraintSets.find((s) => s.id === id)!)[0];
+// Small sets written here, so the tests don't change when the content does.
+const SETS: Record<string, Exercise> = {
+  "two-syllable-sprint": {
+    wordList: true,
+    rules: [
+      { id: "length", type: "wordCount", exact: 20, weight: 24 },
+      { id: "syllables", type: "syllables", min: 2, max: 2, weight: 22 },
+      { id: "adjectives", type: "noAdjectives", weight: 22 },
+      { id: "repeats", type: "noRepeats", weight: 22 },
+    ],
+    bonus: [{ id: "clock", type: "timeLimit", seconds: 60, weight: 10 }],
+  },
+  "missing-e": { rules: [{ id: "letters", type: "bannedLetters", letters: "e", weight: 90 }] },
+  "six-word-story": { rules: [{ id: "length", type: "wordCount", exact: 6, weight: 90 }] },
+  "stormy-night": {
+    rules: [
+      { id: "opening", type: "firstSentence", sentence: "It was a dark and stormy night.", weight: 45 },
+      { id: "length", type: "wordCount", min: 50, weight: 45 },
+    ],
+    bonus: [{ id: "words", type: "requiredWords", words: ["lighthouse", "key"], weight: 10 }],
+  },
+  "short-reps": { rules: [{ id: "sentences", type: "sentenceLength", max: 10, weight: 90 }] },
+};
+const set = (id: string) => SETS[id];
 const notesFor = (id: string, text: string, ignored: string[] = [], elapsedMs?: number) =>
   buildNotes(checkText(text, set(id), elapsedMs), ignored, set(id), syllableRange);
 
@@ -97,6 +116,8 @@ describe("ruleLabel", () => {
     expect(ruleLabel({ type: "syllables", min: 1, max: 3 })).toBe("1–3 syllables");
     expect(ruleLabel({ type: "noRepeats" })).toBe("No repeated words");
     expect(ruleLabel({ type: "timeLimit", seconds: 60 })).toBe("Under 60 seconds");
+    expect(ruleLabel({ type: "timeLimit", seconds: 90 })).toBe("Under 90 seconds");
+    expect(ruleLabel({ type: "timeLimit", seconds: 300 })).toBe("Under 5 minutes");
     expect(ruleLabel({ type: "bannedLetters", letters: "e" })).toBe("No letter E");
     expect(ruleLabel({ type: "bannedLetters", letters: "ae" })).toBe("No letters A, E");
     expect(ruleLabel({ type: "requiredWords", words: ["lighthouse", "key"] })).toBe("Use: lighthouse, key");
