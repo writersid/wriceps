@@ -71,9 +71,11 @@ Note: these tips are shared by all three mechanics. "Cut the weakest sentence" r
   - "Still missing: …" / "2 words over the limit" / "4 words short"
   - "Over the time limit, so no bonus"
   - long sentence card: "One two three…" (its first three words) / "12 words, 2 over"
+  - **DRAFT** opening card: "Your opening doesn't match the line above"
+- **DRAFT** caption over the opening-line quote, `app/sets/[id]/constraint-screen.tsx`: "Open with this line"
 - Rule chip labels, `lib/notes.ts` (`ruleLabel`):
   - "Exactly 6 words" / "8–15 words" / "50+ words" / "Up to 12 words"
-  - **DRAFT:** "100+ words after the opening" / "Max 10 words per sentence"
+  - **DRAFT:** "100+ words after the opening" / "Max 10 words per sentence" / "Opening: Austen" (also Dickens, Barrie, Tolstoy, Bulwer-Lytton; labels in `content/constraint.ts`)
   - **DRAFT**, shown for a split second before a round's draw is made: "One banned letter" / "Required words" / "Start with a classic line"
   - "Max 2 syllables" / "Min 2 syllables" / "Exactly 2 syllables" / "1–2 syllables"
   - "No repeated words" / "Every answer starts with S" / "Every answer starts with the same letter"

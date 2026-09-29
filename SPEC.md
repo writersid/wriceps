@@ -60,6 +60,8 @@ Rule details (decided in Phase 2):
 - Word count: contractions ("don't"), hyphenated words ("well-known"), and numbers ("2026") count as one word each. Words joined by a dash with no spaces ("yes—no", "yes–no", "yes--no") count as two words.
 - Banned letters and required words ignore case. A required word must match exactly: "rivers" does not satisfy "river".
 - Required first sentence ignores case, curly versus straight quotes, and extra spaces.
+- The required opening isn't the player's writing: when the draft begins with it (as matched above), every other rule skips it, so no adverb, syllable, repeat, or sentence-length flag lands inside it. The word count follows its own setting (below). A changed opening isn't skipped. (Decided in Content step 2, after "universally" in Austen's line cost the no-adverbs bonus.)
+- On screen, a drawn opening line shows once, as a quote above the draft; its chip gives a short name ("Opening: Austen"). The note card appears only once the draft has a first sentence that isn't the line; an empty draft still misses the rule's points.
 - Words after the opening (decided in Content step 1): a word-count rule can count only the words after a required first sentence, by skipping as many words as that sentence has. Used where the opening line is drawn, so every line asks for the same number of the player's own words. The chip reads "100+ words after the opening".
 - Sentence length (decided in Content step 1): a sentence ends at . ! ? or … (and runs such as "?!" or "...", with any closing quotes or brackets) followed by a space or the end of the text, or at a line break. Semicolons, colons, and dashes don't end a sentence. Words are counted as in the word-count rule. Each sentence over the limit is one violation; the underline covers the words past the limit. Abbreviations ("Mr.") and dialogue ("Stop!" she said) split a sentence early, which only makes it look shorter, so the rule can miss a long sentence but never flags a short one. That is why it has no Ignore button.
 - Syllables per word: some words have more than one valid count (fire: 1 or 2; every: 2 or 3). A word passes with no flag if any valid count is within the limits (at most the maximum, at least the minimum). Setting both to the same number means "exactly". Hyphenated words: a maximum checks each part separately; a minimum checks the whole word. When the minimum and maximum are equal ("exactly"), the maximum is also checked on the whole word. So "well-known" passes "exactly 2", and "forget-me-not" (4 syllables) fails it.
@@ -88,6 +90,7 @@ Blackout details (decided in Phase 3):
 - Blackout sets use only word count (minimum and maximum), required words, banned letters, syllables per word, no repeated words, and a time-limit bonus. No adverbs, no adjectives, required first sentence, and same first letter don't apply: the tagger can't judge words pulled out of their sentences, and the poem has no lines or sentences of its own.
 - The clock starts at the first tap. "Log this set" needs at least one kept word. Kept words, ignores, the clock, and the view survive a refresh.
 - No pass-the-phone mode.
+- A poem passage (set per passage) keeps its own line breaks, on the page and on the result card. Prose passages are one paragraph.
 
 ## Scoring
 
