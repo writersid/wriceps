@@ -77,7 +77,7 @@ export function BlackoutScreen({ set, number, total }: { set: BlackoutSet; numbe
       f.start === undefined || (f.ignorable && ignored.includes(f.ignoreKey)) ? [] : [keptWordAt(words, kept, f.start)],
     ),
   );
-  const notes = engine ? buildNotes(flags, ignored, round, engine.syllableRange) : [];
+  const notes = engine ? buildNotes(flags, ignored, round, engine.syllableRange, "blackout") : [];
   const { score, band } = scoreText(text, round, flags, ignored);
 
   function save(next: { kept?: number[]; ignored?: string[]; blackedOut?: boolean; startedAt?: number | null }) {

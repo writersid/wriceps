@@ -1,7 +1,9 @@
 // How to play, one entry per mechanic, shown in a bottom sheet from the home
 // screen and every set. DRAFT: all of this text is Claude's draft, for Sid to
 // rewrite.
-export type Mechanic = "constraint" | "fill-in" | "blackout";
+import type { Mechanic } from "../lib/notes";
+
+export type { Mechanic };
 
 export type HowToPlay = {
   name: string;

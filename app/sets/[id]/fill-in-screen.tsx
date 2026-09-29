@@ -112,7 +112,7 @@ export function FillInScreen({ set, number, total }: { set: FillInSet; number: n
   const flaggedAnswers = new Set(
     visible.flatMap((f) => (f.start === undefined ? [] : [answerAt(checkedAnswers, f.start).index])),
   );
-  const notesFor = (some: Flag[]) => (engine ? buildNotes(some, ignored, round, engine.syllableRange) : []);
+  const notesFor = (some: Flag[]) => (engine ? buildNotes(some, ignored, round, engine.syllableRange, "fill-in") : []);
   const score = scaleByFilled(scoreText(text, round, flags, ignored).score, checkedAnswers);
   const band = bandFor(score);
   const complete = answers.every((a) => a.trim());

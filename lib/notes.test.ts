@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { checkText } from "./engine/check";
 import { syllableRange } from "./engine/language";
 import type { Exercise } from "./engine/types";
-import { buildNotes, ruleLabel } from "./notes";
+import { buildNotes, ruleLabel, type Mechanic } from "./notes";
 
 // Small sets written here, so the tests don't change when the content does.
 const SETS: Record<string, Exercise> = {
@@ -28,8 +28,8 @@ const SETS: Record<string, Exercise> = {
   "short-reps": { rules: [{ id: "sentences", type: "sentenceLength", max: 10, weight: 90 }] },
 };
 const set = (id: string) => SETS[id];
-const notesFor = (id: string, text: string, ignored: string[] = [], elapsedMs?: number) =>
-  buildNotes(checkText(text, set(id), elapsedMs), ignored, set(id), syllableRange);
+const notesFor = (id: string, text: string, ignored: string[] = [], elapsedMs?: number, mechanic: Mechanic = "constraint") =>
+  buildNotes(checkText(text, set(id), elapsedMs), ignored, set(id), syllableRange, mechanic);
 
 const prose: Exercise = {
   rules: [
@@ -38,7 +38,7 @@ const prose: Exercise = {
   ],
 };
 const proseNotes = (text: string, ignored: string[] = []) =>
-  buildNotes(checkText(text, prose), ignored, prose, syllableRange);
+  buildNotes(checkText(text, prose), ignored, prose, syllableRange, "constraint");
 
 describe("buildNotes", () => {
   it("gives one card per word, naming every rule that flagged it", () => {
@@ -79,7 +79,31 @@ describe("buildNotes", () => {
 
   it("names the banned letter and offers no Ignore", () => {
     const [note] = notesFor("missing-e", "The cat sat.");
-    expect(note).toMatchObject({ word: "The", detail: "contains e", ignoreKeys: [] });
+    expect(note).toMatchObject({ word: "The", detail: "contains E", ignoreKeys: [] });
+  });
+
+  it("names the banned letter in the tip, as a capital", () => {
+    const [note] = notesFor("missing-e", "The cat sat.");
+    expect(["Find a word without the E.", "Rephrase around the E.", "The E is benched today."]).toContain(note.tip);
+  });
+
+  it("names the expected starting letter, with the right article", () => {
+    const tips = (letter: string) => {
+      const exercise: Exercise = { rules: [{ id: "l", type: "sameFirstLetter", letter, weight: 90 }] };
+      // Many different wrong words, so every tip in the list turns up.
+      const text = ["zebra", "quiet", "vivid", "yak", "jumbo", "kite", "zoo", "quest", "vat", "yes"].join("\n");
+      return new Set(buildNotes(checkText(text, exercise), [], exercise, syllableRange, "fill-in").map((n) => n.tip));
+    };
+    expect([...tips("s")].sort()).toEqual(["Find one that starts with S.", "Stay on the S.", "Try an S word."]);
+    expect(tips("b")).toContain("Try a B word.");
+  });
+
+  it("uses the mechanic's own tips, and the constraint tips where it has none", () => {
+    const blackout = (text: string) => notesFor("six-word-story", text, [], undefined, "blackout")[0].tip;
+    expect(["Keep another word.", "Your poem needs a few more."]).toContain(blackout("Too short."));
+    expect(["Drop a word.", "Keep only the strongest words."]).toContain(blackout("One two three four five six seven."));
+    const [clock] = notesFor("two-syllable-sprint", "", [], 61_000, "blackout").filter((n) => n.key === "overTime");
+    expect(["Faster next rep.", "The clock won this one.", "Beat the clock next time."]).toContain(clock.tip);
   });
 
   it("sums word-count problems into one card", () => {

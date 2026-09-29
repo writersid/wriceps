@@ -10,30 +10,61 @@ export type Note = {
   ignoreKeys: string[]; // the ignorable rules on this word; empty means no Ignore button
 };
 
-// DRAFT tips, three per flag kind, for Sid to rewrite in the Wriceps voice.
-const TIPS: Record<string, [string, string, string]> = {
-  adverb: ["Cut it, or find a verb that does the work.", "Let the verb carry the weight.", "Drop it and see if anyone misses it."],
-  adjective: ["Show it instead of labeling it.", "Try a sharper noun.", "Cut it and let the noun stand."],
-  tooManySyllables: ["Find a shorter word.", "Break it into plain words.", "Short words hit harder."],
-  tooFewSyllables: ["Find a longer word.", "Stretch it out.", "Too light. Add a syllable."],
-  repeat: ["Find a new word.", "Once is enough.", "Swap it for something fresh."],
-  repeatForm: ["Same word, new outfit. Find another.", "Pick a different word.", "It's still the same word."],
-  repeatEarlier: ["Find a new word.", "Someone got there first.", "Swap it for something fresh."],
-  overTime: ["Faster next rep.", "The clock won this one.", "Beat the clock next time."],
-  wrongFirstLetter: ["Find one that fits the letter.", "Stay on the letter.", "Wrong letter. Try again."],
-  bannedLetter: ["Find a word without it.", "Rephrase around it.", "That letter is benched today."],
-  tooManyWords: ["Trim until it fits.", "Cut the weakest sentence.", "Every word has to earn its spot."],
-  tooFewWords: ["Keep going.", "A few more reps.", "Not done yet."],
-  longSentence: ["Break it in two.", "Put a period where it runs out of breath.", "Short sentences land harder."],
-  missingWord: ["Work it in.", "Find a spot for it.", "It has to show up somewhere."],
-  firstSentence: ["Open with it, word for word.", "The first line is set. Use it.", "Start there, then make it yours."],
+export type Mechanic = "constraint" | "fill-in" | "blackout";
+
+// Tips per flag kind: the constraint list, plus a fill-in or blackout list
+// where the tip differs (a missing list uses the constraint tips). "{letter}"
+// becomes the round's letter: the expected starting letter, or the banned
+// letter in the word. Written to COPY.md's voice guide.
+const TIPS: Record<string, { constraint: string[]; "fill-in"?: string[]; blackout?: string[] }> = {
+  adverb: { constraint: ["Let the verb carry the weight.", "Find a stronger verb instead.", "Cut it and see if anyone notices."] },
+  adjective: { constraint: ["Show it instead of naming it.", "Find a sharper noun.", "Cut it and let the noun stand."] },
+  tooManySyllables: {
+    constraint: ["Find a shorter word.", "Short words hit harder.", "Say it the plain way."],
+    blackout: ["Keep a shorter word."],
+  },
+  tooFewSyllables: {
+    constraint: ["Find a longer word.", "This one needs another beat.", "Stretch it by a syllable."],
+    blackout: ["Keep a longer word."],
+  },
+  repeat: { constraint: ["Find a new word.", "Once is enough.", "Swap it for something fresh."], blackout: ["Drop one of them."] },
+  repeatForm: { constraint: ["It's the same word in disguise.", "Find a different word."], blackout: ["Drop one of them."] },
+  repeatEarlier: { constraint: ["Your spotter got there first.", "Find a word of your own."] },
+  overTime: { constraint: ["Faster next rep.", "The clock won this one.", "Beat the clock next time."] },
+  wrongFirstLetter: { constraint: ["Find one that starts with {letter}.", "Stay on the {letter}.", "Try {a} {letter} word."] },
+  bannedLetter: {
+    constraint: ["Find a word without the {letter}.", "Rephrase around the {letter}.", "The {letter} is benched today."],
+    "fill-in": ["Find a word without the {letter}.", "The {letter} is benched today."],
+    blackout: ["Keep a word without the {letter}."],
+  },
+  tooManyWords: {
+    constraint: ["Trim until it fits.", "Every word has to earn its spot.", "Cut the weakest sentence."],
+    blackout: ["Drop a word.", "Keep only the strongest words."],
+  },
+  tooFewWords: {
+    constraint: ["Keep going.", "A few more reps.", "You're not done yet."],
+    blackout: ["Keep another word.", "Your poem needs a few more."],
+  },
+  missingWord: { constraint: ["Work it in.", "Find a spot for it.", "It has to show up somewhere."], blackout: ["Keep it in your poem."] },
+  firstSentence: {
+    constraint: ["Open with the line, word for word.", "Start there, then make it yours.", "The first line is set, so use it."],
+  },
+  longSentence: {
+    constraint: ["Break it in two.", "Add a period where it runs out of breath.", "Short sentences land harder."],
+  },
 };
 
+// Letters whose names start with a vowel sound take "an": an S word, a B word.
+const AN_LETTERS = "aefhilmnorsx";
+
 // Picks a tip from the note's key, so it stays put while the person types.
-function tipFor(kind: string, key: string): string {
+function tipFor(kind: string, key: string, mechanic: Mechanic, letter = ""): string {
+  const tips = TIPS[kind][mechanic] ?? TIPS[kind].constraint;
   let hash = 0;
   for (const ch of key) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
-  return TIPS[kind][hash % 3];
+  return tips[hash % tips.length]
+    .replaceAll("{a}", AN_LETTERS.includes(letter.toLowerCase()) ? "an" : "a")
+    .replaceAll("{letter}", letter.toUpperCase());
 }
 
 const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
@@ -43,7 +74,15 @@ export function buildNotes(
   ignored: string[],
   exercise: Exercise,
   syllableRange: (part: string) => [number, number] | null,
+  mechanic: Mechanic,
 ): Note[] {
+  const wholeDraft = (kind: string, detail: string): Note => ({
+    key: kind,
+    word: "",
+    detail,
+    tip: tipFor(kind, kind, mechanic),
+    ignoreKeys: [],
+  });
   const visible = flags.filter((f) => !(f.ignorable && ignored.includes(f.ignoreKey)));
   const rules = [...exercise.rules, ...(exercise.bonus ?? [])];
   const ruleFor = (f: Flag) => rules.find((r) => r.id === f.ruleId) as Rule;
@@ -77,11 +116,13 @@ export function buildNotes(
   for (const [word, unsorted] of [...byWord].sort((a, b) => firstAt(a[1]) - firstAt(b[1]))) {
     const group = [...unsorted].sort((a, b) => WORD_KINDS.indexOf(a.kind) - WORD_KINDS.indexOf(b.kind));
     const details = new Set<string>();
+    let letter = ""; // for the tip: the expected starting letter, or the banned letter in the word
     for (const f of group) {
       if (f.kind === "tooManySyllables" || f.kind === "tooFewSyllables") {
         details.add(plural(syllablesShown(f, ruleFor(f) as Extract<Rule, { type: "syllables" }>, syllableRange), "syllable"));
       } else if (f.kind === "wrongFirstLetter") {
         details.add(`should start with ${f.of?.toUpperCase()}`);
+        letter ||= f.of ?? "";
       } else if (f.kind === "repeat") {
         details.add("used before");
       } else if (f.kind === "repeatEarlier") {
@@ -90,7 +131,9 @@ export function buildNotes(
         details.add(`same word as “${f.of}”`);
       } else if (f.kind === "bannedLetter") {
         const letters = [...((ruleFor(f) as Extract<Rule, { type: "bannedLetters" }>).letters ?? "").toLowerCase()];
-        details.add(`contains ${letters.filter((l) => word.includes(l)).join(", ")}`);
+        const found = letters.filter((l) => word.includes(l));
+        details.add(`contains ${found.join(", ").toUpperCase()}`);
+        letter ||= found[0] ?? "";
       } else {
         details.add(f.kind);
       }
@@ -100,7 +143,7 @@ export function buildNotes(
       key: `word:${word}`,
       word: times > 1 ? `${group[0].word} ×${times}` : group[0].word,
       detail: [...details].join(", "),
-      tip: tipFor(group[0].kind, word),
+      tip: tipFor(group[0].kind, word, mechanic, letter),
       ignoreKeys: [...new Set(group.filter((f) => f.ignorable).map((f) => f.ignoreKey))],
     });
   }
@@ -114,7 +157,7 @@ export function buildNotes(
       key: `sentence:${f.start}`,
       word: `${opening}…`,
       detail: `${plural(words.length, "word")}, ${words.length - max} over`,
-      tip: tipFor("longSentence", f.word),
+      tip: tipFor("longSentence", f.word, mechanic),
       ignoreKeys: [],
     });
   }
@@ -145,10 +188,6 @@ function syllablesShown(
   if (f.kind === "tooFewSyllables") return parts.reduce((sum, p) => sum + p[1], 0);
   if (rule.min === rule.max) return parts.reduce((sum, p) => sum + p[0], 0);
   return Math.max(...parts.map((p) => p[0]));
-}
-
-function wholeDraft(kind: string, detail: string): Note {
-  return { key: kind, word: "", detail, tip: tipFor(kind, kind), ignoreKeys: [] };
 }
 
 export function ruleLabel(rule: Rule): string {

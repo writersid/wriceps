@@ -149,7 +149,7 @@ export function PassGame({
     const flaggedAnswers = new Set(
       visible.flatMap((f) => (f.start === undefined ? [] : [answerAt(checkedAnswers, f.start).index])),
     );
-    const notes = buildNotes(turnFlags(flags, checkedAnswers, blanks), ignored, round, engine.syllableRange);
+    const notes = buildNotes(turnFlags(flags, checkedAnswers, blanks), ignored, round, engine.syllableRange, "fill-in");
     return (
       <>
         {header}
@@ -217,7 +217,7 @@ export function PassGame({
       {all && (
         <>
           <NoteCards
-            notes={buildNotes(flags, ignored, round, engine.syllableRange)}
+            notes={buildNotes(flags, ignored, round, engine.syllableRange, "fill-in")}
             ignoredCount={ignored.length}
             onIgnore={ignore}
           />

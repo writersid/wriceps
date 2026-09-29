@@ -81,7 +81,7 @@ export function ConstraintScreen({ set, number, total }: { set: ConstraintSet; n
     () => (engine ? engine.checkText(checkedText, round, timer.clock) : []),
     [engine, checkedText, round, timer.clock],
   );
-  const notes = engine ? buildNotes(flags, ignored, round, engine.syllableRange) : [];
+  const notes = engine ? buildNotes(flags, ignored, round, engine.syllableRange, "constraint") : [];
   const underlines = flags.flatMap((f) =>
     f.start !== undefined && f.end !== undefined && !(f.ignorable && ignored.includes(f.ignoreKey))
       ? [{ start: f.start, end: f.end }]
