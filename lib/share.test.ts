@@ -20,19 +20,18 @@ describe("share message", () => {
   const base = { title: "Weather Report", score: 82, ignoredFlags: 0, piece: "Snow sings.", link: "https://x.test/sets/w" };
 
   it("puts the score line, the piece, and the link on separate paragraphs", () => {
-    expect(shareMessage(base)).toBe("Weather Report · 82 (Heavy lift)\n\nSnow sings.\n\nBeat it: https://x.test/sets/w");
+    expect(shareMessage(base)).toBe("Just lifted 82 on Weather Report.\n\nSnow sings.\n\nYour turn: https://x.test/sets/w");
   });
 
   it("counts ignored flags, singular and plural", () => {
-    expect(shareMessage({ ...base, ignoredFlags: 1 })).toContain("· 1 flag ignored");
-    expect(shareMessage({ ...base, ignoredFlags: 2 })).toContain("· 2 flags ignored");
+    expect(shareMessage({ ...base, ignoredFlags: 1 })).toContain("Just lifted 82 on Weather Report (1 flag ignored).");
+    expect(shareMessage({ ...base, ignoredFlags: 2 })).toContain("Just lifted 82 on Weather Report (2 flags ignored).");
   });
 
   it("marks a team score and links to the set without a challenge", () => {
     const text = shareMessage({ ...base, team: true });
-    expect(text).toContain("Weather Report · Team score 82 (Heavy lift) · With a spotter");
-    expect(text).toContain("Play it: https://x.test/sets/w");
-    expect(text).not.toContain("Beat it");
+    expect(text).toBe("We lifted 82 on Weather Report, taking turns on one phone.\n\nSnow sings.\n\nTry it with a friend: https://x.test/sets/w");
+    expect(text).not.toContain("Your turn");
   });
 });
 
@@ -60,14 +59,14 @@ describe("challenge links", () => {
 
   it("puts a challenge link in solo shares and a plain link in team shares", () => {
     const common = { origin: "https://x.test", setId: "w", mechanic: "Fill-in" as const, title: "W", runs: [], piece: "", score: 70, ignoredFlags: 0 };
-    expect(buildShare({ ...common, seed: 9 }).message).toContain("Beat it: https://x.test/sets/w?c=70&seed=9");
-    expect(buildShare({ ...common, seed: 9, team: true }).message).toContain("Play it: https://x.test/sets/w");
+    expect(buildShare({ ...common, seed: 9 }).message).toContain("Your turn: https://x.test/sets/w?c=70&seed=9");
+    expect(buildShare({ ...common, seed: 9, team: true }).message).toContain("Try it with a friend: https://x.test/sets/w");
     expect(buildShare({ ...common, seed: 9, team: true }).message).not.toContain("?c=");
   });
 
   it("compares scores", () => {
     expect(challengeResult(85, 82)).toBe("You 85 · Them 82. You win.");
-    expect(challengeResult(82, 82)).toBe("You 82 · Them 82. A tie.");
+    expect(challengeResult(82, 82)).toBe("You 82 · Them 82. Dead even.");
     expect(challengeResult(70, 82)).toBe("You 70 · Them 82. They win this one.");
   });
 });

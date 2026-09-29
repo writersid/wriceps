@@ -19,11 +19,14 @@ export default function PrivacyPage() {
         <h2 id="privacy" className="font-display text-2xl font-extrabold">
           Privacy
         </h2>
-        {/* DRAFT: Sid rewrites. Add what analytics count when PostHog is added. */}
+        {/* When analytics is added (Phase 4), say what it counts and change the cookies bullet. */}
         <ul className="flex list-disc flex-col gap-2 pl-5">
           <li>No accounts. There&apos;s nothing to sign up for.</li>
           <li>Your writing stays on your device. It leaves only when you tap Share, and goes only where you send it.</li>
-          <li>Challenge links carry the set, your score, and the round&apos;s random letter. Never your writing.</li>
+          <li>
+            Challenge links carry the set, your score, and the round&apos;s draw, such as a letter or a word. Never your
+            writing.
+          </li>
           <li>
             Your scores and unfinished sets are saved in this browser. Clearing browser data clears them, and another
             phone or browser starts fresh.

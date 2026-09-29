@@ -16,7 +16,7 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: "Wriceps",
-  description: "Build your writing muscles with short, scored writing exercises.",
+  description: "Build your writing muscles one set at a time.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

@@ -176,7 +176,6 @@ export function ConstraintScreen({ set, number, total }: { set: ConstraintSet; n
       {challenge && <ChallengeBanner score={challenge.score} />}
       {opening && (
         <figure className="rounded-2xl border border-border bg-surface p-4">
-          {/* DRAFT caption, for Sid to rewrite. */}
           <figcaption className="text-sm text-muted">Open with this line</figcaption>
           <blockquote className="mt-1 font-display text-xl leading-snug">{opening}</blockquote>
         </figure>

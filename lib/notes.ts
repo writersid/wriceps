@@ -171,7 +171,7 @@ export function buildNotes(
   const short = visible.find((f) => f.kind === "tooFewWords");
   if (short) notes.push(wholeDraft("tooFewWords", `${plural(short.count ?? 1, "word")} short`));
 
-  if (visible.some((f) => f.kind === "overTime")) notes.push(wholeDraft("overTime", "Over the time limit, so no bonus"));
+  if (visible.some((f) => f.kind === "overTime")) notes.push(wholeDraft("overTime", "Time's up, so no bonus."));
 
   return notes;
 }
@@ -193,7 +193,6 @@ function syllablesShown(
 export function ruleLabel(rule: Rule): string {
   switch (rule.type) {
     case "wordCount": {
-      // DRAFT wording: " after the opening", for Sid to rewrite.
       const after = rule.afterFirstSentence ? " after the opening" : "";
       if (rule.exact !== undefined) return `Exactly ${plural(rule.exact, "word")}${after}`;
       if (rule.min !== undefined && rule.max !== undefined) return `${rule.min}–${rule.max} words${after}`;
@@ -220,7 +219,7 @@ export function ruleLabel(rule: Rule): string {
     case "noAdjectives":
       return "No adjectives";
     // Before the round's draw is made (a split second while it loads), rules
-    // with a list show a neutral label. DRAFT wording, for Sid to rewrite.
+    // with a list show a neutral label.
     case "bannedLetters": {
       if (rule.letters === undefined) return "One banned letter";
       const letters = [...rule.letters.toUpperCase()];

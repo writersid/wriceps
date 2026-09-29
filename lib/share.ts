@@ -1,7 +1,6 @@
 // Result cards and share messages. See SPEC.md "Sharing details".
 // The card's piece is a list of styled runs: plain text, bold (answers, kept
 // words), or a bar (blacked-out text). "\n" in a run's text is a line break.
-import { bandFor } from "./engine/score";
 import { tokenize } from "./engine/tokenize";
 import type { Token } from "./engine/types";
 import { capitalizeFirst, startsSentence, type Part } from "./fill-in";
@@ -68,7 +67,10 @@ export function ignoredLine(n: number): string {
   return n ? `${plural(n, "flag")} ignored` : "";
 }
 
-// DRAFT wording, for Sid to rewrite: the score line, the piece, then the link.
+// The score line, the piece, then the link. Solo: "Just lifted 82 on Weather
+// Report (1 flag ignored)." and "Your turn: <link>". Spotter games: "We
+// lifted 82 on Tag Team, taking turns on one phone." and "Try it with a
+// friend: <link>".
 export function shareMessage(r: {
   title: string;
   score: number;
@@ -77,14 +79,12 @@ export function shareMessage(r: {
   link: string;
   team?: boolean;
 }): string {
-  const scoreLine = [
-    r.title,
-    `${r.team ? "Team score " : ""}${r.score} (${bandFor(r.score)})`,
-    ...(r.team ? ["With a spotter"] : []),
-    ...(r.ignoredFlags ? [ignoredLine(r.ignoredFlags)] : []),
-  ].join(" · ");
+  const scoreLine = r.team
+    ? `We lifted ${r.score} on ${r.title}, taking turns on one phone.`
+    : `Just lifted ${r.score} on ${r.title}${r.ignoredFlags ? ` (${ignoredLine(r.ignoredFlags)})` : ""}.`;
   const piece = trimWords(r.piece, MESSAGE_WORDS);
-  return [scoreLine, ...(piece ? [piece] : []), `${r.team ? "Play it" : "Beat it"}: ${r.link}`].join("\n\n");
+  const link = r.team ? `Try it with a friend: ${r.link}` : `Your turn: ${r.link}`;
+  return [scoreLine, ...(piece ? [piece] : []), link].join("\n\n");
 }
 
 export type Share = { card: Card; message: string; fileName: string };
@@ -111,9 +111,8 @@ export function parseChallenge(search: string): Challenge | null {
   return challenge;
 }
 
-// DRAFT wording, for Sid to rewrite.
 export function challengeResult(mine: number, theirs: number): string {
-  const verdict = mine > theirs ? "You win." : mine === theirs ? "A tie." : "They win this one.";
+  const verdict = mine > theirs ? "You win." : mine === theirs ? "Dead even." : "They win this one.";
   return `You ${mine} · Them ${theirs}. ${verdict}`;
 }
 

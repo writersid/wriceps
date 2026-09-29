@@ -18,7 +18,7 @@ export default function Home() {
   return (
     <PageFrame>
       <h1 className="font-display text-4xl leading-tight font-extrabold">Build your writing muscles.</h1>
-      <p className="-mt-2 text-muted">Short, scored writing sets.</p>
+      <p className="-mt-2 text-muted">Short writing workouts.</p>
       {sections.map(({ mechanic, sets }) => (
         <section key={mechanic} aria-labelledby={`section-${mechanic}`} className="mt-2 flex flex-col gap-2">
           <div className="flex items-center justify-between gap-3">
@@ -43,8 +43,7 @@ export default function Home() {
           </ul>
         </section>
       ))}
-      {/* DRAFT wording. */}
-      <p className="text-sm text-muted">Your progress lives in this browser. Clearing browser data clears it.</p>
+      <p className="text-sm text-muted">Your progress is saved in this browser only. Clearing your browser data erases it.</p>
       <SiteFooter />
     </PageFrame>
   );

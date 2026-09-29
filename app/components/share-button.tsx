@@ -73,7 +73,6 @@ export function ShareButton({ card, message, fileName }: { card: Card; message: 
         {ready ? "Share this rep" : "Making the card…"}
       </button>
       {autoCopied && !fallback && (
-        // DRAFT wording, for Sid to rewrite.
         <p className="-mt-2 text-center text-sm text-muted" role="status">
           Message copied. Paste it if it doesn&apos;t come through.
         </p>

@@ -113,7 +113,7 @@ export function NoteCards({
         <p className="-mt-2 text-sm text-muted">
           {freeLeft > 0
             ? `Free ignores left: ${freeLeft}.`
-            : "No free ignores left. Ignoring now still hides the flag, but it costs points."}
+            : "No free ignores left. Ignoring now costs points."}
         </p>
       )}
     </>
@@ -136,7 +136,7 @@ export function StartOver({ onConfirm }: { onConfirm: () => void }) {
   }
   return (
     <section role="alertdialog" aria-label="Start over?" className="flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4">
-      <p className="font-semibold">Start over? Your current work will be lost.</p>
+      <p className="font-semibold">Start over? This clears your current rep.</p>
       <div className="flex gap-2">
         <button
           type="button"
@@ -160,7 +160,7 @@ export function StartOver({ onConfirm }: { onConfirm: () => void }) {
   );
 }
 
-// The score a challenge link asks the player to beat. DRAFT wording.
+// The score a challenge link asks the player to beat.
 export function ChallengeBanner({ score }: { score: number }) {
   return (
     <p className="rounded-2xl border-2 border-ink p-3 text-center font-semibold" role="status">
@@ -179,7 +179,7 @@ export function ChallengeResult({ mine, theirs }: { mine: number; theirs: number
 export function ChallengeConflict({ onStart, onKeep }: { onStart: () => void; onKeep: () => void }) {
   return (
     <section role="alertdialog" aria-label="Start the challenge?" className="flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4">
-      <p className="font-semibold">Start the challenge? Your set in progress will be lost.</p>
+      <p className="font-semibold">Start the challenge? This clears your current rep.</p>
       <div className="flex flex-col gap-2">
         <button type="button" onClick={onStart} className="min-h-11 rounded-full bg-ink font-semibold text-bg">
           Start the challenge

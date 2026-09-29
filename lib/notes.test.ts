@@ -66,7 +66,7 @@ describe("buildNotes", () => {
       "cat · 1 syllable · Ignore",
       "banana · 3 syllables · Ignore",
       " · 15 words short · no Ignore",
-      " · Over the time limit, so no bonus · no Ignore",
+      " · Time's up, so no bonus. · no Ignore",
     ]);
   });
 

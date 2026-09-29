@@ -1,6 +1,5 @@
 // How to play, one entry per mechanic, shown in a bottom sheet from the home
-// screen and every set. DRAFT: all of this text is Claude's draft, for Sid to
-// rewrite.
+// screen and every set. Written to COPY.md's voice guide.
 import type { Mechanic } from "../lib/notes";
 
 export type { Mechanic };
@@ -16,20 +15,20 @@ export const howToPlay: Record<Mechanic, HowToPlay> = {
     name: "Constraint",
     intro: "Write inside the rules. The rules are the weights.",
     steps: [
-      "Read the rule chips under the title. That's the whole brief.",
-      "Write in the box. Anything that breaks a rule gets a wavy underline and a note below.",
-      "The checker can misread a word's type or syllables. On those flags, tap Ignore.",
-      "Tap Log this set when you're happy with it.",
+      "Read the rule chips. They're the weights for this set.",
+      "Write in the box. Words that break a rule get underlined.",
+      "Every broken rule gets a card below with a tip.",
+      "Tap Log this set when you're done.",
     ],
   },
   "fill-in": {
     name: "Fill-in",
     intro: "Fill the blanks. Every blank is a rep.",
     steps: [
-      "Each blank asks for a kind of word: a noun, a verb, a question. The label is a prompt, not a test.",
-      "Open sets show the poem as you fill it. Surprise sets hide it until the last blank.",
-      "Echo blanks repeat an earlier answer on their own.",
-      "With a spotter, you take turns on one phone, one line each, and see only the end of the last line. The poem is revealed at the end.",
+      "Play solo, or with a spotter taking turns on one phone.",
+      "Fill each blank with the kind of word it asks for.",
+      "In surprise sets, the poem stays hidden until you reveal it.",
+      "Fill every blank, then log the set.",
     ],
   },
   blackout: {
@@ -37,16 +36,16 @@ export const howToPlay: Record<Mechanic, HowToPlay> = {
     intro: "Find the poem hiding in someone else's page.",
     steps: [
       "Tap the words you want to keep. Tap again to drop one.",
-      "Your poem is the kept words, in order, shown below the page.",
-      "Tap Black out the rest to see the finished page. Back to picking takes you back.",
+      "Your poem builds below the passage as you pick.",
+      "Tap Black out the rest to see your page, then log it.",
     ],
   },
 };
 
 // Scoring, the same for every mechanic.
 export const scoringNotes: string[] = [
-  "Every set scores 0 to 100. Warm-up under 40, Working set from 40, Heavy lift from 70, PR from 90.",
-  "Your best score on a set is your PR. Beat it and you set a new one.",
-  "Each rep gets 2 free ignores. After that, ignoring still hides a flag but costs points.",
-  "Some sets have a bonus for finishing fast. The clock starts at your first keystroke or tap.",
+  "Every set scores out of 100. Following the rules earns up to 90, and the bonus earns the last 10.",
+  "Each broken rule costs points.",
+  "Scores fall into four bands: Warm-up, Working set, Heavy lift, and Top set.",
+  "If the checker flags a word by mistake, tap Ignore. You get two free ignores per set.",
 ];

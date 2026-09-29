@@ -128,7 +128,7 @@ export function PassGame({
           <p className="font-display text-2xl font-extrabold">
             {player === "Spotter" ? "Pass the phone to your spotter." : "Pass the phone back."}
           </p>
-          <p className="text-muted">No peeking. The screen stays blank until the next player is ready.</p>
+          <p className="text-muted">No peeking. Nothing shows until the next player is ready.</p>
           <button
             type="button"
             onClick={() => move({ ...pass, phase: "turn" })}

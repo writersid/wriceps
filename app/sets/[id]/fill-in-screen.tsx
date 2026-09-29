@@ -264,7 +264,7 @@ export function FillInScreen({ set, number, total }: { set: FillInSet; number: n
             >
               With a spotter
             </button>
-            <p className="text-sm text-muted">With a spotter, you take turns on this phone, one line each.</p>
+            <p className="text-sm text-muted">Take turns on one phone, one line each.</p>
           </section>
         ) : (
           <EngineStatus loadFailed={loadFailed} />
