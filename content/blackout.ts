@@ -3,8 +3,8 @@
 // task in one plain sentence. Weights: main rules share 90 points, split
 // equally; a bonus is worth 10.
 // Passages are copied word for word from Project Gutenberg's plain-text
-// editions (line breaks joined, italics markers dropped), with the source
-// recorded. Blackout sets use only word count, required words, banned letters,
+// editions (prose line breaks joined, a poem's own lines kept; italics markers
+// dropped), with the source recorded. Blackout sets use only word count, required words, banned letters,
 // syllables, no repeats, and a time-limit bonus (content.test.ts checks this).
 import type { Exercise } from "../lib/engine/types";
 
@@ -13,6 +13,9 @@ export type BlackoutSet = Exercise & {
   title: string;
   blurb: string;
   passage: string;
+  // A poem keeps its line breaks ("\n" in the passage) on the page and the
+  // card; prose passages are one paragraph.
+  poem?: boolean;
   source: { title: string; author: string; year: number; url: string };
 };
 
@@ -115,14 +118,17 @@ export const blackoutSets: BlackoutSet[] = [
     id: "max-out-blackout",
     title: "Max Out: Blackout",
     blurb: "Keep exactly 10 words, each one syllable.",
-    // Poem 35, whole, in Tagore's own English translation; its lines joined.
+    // Poem 35, whole, in Tagore's own English translation, one line per line of the poem.
+    poem: true,
     passage:
-      "Where the mind is without fear and the head is held high; Where knowledge is free; Where the world " +
-      "has not been broken up into fragments by narrow domestic walls; Where words come out from the depth " +
-      "of truth; Where tireless striving stretches its arms towards perfection; Where the clear stream of " +
-      "reason has not lost its way into the dreary desert sand of dead habit; Where the mind is led " +
-      "forward by thee into ever-widening thought and action— Into that heaven of freedom, my Father, let " +
-      "my country awake.",
+      "Where the mind is without fear and the head is held high;\n" +
+      "Where knowledge is free;\n" +
+      "Where the world has not been broken up into fragments by narrow domestic walls;\n" +
+      "Where words come out from the depth of truth;\n" +
+      "Where tireless striving stretches its arms towards perfection;\n" +
+      "Where the clear stream of reason has not lost its way into the dreary desert sand of dead habit;\n" +
+      "Where the mind is led forward by thee into ever-widening thought and action—\n" +
+      "Into that heaven of freedom, my Father, let my country awake.",
     source: { title: "Gitanjali", author: "Rabindranath Tagore", year: 1912, url: "https://www.gutenberg.org/ebooks/7164" },
     rules: [
       { id: "length", type: "wordCount", exact: 10, weight: 30 },

@@ -193,7 +193,7 @@ export function BlackoutScreen({ set, number, total }: { set: BlackoutSet; numbe
       {challenge && <ChallengeBanner score={challenge.score} />}
       <section
         aria-label={blackedOut ? "Your blackout page" : "The passage. Tap words to keep them."}
-        className="paper rounded-2xl border border-border p-4 text-lg leading-11"
+        className={`paper rounded-2xl border border-border p-4 text-lg leading-11 ${set.poem ? "whitespace-pre-line" : ""}`}
       >
         {gap(set.passage.slice(0, words[0]?.start ?? 0))}
         {words.map((word, i) => {
