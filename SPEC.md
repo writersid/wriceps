@@ -96,8 +96,8 @@ Blackout details (decided in Phase 3):
 
 - Every exercise has at least one measurable rule or bonus rule, so every score is earned. Examples: "no word used twice," "every blank starts with the same letter," "finish in 90 seconds," "keep between 10 and 20 words," "your poem must keep the word river."
 - Every exercise gets a score from 0 to 100, shown as a barbell meter that loads a plate per band.
-- Bands: Warm-up (0 to 39), Working set (40 to 69), Heavy lift (70 to 89), PR (90 to 100).
-- A new best score on an exercise is a PR.
+- Bands: Warm-up (0 to 39), Working set (40 to 69), Heavy lift (70 to 89), Top set (90 to 100). (The top band was called PR until the final copy.)
+- A new best score on an exercise is a PR. "PR" only ever means a player's personal best, never a band.
 - Scoring is deterministic: the same text and time taken always get the same score.
 - How points are earned: each exercise lists its rules and bonus rules with point weights. Each violation costs part of its rule's points, and a rule can never lose more than its weight. Bonus rules add points, and the total is capped at 100.
 - Default cost of a violation: the rule's weight divided by its fixed maximum number of violations. A missed required first sentence costs the full weight; each missing required word costs the weight divided by the number of required words. Rules with no fixed maximum (word count, banned letters, syllables per word, no adverbs, no adjectives, no repeated words, same first letter, sentence length) cost a third of their weight per violation. An exercise can set its own cost for any rule.
@@ -121,7 +121,7 @@ Sharing details (decided in Phase 3):
 ## Content
 
 - 31 exercises at launch: 15 constraint, 10 fill-in, 6 blackout. The sets, and the choices behind them, are in CONTENT.md. Each mechanic's sets run easy to hard.
-- Point weights: a set's main rules share 90 points, split equally (any rounding goes to the word count), and its bonus rule is worth 10. A clean rep without the bonus scores 90, still a PR; only the bonus reaches 100.
+- Point weights: a set's main rules share 90 points, split equally (any rounding goes to the word count), and its bonus rule is worth 10. A clean rep without the bonus scores 90, still a Top set; only the bonus reaches 100.
 - Original exercises written by Sid, with Claude drafting options for him to edit.
 - Exercises by other authors are used only with their permission, obtained before the app is shared, and are credited in the app.
 - Quoted source text (opening lines, blackout passages) comes only from public-domain works such as Project Gutenberg, with the source recorded for each.
@@ -180,7 +180,8 @@ Dry and playful, never literary or cute. Gym vocabulary:
 - exercises are sets; each piece is a rep
 - quick exercises are warm-ups
 - the pass-the-phone partner is the spotter
-- a new best score is a PR
+- a new best score is a PR (a personal best)
+- the top score band (90 to 100) is a Top set
 - the main action on an exercise is "Log this set"
 
 ## Stack (approved)

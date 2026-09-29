@@ -3,10 +3,12 @@
 import { tokenize } from "./tokenize";
 import type { Exercise, Flag, ScoredRule } from "./types";
 
-export type Band = "Warm-up" | "Working set" | "Heavy lift" | "PR";
+// The top band is "Top set"; "PR" only ever means a player's personal best.
+export type Band = "Warm-up" | "Working set" | "Heavy lift" | "Top set";
+export const BANDS: Band[] = ["Warm-up", "Working set", "Heavy lift", "Top set"];
 
 export function bandFor(score: number): Band {
-  if (score >= 90) return "PR";
+  if (score >= 90) return "Top set";
   if (score >= 70) return "Heavy lift";
   if (score >= 40) return "Working set";
   return "Warm-up";

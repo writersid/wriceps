@@ -1,6 +1,5 @@
-import type { Band } from "@/lib/engine/score";
+import { BANDS, type Band } from "@/lib/engine/score";
 
-const BANDS: Band[] = ["Warm-up", "Working set", "Heavy lift", "PR"];
 const PLATE_HEIGHTS = ["h-8", "h-9", "h-11", "h-13"];
 
 // The barbell meter loads one plate per band reached.

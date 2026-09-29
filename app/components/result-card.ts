@@ -1,7 +1,7 @@
 // Draws the result card on a canvas and returns it as a PNG. Always
 // paper-light, 1080×1350 (portrait, 4:5). See SPEC.md "Sharing details".
 import { layoutRuns, type Placed } from "@/lib/card-layout";
-import { bandFor } from "@/lib/engine/score";
+import { BANDS, bandFor } from "@/lib/engine/score";
 import { ignoredLine, type Card, type Run } from "@/lib/share";
 
 const W = 1080;
@@ -81,7 +81,7 @@ export async function drawResultCard(card: Card): Promise<Blob> {
   const band = bandFor(card.score);
   const scoreWidth = text(String(card.score), PAD, H - 170, `900 130px ${display}`);
   text(band, PAD + scoreWidth + 24, H - 172, `600 40px ${sans}`);
-  drawMeter(ctx, card.score > 0 ? ["Warm-up", "Working set", "Heavy lift", "PR"].indexOf(band) + 1 : 0, H - 205);
+  drawMeter(ctx, card.score > 0 ? BANDS.indexOf(band) + 1 : 0, H - 205);
   const extra = [card.team ? "Team score" : "", ignoredLine(card.ignoredFlags)].filter(Boolean).join(" · ");
   if (extra) text(extra, PAD, H - 118, `400 30px ${sans}`, MUTED);
 

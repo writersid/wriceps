@@ -15,7 +15,7 @@ const adverb = (word: string, extra: Partial<Flag> = {}): Flag => ({
 describe("bands", () => {
   test("cutoffs match SPEC", () => {
     expect([0, 39, 40, 69, 70, 89, 90, 100].map(bandFor)).toEqual([
-      "Warm-up", "Warm-up", "Working set", "Working set", "Heavy lift", "Heavy lift", "PR", "PR",
+      "Warm-up", "Warm-up", "Working set", "Working set", "Heavy lift", "Heavy lift", "Top set", "Top set",
     ]);
   });
 
