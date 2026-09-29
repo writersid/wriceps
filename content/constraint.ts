@@ -7,22 +7,27 @@ import type { Exercise } from "../lib/engine/types";
 export type ConstraintSet = Exercise & { id: string; title: string; blurb: string };
 
 // Opening lines for Pick Up the Bar, copied from Project Gutenberg's plain-text
-// editions, with sources for the credits page.
+// editions, with sources for the credits page. `label` is the chip's short name
+// ("Opening: Austen"); the line itself shows above the draft.
 export const openingLines = [
   {
+    label: "Austen",
     line: "It is a truth universally acknowledged, that a single man in possession of a good fortune must be in want of a wife.",
     source: { title: "Pride and Prejudice", author: "Jane Austen", year: 1813, url: "https://www.gutenberg.org/ebooks/1342" },
   },
   {
     // The book prints "MARLEY" in capitals as a chapter opening.
+    label: "Dickens",
     line: "Marley was dead: to begin with.",
     source: { title: "A Christmas Carol", author: "Charles Dickens", year: 1843, url: "https://www.gutenberg.org/ebooks/46" },
   },
   {
+    label: "Barrie",
     line: "All children, except one, grow up.",
     source: { title: "Peter Pan", author: "J. M. Barrie", year: 1911, url: "https://www.gutenberg.org/ebooks/16" },
   },
   {
+    label: "Tolstoy",
     line: "Happy families are all alike; every unhappy family is unhappy in its own way.",
     source: {
       title: "Anna Karenina",
@@ -33,6 +38,7 @@ export const openingLines = [
   },
   {
     // The book's opening words; its sentence runs on after a semicolon.
+    label: "Bulwer-Lytton",
     line: "It was a dark and stormy night.",
     source: { title: "Paul Clifford", author: "Edward Bulwer-Lytton", year: 1830, url: "https://www.gutenberg.org/ebooks/7735" },
   },
@@ -171,7 +177,13 @@ export const constraintSets: ConstraintSet[] = [
     title: "Pick Up the Bar",
     blurb: "Begin with the classic opening line shown on screen and write at least 100 more words.",
     rules: [
-      { id: "opening", type: "firstSentence", options: openingLines.map((o) => o.line), weight: 45 },
+      {
+        id: "opening",
+        type: "firstSentence",
+        options: openingLines.map((o) => o.line),
+        optionLabels: openingLines.map((o) => o.label),
+        weight: 45,
+      },
       { id: "length", type: "wordCount", min: 100, afterFirstSentence: true, weight: 45 },
     ],
     bonus: [{ id: "adverbs", type: "noAdverbs", weight: 10 }],

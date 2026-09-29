@@ -60,8 +60,10 @@ function resolveRule(rule: ScoredRule, pick: <T>(options: readonly T[]) => T): S
       return { ...rest, words: pick(options!) };
     }
     case "firstSentence": {
-      const { options, ...rest } = rule;
-      return { ...rest, sentence: pick(options!) };
+      // Pick a position, so the line and its short label stay together.
+      const { options, optionLabels, ...rest } = rule;
+      const i = pick(options!.map((_, index) => index));
+      return optionLabels ? { ...rest, sentence: options![i], label: optionLabels[i] } : { ...rest, sentence: options![i] };
     }
     default:
       return rule;

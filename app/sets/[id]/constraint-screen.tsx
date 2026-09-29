@@ -74,6 +74,9 @@ export function ConstraintScreen({ set, number, total }: { set: ConstraintSet; n
 
   // This round's rules, with any draws made from the seed.
   const round = useMemo(() => (seed === null ? set : resolveRound(set, seed)), [set, seed]);
+  // The required opening line, shown once above the draft.
+  const openingRule = [...round.rules, ...(round.bonus ?? [])].find((r) => r.type === "firstSentence");
+  const opening = openingRule?.type === "firstSentence" ? openingRule.sentence : undefined;
   const flags = useMemo(
     () => (engine ? engine.checkText(checkedText, round, timer.clock) : []),
     [engine, checkedText, round, timer.clock],
@@ -171,6 +174,13 @@ export function ConstraintScreen({ set, number, total }: { set: ConstraintSet; n
     <>
       {header}
       {challenge && <ChallengeBanner score={challenge.score} />}
+      {opening && (
+        <figure className="rounded-2xl border border-border bg-surface p-4">
+          {/* DRAFT caption, for Sid to rewrite. */}
+          <figcaption className="text-sm text-muted">Open with this line</figcaption>
+          <blockquote className="mt-1 font-display text-xl leading-snug">{opening}</blockquote>
+        </figure>
+      )}
       <DraftEditor
         value={text}
         onChange={edit}

@@ -49,11 +49,11 @@ export function buildNotes(
   const ruleFor = (f: Flag) => rules.find((r) => r.id === f.ruleId) as Rule;
   const notes: Note[] = [];
 
-  const opening = visible.find((f) => f.kind === "firstSentence");
-  if (opening) {
-    const rule = ruleFor(opening) as Extract<Rule, { type: "firstSentence" }>;
-    notes.push(wholeDraft("firstSentence", `Start with “${rule.sentence}”`));
-  }
+  // The line itself shows above the draft, so the card appears only once the
+  // draft has a first sentence that isn't it (the flag then has a position).
+  // An empty draft still misses the rule's points.
+  const opening = visible.find((f) => f.kind === "firstSentence" && f.start !== undefined);
+  if (opening) notes.push(wholeDraft("firstSentence", "Your opening doesn't match the line above"));
 
   // One card per word, covering every rule that flagged it, word type first.
   const WORD_KINDS = [
@@ -190,6 +190,7 @@ export function ruleLabel(rule: Rule): string {
     case "requiredWords":
       return rule.words ? `Use: ${rule.words.join(", ")}` : "Required words";
     case "firstSentence":
+      if (rule.label) return `Opening: ${rule.label}`;
       return rule.sentence ? `Start with “${rule.sentence}”` : "Start with a classic line";
   }
 }

@@ -14,8 +14,9 @@ export type Rule =
   | { type: "bannedLetters"; letters?: string; pool?: string }
   // options: word groups to draw one from.
   | { type: "requiredWords"; words?: string[]; options?: string[][] }
-  // options: opening lines to draw one from.
-  | { type: "firstSentence"; sentence?: string; options?: string[] }
+  // options: opening lines to draw one from. label / optionLabels: a short name
+  // for the chip ("Austen"), since the line itself shows above the draft.
+  | { type: "firstSentence"; sentence?: string; options?: string[]; label?: string; optionLabels?: string[] }
   | { type: "noRepeats" }
   // At most `max` words in every sentence.
   | { type: "sentenceLength"; max: number }

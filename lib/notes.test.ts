@@ -89,7 +89,12 @@ describe("buildNotes", () => {
 
   it("covers the first sentence and missing required words", () => {
     const details = notesFor("stormy-night", "Hello there.").map((n) => n.detail);
-    expect(details).toEqual(["Start with “It was a dark and stormy night.”", "Still missing: lighthouse, key"]);
+    expect(details).toEqual(["Your opening doesn't match the line above", "Still missing: lighthouse, key"]);
+  });
+
+  it("shows no opening card on an empty draft, since the line shows above it", () => {
+    expect(notesFor("stormy-night", "").map((n) => n.key)).not.toContain("firstSentence");
+    expect(notesFor("stormy-night", "It was a dark and stormy night.").map((n) => n.key)).not.toContain("firstSentence");
   });
 
   it("gives one card per long sentence, named by its first words, with no Ignore", () => {
@@ -129,5 +134,9 @@ describe("ruleLabel", () => {
     expect(ruleLabel({ type: "bannedLetters", pool: "aoinst" })).toBe("One banned letter");
     expect(ruleLabel({ type: "requiredWords", options: [["key"]] })).toBe("Required words");
     expect(ruleLabel({ type: "firstSentence", options: ["Marley was dead: to begin with."] })).toBe("Start with a classic line");
+  });
+
+  it("names a drawn opening line by its short label", () => {
+    expect(ruleLabel({ type: "firstSentence", sentence: "Marley was dead: to begin with.", label: "Dickens" })).toBe("Opening: Dickens");
   });
 });

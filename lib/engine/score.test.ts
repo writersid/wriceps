@@ -216,6 +216,36 @@ describe("words after the opening line", () => {
   });
 });
 
+describe("other rules skip the required opening", () => {
+  const austen = "It is a truth universally acknowledged, that a single man in possession of a good fortune must be in want of a wife.";
+  const exercise: Exercise = {
+    rules: [{ id: "opening", type: "firstSentence", sentence: austen, weight: 45 }],
+    bonus: [
+      { id: "adverbs", type: "noAdverbs", weight: 10 },
+      { id: "repeats", type: "noRepeats", weight: 10 },
+      { id: "sentences", type: "sentenceLength", max: 10, weight: 10 },
+      { id: "syllables", type: "syllables", max: 2, weight: 10 },
+    ],
+  };
+  const flagged = (text: string) => checkText(text, exercise).map((f) => `${f.ruleId}:${f.word}`);
+
+  test("no flags inside the opening when it's typed as given, even with other capitals and extra spaces", () => {
+    expect(flagged(`${austen} She laughed.`)).toEqual([]);
+    expect(flagged(`  IT is a truth  universally acknowledged, that a single man in possession of a good fortune must be in want of a wife. She laughed.`)).toEqual([]);
+  });
+
+  test("the player's own words are still checked, positions unchanged", () => {
+    const text = `${austen} She laughed loudly.`;
+    const flags = checkText(text, exercise).filter((f) => f.ruleId === "adverbs");
+    expect(flags.map((f) => text.slice(f.start, f.end))).toEqual(["loudly"]);
+  });
+
+  test("a changed opening isn't skipped", () => {
+    expect(flagged("It is a truth universally known. She laughed.")).toContain("adverbs:universally");
+    expect(flagged("It is a truth universally known. She laughed.")).toContain("opening:");
+  });
+});
+
 describe("determinism and awkward input", () => {
   const exercise: Exercise = {
     rules: [

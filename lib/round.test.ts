@@ -43,6 +43,16 @@ describe("resolveRound", () => {
     expect(repeats).toBe(exercise.rules[4]);
   });
 
+  it("keeps a drawn opening line and its short label together", () => {
+    const labeled: Exercise = {
+      rules: [{ id: "opening", type: "firstSentence", options: ["Line one.", "Line two.", "Line three."], optionLabels: ["One", "Two", "Three"], weight: 90 }],
+    };
+    for (let seed = 0; seed < 30; seed++) {
+      const rule = resolveRound(labeled, seed).rules[0] as { sentence: string; label: string };
+      expect(rule.sentence).toBe(`Line ${rule.label.toLowerCase()}.`);
+    }
+  });
+
   it("gives the same round for the same seed", () => {
     expect(resolveRound(exercise, 7)).toEqual(resolveRound(exercise, 7));
   });

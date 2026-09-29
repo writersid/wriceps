@@ -166,18 +166,37 @@ export function checkTimeLimit(rule: RuleOf<"timeLimit">, elapsedMs: number | un
   return elapsedMs !== undefined && elapsedMs > rule.seconds * 1000 ? [flag(rule, "overTime", "")] : [];
 }
 
-// Ignores case, curly versus straight quotes, and extra spaces.
-const looseSentence = (s: string) =>
-  s.toLowerCase().replace(/[‘’]/g, "'").replace(/[“”]/g, '"').replace(/\s+/g, " ").trim();
+// Ignores case and curly versus straight quotes.
+const looseChar = (c: string) => c.toLowerCase().replace(/[‘’]/g, "'").replace(/[“”]/g, '"');
 
-// The draft must begin with the required sentence, not run on into a longer
-// word ("The end" is not satisfied by "The ending"). The flag underlines the
-// draft's own first sentence.
+// Where the required opening ends in the draft, or null when the draft doesn't
+// begin with it. Ignores case, curly versus straight quotes, and extra spaces,
+// and the opening can't run on into a longer word ("The end" is not matched
+// by "The ending").
+export function openingEnd(text: string, sentence: string): number | null {
+  const required = [...sentence.trim()].map(looseChar).join("").replace(/\s+/g, " ");
+  let i = text.search(/\S|$/);
+  let j = 0;
+  while (j < required.length) {
+    if (i >= text.length) return null;
+    if (/\s/.test(text[i])) {
+      if (required[j] !== " ") return null;
+      while (i < text.length && /\s/.test(text[i])) i++;
+      j++;
+    } else if (looseChar(text[i]) === required[j]) {
+      i++;
+      j++;
+    } else {
+      return null;
+    }
+  }
+  return /[\p{L}\p{N}]/u.test(text.charAt(i)) ? null : i;
+}
+
+// The draft must begin with the required sentence. The flag underlines the
+// draft's own first sentence, if it has one.
 export function checkFirstSentence(rule: RuleOf<"firstSentence">, text: string): Flag[] {
-  if (rule.sentence === undefined) return [];
-  const draft = looseSentence(text);
-  const required = looseSentence(rule.sentence);
-  if (draft.startsWith(required) && !/[\p{L}\p{N}]/u.test(draft.charAt(required.length))) return [];
+  if (rule.sentence === undefined || openingEnd(text, rule.sentence) !== null) return [];
   const first = /\S[^.!?]*[.!?]*["'”’]?/.exec(text);
   const pos = first ? { text: first[0], start: first.index, end: first.index + first[0].length } : undefined;
   return [flag(rule, "firstSentence", "", pos)];
