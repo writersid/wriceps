@@ -110,4 +110,5 @@ npm run language:eval    # rerun syllable, part-of-speech, and word-list accurac
   - Blackout `poem: true` keeps a passage's line breaks (Gitanjali 35).
   - Content test: every draw leaves enough usable blackout words after banned letters and syllable limits. Time limits of whole minutes read "Under 5 minutes".
   - Known and accepted: Morning Stretch, Echo Canyon, and Best of Times are easy to max (Sid keeps them as warm-ups).
-- **Next step:** Sid rewrites all the copy in one session from `COPY.md` (every DRAFT string and the rest of the interface wording, with file locations; update it if copy moves). iPhone checks for 5a and 5b still pending.
+- **Final copy applied, awaiting Sid's phone test.** Tips per mechanic with the round's letter, top band renamed "Top set", every approved line in place, no DRAFT markers left. `COPY.md` is now the voice guide: new copy follows it.
+- **Next step:** Sid's phone test of the final copy. iPhone checks for 5a and 5b still pending.
