@@ -17,6 +17,7 @@ import {
 import { ShareButton } from "@/app/components/share-button";
 import { useClock } from "@/app/components/use-clock";
 import type { FillInSet } from "@/content/fill-in";
+import { track, trackLog, type SetInfo } from "@/lib/analytics";
 import { bandFor, scoreText } from "@/lib/engine/score";
 import type { Flag } from "@/lib/engine/types";
 import { answerAt, answersText, parseTemplate, scaleByFilled } from "@/lib/fill-in";
@@ -61,6 +62,7 @@ export function FillInScreen({ set, number, total }: { set: FillInSet; number: n
   const [challenge, setChallenge] = useState<Challenge | null>(null);
   // A challenge link that would replace a round in progress waits for the player's answer.
   const [pendingChallenge, setPendingChallenge] = useState<Challenge | null>(null);
+  const info: SetInfo = { set: set.id, mechanic: "fill-in", mode: "solo" };
 
   // The saved round loads with the engine, so nothing typed before then gets replaced.
   useEffect(() => {
@@ -69,6 +71,7 @@ export function FillInScreen({ set, number, total }: { set: FillInSet; number: n
         // A challenge plays the linked round (its seed, solo). A saved round
         // with another seed is dropped if empty, else the player decides.
         const linked = parseChallenge(location.search);
+        if (linked) track("challenge link opened", { set: set.id, mechanic: "fill-in", target: linked.score });
         const { draft, challenge, pending } = openRound(loadFillInDraft(set.id, labels.length), linked, (d) =>
           workInProgress(d.answers, !!d.pass),
         );
@@ -133,6 +136,7 @@ export function FillInScreen({ set, number, total }: { set: FillInSet; number: n
   function answer(index: number, value: string) {
     const started = timer.start();
     const next = answers.map((a, i) => (i === index ? value : a));
+    if (!workInProgress(answers) && workInProgress(next)) track("exercise started", info);
     setAnswers(next);
     setLogged(null);
     save({ answers: next, startedAt: started });
@@ -167,6 +171,7 @@ export function FillInScreen({ set, number, total }: { set: FillInSet; number: n
       seed: seed ?? undefined,
     });
     setLogged({ score: final.score, isNewPR: result.isNewPR, share });
+    trackLog(info, final.score, challenge);
     timer.stop();
     clearDraft(set.id);
   }
@@ -351,7 +356,7 @@ export function FillInScreen({ set, number, total }: { set: FillInSet; number: n
       <LogButton onLog={log} disabled={!engine || !complete} logged={logged} best={best} />
       {!complete && <p className="-mt-2 text-center text-sm text-muted">Fill every blank to log the set.</p>}
       {logged && challenge && <ChallengeResult mine={logged.score} theirs={challenge.score} />}
-      {logged && <ShareButton {...logged.share} />}
+      {logged && <ShareButton {...logged.share} info={info} />}
       {startOverControl}
     </>
   );

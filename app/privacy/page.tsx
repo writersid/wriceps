@@ -19,7 +19,7 @@ export default function PrivacyPage() {
         <h2 id="privacy" className="font-display text-2xl font-extrabold">
           Privacy
         </h2>
-        {/* When analytics is added (Phase 4), say what it counts and change the cookies bullet. */}
+        {/* Must name everything lib/analytics.ts lets out (keepOnly). */}
         <ul className="flex list-disc flex-col gap-2 pl-5">
           <li>No accounts. There&apos;s nothing to sign up for.</li>
           <li>Your writing stays on your device. It leaves only when you tap Share, and goes only where you send it.</li>
@@ -31,7 +31,23 @@ export default function PrivacyPage() {
             Your scores and unfinished sets are saved in this browser. Clearing browser data clears them, and another
             phone or browser starts fresh.
           </li>
-          <li>Wriceps sets no cookies and doesn&apos;t track you.</li>
+          <li>Wriceps sets no cookies and stores nothing on your device to recognize you.</li>
+          <li>
+            Wriceps counts five moments: starting a set, logging it, sharing it, opening a challenge link, and
+            finishing a challenge. It never sends your writing.
+          </li>
+          <li>
+            Each count includes the set, your score, the score to beat, solo or with a spotter, and how you shared. It
+            also includes your device type (phone, tablet, or computer), your browser and system (such as Chrome on
+            Android), the site that linked you here (such as reddit.com, never the full address), the time, and
+            technical details PostHog needs, like this site&apos;s address and a random ID for each count.
+          </li>
+          <li>
+            Counts go to PostHog, an analytics service, on its servers in the EU. To tell visitors apart without
+            cookies, PostHog turns your IP address and browser details into a code that changes every day, then
+            deletes them. PostHog groups counts from the same visit using that daily code. It doesn&apos;t look up
+            your location.
+          </li>
         </ul>
       </section>
 

@@ -17,6 +17,7 @@ import {
 import { ShareButton } from "@/app/components/share-button";
 import { useClock } from "@/app/components/use-clock";
 import type { BlackoutSet } from "@/content/blackout";
+import { track, trackLog, type SetInfo } from "@/lib/analytics";
 import { keptWordAt, passageWords, poemText, toggleKept } from "@/lib/blackout";
 import { scoreText } from "@/lib/engine/score";
 import { buildNotes } from "@/lib/notes";
@@ -44,12 +45,14 @@ export function BlackoutScreen({ set, number, total }: { set: BlackoutSet; numbe
   const timeRule = set.bonus?.find((r) => r.type === "timeLimit");
   const timer = useClock(timeRule?.type === "timeLimit" ? timeRule.seconds : undefined);
   const { restore } = timer;
+  const info: SetInfo = { set: set.id, mechanic: "blackout", mode: "solo" };
 
   // The saved round loads with the engine, so no tap before then gets replaced.
   useEffect(() => {
     loadEngine()
       .then((loaded) => {
         const linked = parseChallenge(location.search);
+        if (linked) track("challenge link opened", { set: set.id, mechanic: "blackout", target: linked.score });
         if (linked && !draws) delete linked.seed;
         const saved = loadBlackoutDraft(set.id, words.length);
         const { draft, challenge, pending } = openRound(saved, linked, (d) => d.kept.length > 0);
@@ -94,6 +97,7 @@ export function BlackoutScreen({ set, number, total }: { set: BlackoutSet; numbe
   function tap(index: number) {
     const started = timer.start();
     const next = toggleKept(kept, index);
+    if (kept.length === 0 && next.length > 0) track("exercise started", info);
     setKept(next);
     setLogged(null);
     save({ kept: next, startedAt: started });
@@ -128,6 +132,7 @@ export function BlackoutScreen({ set, number, total }: { set: BlackoutSet; numbe
       seed: seed ?? undefined,
     });
     setLogged({ score: final.score, isNewPR: result.isNewPR, share });
+    trackLog(info, final.score, challenge);
     timer.stop();
     clearDraft(set.id);
   }
@@ -254,7 +259,7 @@ export function BlackoutScreen({ set, number, total }: { set: BlackoutSet; numbe
       <ScoreCard score={score} band={band} best={best} />
       <LogButton onLog={log} disabled={!engine || kept.length === 0} logged={logged} best={best} />
       {logged && challenge && <ChallengeResult mine={logged.score} theirs={challenge.score} />}
-      {logged && <ShareButton {...logged.share} />}
+      {logged && <ShareButton {...logged.share} info={info} />}
       {kept.length > 0 && <StartOver onConfirm={() => startOver()} />}
     </>
   );

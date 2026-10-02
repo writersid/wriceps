@@ -18,6 +18,7 @@ import {
 import { ShareButton } from "@/app/components/share-button";
 import { useClock } from "@/app/components/use-clock";
 import type { ConstraintSet } from "@/content/constraint";
+import { track, trackLog, type SetInfo } from "@/lib/analytics";
 import { scoreText } from "@/lib/engine/score";
 import { buildNotes } from "@/lib/notes";
 import { buildShare, constraintRuns, parseChallenge, type Challenge } from "@/lib/share";
@@ -44,12 +45,14 @@ export function ConstraintScreen({ set, number, total }: { set: ConstraintSet; n
   const timeRule = set.bonus?.find((r) => r.type === "timeLimit");
   const timer = useClock(timeRule?.type === "timeLimit" ? timeRule.seconds : undefined);
   const { restore } = timer;
+  const info: SetInfo = { set: set.id, mechanic: "constraint", mode: "solo" };
 
   // The saved draft loads with the engine, so nothing typed before then gets replaced.
   useEffect(() => {
     loadEngine()
       .then((loaded) => {
         const linked = parseChallenge(location.search);
+        if (linked) track("challenge link opened", { set: set.id, mechanic: "constraint", target: linked.score });
         if (linked && !draws) delete linked.seed;
         const { draft, challenge, pending } = openRound(loadDraft(set.id), linked, (d) => workInProgress([d.text]));
         if (draft) {
@@ -91,6 +94,7 @@ export function ConstraintScreen({ set, number, total }: { set: ConstraintSet; n
 
   function edit(value: string) {
     const started = timer.start();
+    if (!workInProgress([text]) && workInProgress([value])) track("exercise started", info);
     setText(value);
     setLogged(null);
     saveDraft(set.id, { text: value, ignored, startedAt: started ?? undefined, seed: seed ?? undefined });
@@ -120,6 +124,7 @@ export function ConstraintScreen({ set, number, total }: { set: ConstraintSet; n
       seed: seed ?? undefined,
     });
     setLogged({ score: final.score, isNewPR: result.isNewPR, share });
+    trackLog(info, final.score, challenge);
     timer.stop();
     clearDraft(set.id);
   }
@@ -192,7 +197,7 @@ export function ConstraintScreen({ set, number, total }: { set: ConstraintSet; n
       <ScoreCard score={score} band={band} best={best} />
       <LogButton onLog={log} disabled={!engine || !text.trim()} logged={logged} best={best} />
       {logged && challenge && <ChallengeResult mine={logged.score} theirs={challenge.score} />}
-      {logged && <ShareButton {...logged.share} />}
+      {logged && <ShareButton {...logged.share} info={info} />}
       {workInProgress([text]) && <StartOver onConfirm={() => startOver()} />}
     </>
   );

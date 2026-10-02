@@ -6,11 +6,12 @@ import { ScoreCard } from "@/app/components/score-card";
 import { NoteCards, SetHeader, StartOver } from "@/app/components/set-parts";
 import { ShareButton } from "@/app/components/share-button";
 import type { FillInSet } from "@/content/fill-in";
+import { track, type SetInfo } from "@/lib/analytics";
 import { scoreText } from "@/lib/engine/score";
 import { answerAt, answersText, type Part } from "@/lib/fill-in";
 import { buildNotes } from "@/lib/notes";
 import { blanksIn, joinLines, playerFor, splitLines, teaser, turnFlags, turnLines, type PassState } from "@/lib/pass";
-import { saveDraft, type FillInDraft } from "@/lib/progress";
+import { saveDraft, workInProgress, type FillInDraft } from "@/lib/progress";
 import { resolveRound } from "@/lib/round";
 import { buildShare, fillInRuns, fillInText } from "@/lib/share";
 import { Poem } from "./poem";
@@ -76,6 +77,7 @@ export function PassGame({
   const player = playerFor(pass.turn);
   const line = lines[turns[pass.turn]];
   const blanks = blanksIn(line);
+  const info: SetInfo = { set: set.id, mechanic: "fill-in", mode: "spotter" };
 
   function save(next: { answers?: string[]; ignored?: string[]; pass?: PassState }) {
     saveDraft(set.id, {
@@ -94,6 +96,7 @@ export function PassGame({
 
   function answer(index: number, value: string) {
     const next = answers.map((a, i) => (i === index ? value : a));
+    if (!workInProgress(answers) && workInProgress(next)) track("exercise started", info);
     setAnswers(next);
     save({ answers: next });
   }
@@ -189,6 +192,13 @@ export function PassGame({
   // The reveal, one line at a time, then the team score.
   const all = pass.shown >= lines.length;
   const { score, band } = scoreText(text, round, flags, ignored);
+
+  // The last line's reveal shows the team score: the game is complete.
+  function showNextLine() {
+    move({ ...pass, shown: pass.shown + 1 });
+    if (pass.shown + 1 >= lines.length) track("exercise completed", { ...info, score, challenge: false });
+  }
+
   const flaggedAnswers = new Set(
     flags
       .filter((f) => !(f.ignorable && ignored.includes(f.ignoreKey)))
@@ -207,7 +217,7 @@ export function PassGame({
       {!all ? (
         <button
           type="button"
-          onClick={() => move({ ...pass, shown: pass.shown + 1 })}
+          onClick={showNextLine}
           className="min-h-12 rounded-full bg-ink font-display text-lg font-black text-bg"
         >
           Next line
@@ -224,7 +234,7 @@ export function PassGame({
           <p className="font-display text-2xl font-extrabold">Team score</p>
           <ScoreCard score={score} band={band} best={null} />
           <p className="-mt-2 text-sm text-muted">Team scores don&apos;t count toward your PR.</p>
-          <ShareButton {...teamShare} />
+          <ShareButton {...teamShare} info={info} />
           <button
             type="button"
             onClick={onStartOver}

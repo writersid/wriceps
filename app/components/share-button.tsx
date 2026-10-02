@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { track, type SetInfo } from "@/lib/analytics";
 import { shareRoute, type Card } from "@/lib/share";
 import { drawResultCard } from "./result-card";
 
@@ -9,7 +10,17 @@ import { drawResultCard } from "./result-card";
 // sharing fails, Download / Copy / Open WhatsApp. The card
 // is drawn when this appears, so a tap shares at once (iPhones allow sharing
 // only right after a tap).
-export function ShareButton({ card, message, fileName }: { card: Card; message: string; fileName: string }) {
+export function ShareButton({
+  card,
+  message,
+  fileName,
+  info,
+}: {
+  card: Card;
+  message: string;
+  fileName: string;
+  info: SetInfo;
+}) {
   const [image, setImage] = useState<{ blob: Blob; url: string } | null>(null);
   const [drawFailed, setDrawFailed] = useState(false);
   const [fallback, setFallback] = useState(false);
@@ -47,6 +58,7 @@ export function ShareButton({ card, message, fileName }: { card: Card; message: 
     );
     try {
       await navigator.share(route === "image" ? { files: [file!], text: message } : { text: message });
+      track("result shared", { ...info, method: "share sheet" });
     } catch (e) {
       if (!(e instanceof DOMException && e.name === "AbortError")) setFallback(true); // AbortError: closed the share sheet
     }
@@ -56,6 +68,7 @@ export function ShareButton({ card, message, fileName }: { card: Card; message: 
     try {
       await navigator.clipboard.writeText(message);
       setCopied("yes");
+      track("result shared", { ...info, method: "copy" });
     } catch {
       setCopied("no");
     }
@@ -88,6 +101,7 @@ export function ShareButton({ card, message, fileName }: { card: Card; message: 
               <a
                 href={image.url}
                 download={fileName}
+                onClick={() => track("result shared", { ...info, method: "download" })}
                 className="flex min-h-11 flex-1 items-center justify-center rounded-full border border-border px-4 font-semibold"
               >
                 Download image
@@ -104,6 +118,7 @@ export function ShareButton({ card, message, fileName }: { card: Card; message: 
               href={`https://wa.me/?text=${encodeURIComponent(message)}`}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => track("result shared", { ...info, method: "whatsapp" })}
               className="flex min-h-11 flex-1 items-center justify-center rounded-full border border-border px-4 font-semibold"
             >
               Open WhatsApp
