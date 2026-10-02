@@ -29,7 +29,7 @@ npm run language:eval    # rerun syllable, part-of-speech, and word-list accurac
 
 ## Status
 
-- **Current phase:** Phase 4 (PostHog analytics) done. Phase 3 (App layer) done: all six parts built and passed Sid's Android phone tests. **Still pending: the iPhone checks for 5a and 5b** (Sid, together). Part 3 was split: 3a engine rules, 3b fill-in poems (solo), 3c pass-the-phone.
+- **Current phase:** Phase 6 (testing and hardening): automated part done; the real-phone checklist in `TESTING.md` is pending (Sid). Phase 5 (database) skipped: v1 has none. Phase 4 (PostHog analytics) done. Phase 3 (App layer) done: all six parts built and passed Sid's Android phone tests. **Still pending: the iPhone checks for 5a and 5b** (Sid, together). Part 3 was split: 3a engine rules, 3b fill-in poems (solo), 3c pass-the-phone.
 - **Phase 3 = the app layer (screens).** Wriceps has no server, so the skill's "Server / API layer" phase becomes the screens. Parts: (1) design foundation, (2) constraint-writing screen, (3) fill-in poems with pass-the-phone, (4) blackout poems, (5) result cards, sharing, and challenge links, (6) home screen and set list, privacy page with credits from NOTICES.md, and the note that clearing browser data clears progress. Part 6 also adds (Sid, after part 4; see SPEC.md "Help pages and footer"): a "How to play" page per mechanic, linked from every set near its title, and a home-page footer with a short muted line (wording from Sid) and links to Sid's GitHub, his X account, and the privacy and credits page.
 - **Phase 1 done:** create-next-app scaffold; SPEC.md and ROADMAP.md; this file; .gitignore allows `.env.example`; private GitHub repo `writersid/wriceps`.
 - **Phase 2 done:**
@@ -120,4 +120,10 @@ npm run language:eval    # rerun syllable, part-of-speech, and word-list accurac
   - `lib/analytics.ts`: `track()` and `trackLog()`; posthog-js loads on the first event only; `keepOnly` (`before_send`) drops any other event and every property not on its list. Rules in SPEC.md "Analytics details". The privacy page names everything sent (wording approved by Sid); change both together.
   - Session ID and Device ID (`cookielessd_…`) in PostHog are added by its server from the daily hash, not sent by the browser.
   - Testing tip: PostHog drops events from headless Chrome as a bot; a test browser needs a normal user agent.
-- **Next step:** the iPhone checks for 5a and 5b (Sid, together) are still pending. Then Phase 6 (testing and hardening; Phase 5, database, is skipped: v1 has none), then Phase 7 deployment with Sentry.
+- **Phase 6 (testing and hardening), automated part done:**
+  - /security-audit: no critical or high findings. Fixed: Next.js 16.3.6 → 16.3.8 (security release; affected features unused) and security headers in `next.config.ts` (CSP with `'unsafe-inline'` scripts, since pages are prebuilt; `connect-src` adds `NEXT_PUBLIC_POSTHOG_HOST` at build time; nosniff, frame DENY, referrer, permissions). Sharing, the card, PostHog, and the theme were checked under the CSP with no violations. Open, Sid's action: keep PostHog on the free plan or set a $0 billing limit (the public token can be spammed).
+  - /security-review on the branch diff: no findings.
+  - Lighthouse mobile: home and privacy 97, set pages 88–89 (compromise's setup, about 350 ms on a mid-range phone, about 85% of engine startup). SPEC target for set pages is now 85+; Web Worker in ROADMAP.md.
+  - `lib/engine/edge-cases.test.ts`: emoji, pasted text, other scripts, markup, hostile links, long drafts. Typing lag measured at 4x CPU: none at about 135 words, about 100 ms per pause at 1,000, about 500 ms per pause plus 70–120 ms on some keystrokes at 5,000. Sid's rule: do the Web Worker before the beta (it won't fix the per-keystroke redraw at 5,000 words).
+  - All 31 sets load at 360px with no errors or sideways scroll.
+- **Next step:** Sid runs `TESTING.md` on Android and iPhone (includes the pending iPhone checks for 5a and 5b), and lifts Vercel deployment protection so friends can open links. Web Worker before the beta. Then Phase 7 deployment with Sentry; confirm HSTS on the live domain.
