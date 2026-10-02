@@ -233,7 +233,7 @@ Dry and playful, never literary or cute. Gym vocabulary:
 - From a WhatsApp link to a first exercise in under 10 seconds, no signup.
 - Works at 360px width; tap targets at least 44px; the keyboard never covers the text being typed.
 - Live checker feedback within 200ms of typing on a mid-range Android phone.
-- Lighthouse mobile: 90+ for performance and accessibility.
+- Lighthouse mobile: 90+ for performance and accessibility, except set pages, where performance is 85+: loading the language engine (compromise sets up in one block of about 350 ms on a mid-range phone) costs them a few points. Measured in Phase 6 at 88–89; moving the engine into a Web Worker is in ROADMAP.md.
 - All copy dry and playful, US English, no typos; each exercise's instructions fit on one phone screen.
 
 ### 4. Content

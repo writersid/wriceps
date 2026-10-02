@@ -5,6 +5,8 @@ Features deliberately kept out of v1. Decide what moves up based on v1 usage num
 ## v1.1
 - Play by link: two people complete a piece asynchronously. Player one does their half and sends a link on WhatsApp; player two adds theirs; both see the result. The unfinished piece travels inside the link, so no database is needed.
 
+- Run the language engine in a Web Worker (a background thread), so a set page never freezes while compromise loads (about 350 ms on a mid-range phone; set pages score 88–89 on Lighthouse mobile instead of about 95) and checks on long drafts can't make typing stutter. Do it before the beta if long drafts show typing lag.
+
 ## v2
 - Live multiplayer (top priority): two or more people writing together in real time. Sid's view: people like doing things together, so this is the feature most likely to bring people back. Needs a backend (likely Supabase realtime) and abuse handling.
 - Accounts and saved history: play first, sign up only to keep progress across devices and total scores. Needs auth, a database, and a full security pass.
