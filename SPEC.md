@@ -143,6 +143,19 @@ Sharing details (decided in Phase 3):
 - Nothing the user writes is ever sent to analytics. Writing leaves the device only when the user shares it.
 - A short privacy note page explains this in plain language.
 
+Analytics details (decided in Phase 4):
+- PostHog EU Cloud, `cookieless_mode: "always"`, with the project's "Cookieless server hash mode" on. Nothing is stored in the browser; PostHog tells visitors apart by a daily hash of IP, user agent, and host, then deletes the IP and user agent. PostHog's server (not the browser) also adds a device ID from that daily hash and a session ID that groups one visit's events.
+- posthog-js loads only when the first event fires, never on page load. With no project token, nothing loads or sends.
+- The events and their properties:
+  - exercise started: the first input of a round (first keystroke, answer, or kept word) when the set had no work in progress. Clearing a whole draft and typing again counts as a new start. Properties: set, mechanic, mode (solo or spotter).
+  - exercise completed: "Log this set", or the last line revealed in a spotter game. Properties: set, mechanic, mode, score, challenge (yes or no).
+  - result shared: the share sheet finished (not cancelled), or Download image, Copy message, or Open WhatsApp used. Properties: set, mechanic, mode, method.
+  - challenge link opened: a set opened with a valid challenge link (a refresh counts again). Properties: set, mechanic, score to beat.
+  - challenge completed: "Log this set" on a challenge. Properties: set, mechanic, score, score to beat, result (won, tied, or lost).
+- Context kept on every event: device type, browser name, OS name, and the referring domain (not the full referrer). PostHog's own required fields stay (token, the cookieless ID, host, user agent for the hash, library version, a random ID per event). A final filter drops every other property and any event not listed above.
+- Location lookup (GeoIP) is off on every event. Off entirely: pageviews, autocapture, session recording, heatmaps, surveys, error capture, feature flags, campaign tags, person profiles. No reverse proxy, so ad blockers can drop events.
+- The privacy page names everything sent; change it whenever the filter changes.
+
 ## Design (locked)
 
 Theme: Word Gym. Building writing muscle runs through the UI and the copy.

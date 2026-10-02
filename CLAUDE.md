@@ -29,7 +29,7 @@ npm run language:eval    # rerun syllable, part-of-speech, and word-list accurac
 
 ## Status
 
-- **Current phase:** Phase 3 (App layer) done: all six parts built and passed Sid's Android phone tests. **Still pending: the iPhone checks for 5a and 5b** (Sid, together). Part 3 was split: 3a engine rules, 3b fill-in poems (solo), 3c pass-the-phone.
+- **Current phase:** Phase 4 (PostHog analytics) done. Phase 3 (App layer) done: all six parts built and passed Sid's Android phone tests. **Still pending: the iPhone checks for 5a and 5b** (Sid, together). Part 3 was split: 3a engine rules, 3b fill-in poems (solo), 3c pass-the-phone.
 - **Phase 3 = the app layer (screens).** Wriceps has no server, so the skill's "Server / API layer" phase becomes the screens. Parts: (1) design foundation, (2) constraint-writing screen, (3) fill-in poems with pass-the-phone, (4) blackout poems, (5) result cards, sharing, and challenge links, (6) home screen and set list, privacy page with credits from NOTICES.md, and the note that clearing browser data clears progress. Part 6 also adds (Sid, after part 4; see SPEC.md "Help pages and footer"): a "How to play" page per mechanic, linked from every set near its title, and a home-page footer with a short muted line (wording from Sid) and links to Sid's GitHub, his X account, and the privacy and credits page.
 - **Phase 1 done:** create-next-app scaffold; SPEC.md and ROADMAP.md; this file; .gitignore allows `.env.example`; private GitHub repo `writersid/wriceps`.
 - **Phase 2 done:**
@@ -49,7 +49,7 @@ npm run language:eval    # rerun syllable, part-of-speech, and word-list accurac
   - Mockups in `design/`.
 - **Constraint for later phases:** load compromise and the syllable list only when a constraint exercise opens, not on app load: dynamically import `lib/engine/check.ts`; `score.ts` and `tokenize.ts` stay light.
 - **Known:** `npm run language:eval` prints a harmless Node MODULE_TYPELESS_PACKAGE_JSON warning; Sid chose to leave it.
-- **Deferred:** create `.env.example` when PostHog is added (confirm its variable names from PostHog's current docs). Credits line on the privacy page linking to NOTICES.md (part 6).
+- **Deferred:** Credits line on the privacy page linking to NOTICES.md (part 6).
 - **Phase 3 part 2 (constraint-writing screen):** `app/sets/[id]/` (static pages, unknown ids 404), `app/components/draft-editor.tsx`, `app/components/score-card.tsx`, `lib/notes.ts` (cards, chip labels, DRAFT tips), `lib/progress.ts` (best scores and drafts), 4 placeholder sets in `content/constraint.ts`. Decisions: mirror-layer underlines behind a textarea; content in `content/constraint.ts`; one note card per word ("Ignore (uses 2)" when it costs more than one); three rotating draft tips per rule for Sid to rewrite; draft saved in localStorage and cleared on "Log this set"; logging only saves the score and shows "Logged" or "New PR" until part 5.
 - **Part 2 real-phone check passed** (reported by Sid, on a Vercel preview deploy): underlines instant, plates load per band, keyboard never covered the line being typed.
 - **Phase 3 part 3a (engine rules) done.** Phone test passed on the Vercel preview (reported by Sid): repeat flags (form with Ignore, identical without), syllable flags, countdown survives a refresh, bonus drops at 60 seconds, typing feels instant.
@@ -115,4 +115,9 @@ npm run language:eval    # rerun syllable, part-of-speech, and word-list accurac
   - Top band renamed "Top set" (`BANDS` in `lib/engine/score.ts`, used by the meter and card). "PR" only means a personal best.
   - Share messages: "Just lifted 82 on …" / "Your turn:" (solo, with ignores in parentheses), "We lifted 82 on …, taking turns on one phone." / "Try it with a friend:" (spotter, no ignore count).
   - No DRAFT markers left; strings COPY.md didn't list kept their wording. `COPY.md` is now the voice guide and vocabulary: all new copy follows it.
-- **Next step:** Phase 3 is complete apart from the iPhone checks for 5a and 5b (Sid, together). Then Phase 4: PostHog analytics (create `.env.example` from PostHog's current docs). Sentry comes at deployment.
+- **Phase 4 (PostHog analytics) done.** Test passed (reported by Sid): all five events arrived in PostHog's Activity view, cookieless person ID, no page address.
+  - PostHog EU Cloud, `posthog-js` 1.435.6 pinned. Sid's token and host live in `.env.local` (template `.env.example`: `NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN`, `NEXT_PUBLIC_POSTHOG_HOST`). "Cookieless server hash mode" is on in the PostHog project; without it, cookieless events are dropped. Vercel needs the same two variables.
+  - `lib/analytics.ts`: `track()` and `trackLog()`; posthog-js loads on the first event only; `keepOnly` (`before_send`) drops any other event and every property not on its list. Rules in SPEC.md "Analytics details". The privacy page names everything sent (wording approved by Sid); change both together.
+  - Session ID and Device ID (`cookielessd_…`) in PostHog are added by its server from the daily hash, not sent by the browser.
+  - Testing tip: PostHog drops events from headless Chrome as a bot; a test browser needs a normal user agent.
+- **Next step:** the iPhone checks for 5a and 5b (Sid, together) are still pending. Then Phase 6 (testing and hardening; Phase 5, database, is skipped: v1 has none), then Phase 7 deployment with Sentry.
