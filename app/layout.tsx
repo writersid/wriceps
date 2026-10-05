@@ -15,6 +15,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  // Makes the link preview image's address absolute; crawlers need that.
+  metadataBase: new URL("https://www.wriceps.com"),
   title: "Wriceps",
   description: "Build your writing muscles one set at a time.",
 };
