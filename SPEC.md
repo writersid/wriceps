@@ -187,6 +187,10 @@ Light mode tokens: background #FAFAF7, surface #FFFFFF, border #E3E1D8, text #22
 
 Approved mockup: the constraint writing screen, light and dark, on Sid's Wriceps Word Gym design canvas.
 
+Brand images (from Sid's sketches on the design canvas, approved by Sid). They never follow the theme.
+- Link preview card (1200×630, the Open Graph image for WhatsApp and social links), always light: chalk background; on the left the "wriceps" wordmark in Fraunces 900, the violet eyebrow "SHORT WRITING WORKOUTS" (#6A45C2), the headline "Build your writing muscles." in Fraunces 900 at 88px, and "www.wriceps.com" in muted gray; on the right a fully loaded barbell like the score meter, four lime plates of rising height with charcoal outlines on a charcoal bar. The preview text is the site description. Every page shows the same card.
+- Icon: charcoal background, a chalk bar across the middle, two lime plates on each side, inner plates shorter. The favicon (32px) is a rounded square with slightly wider plates, to read at tab size. The app icon (180px) is a full square, because iPhones round it themselves.
+
 ## Voice and vocabulary
 
 Dry and playful, never literary or cute. Gym vocabulary:

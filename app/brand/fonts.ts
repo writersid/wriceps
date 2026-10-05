@@ -21,11 +21,9 @@ export const fonts = [
   },
 ];
 
-// The light-mode tokens from app/globals.css, plus the dark-mode coral for
-// charcoal backgrounds. Brand images never follow the theme.
+// The light-mode tokens from app/globals.css. Brand images never follow the theme.
 export const CHALK = "#fafaf7";
 export const CHARCOAL = "#222222";
 export const LIME = "#d4ff3a";
 export const VIOLET = "#6a45c2";
 export const MUTED = "#5c5c56";
-export const CORAL_ON_CHARCOAL = "#ff6b4a";

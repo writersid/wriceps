@@ -127,4 +127,10 @@ npm run language:eval    # rerun syllable, part-of-speech, and word-list accurac
   - `lib/engine/edge-cases.test.ts`: emoji, pasted text, other scripts, markup, hostile links, long drafts.
   - Typing lag on a mid-range phone profile (4x CPU, 390px touch; Pick Up the Bar and Max Out): instant up to 500 words, fine at 1,000 (worst key about 100 ms), noticeable at 2,000 (1 key in 10 takes 100–140 ms, worst 180–250 ms). The longest set asks for about 250 words. Sid's decision: the Web Worker stays in v1.1, not before the beta.
   - All 31 sets load at 360px with no errors or sideways scroll.
+- **Brand images done** (card and icon approved by Sid on localhost; Sid picked the barbell icon over a "w" with a coral wave). Rules in SPEC.md "Design".
+  - `app/opengraph-image.tsx` (link preview card), `app/icon.tsx` (32px favicon), `app/apple-icon.tsx` (180px app icon), all drawn at build time with `ImageResponse` from `next/og`. Shared: `app/brand/barbell-icon.tsx`, `app/brand/fonts.ts` (fonts and colors).
+  - `next/og` can't use the `next/font` web fonts, so `assets/fonts/` holds Fraunces 144pt Black and Inter SemiBold (static files from Google Fonts; licenses in NOTICES.md, so they show in the privacy page credits).
+  - `metadataBase` in `app/layout.tsx` is https://www.wriceps.com. Next.js fills the Open Graph and X tags from the title, description, and card; no page sets its own, so every link shows the same preview.
+  - Watch out: a file named `icon.tsx` in any `app/` folder becomes an icon route, so helper files need another name. With `ImageResponse`, a box with more than one child needs `display: "flex"`.
+  - Not yet checked: the preview in WhatsApp on the live domain. WhatsApp caches previews per link; add `?v=1` to force a fresh one.
 - **Next step:** Sid runs `TESTING.md` on Android and iPhone at www.wriceps.com (includes the pending iPhone checks for 5a and 5b). Then the rest of Phase 7: Sentry.
