@@ -209,7 +209,7 @@ Dry and playful, never literary or cute. Gym vocabulary:
   - Both load only when a constraint exercise opens, not on app load
 - Tests: Vitest for the rule engine; a written manual checklist for screens on real phones
 - Error tracking: Sentry free tier, added at deployment
-- Domain: wriceps.com if available, else wriceps.app (Sid buys it)
+- Domain: wriceps.com, registered at Cloudflare (DNS only). The site is served at www.wriceps.com; wriceps.com redirects to it.
 
 ## Evaluation criteria ("done when")
 
@@ -253,7 +253,7 @@ Dry and playful, never literary or cute. Gym vocabulary:
 - README explains how to run the project; the Status section in CLAUDE.md is current.
 
 ### 7. Launch
-- Deployed on the custom domain with HTTPS.
+- Deployed on the custom domain with HTTPS. Met: www.wriceps.com on Vercel Production, with wriceps.com redirecting to it (308). Deployment protection is Standard Protection, so the production domain is public and preview deployments stay behind a Vercel login.
 - Analytics events visible in PostHog.
 - Sid and 3 to 5 friends have played it on real phones before it is shared with the initial group of writers.
 
