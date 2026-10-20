@@ -17,8 +17,9 @@ const inter = Inter({
 export const metadata: Metadata = {
   // Makes the link preview image's address absolute; crawlers need that.
   metadataBase: new URL("https://www.wriceps.com"),
-  title: "Wriceps",
-  description: "Build your writing muscles one set at a time.",
+  title: "Wriceps | Short Writing Exercises for Daily Practice",
+  description:
+    "Free writing exercises in short sets: write under word rules, fill in the blanks, or make a blackout poem. Each set is scored, with tips as you write.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
