@@ -5,13 +5,17 @@
 import nlp from "compromise/two";
 import { readJson } from "./sources.mjs";
 import { isAllowed } from "../../lib/language/allowlists.ts";
+import { usedAsNoun } from "../../lib/language/noun-use.ts";
 
 const allowed = { adj: (w) => isAllowed("adjective", w), adv: (w) => isAllowed("adverb", w) };
 
 function tag(text) {
   const out = [];
   for (const s of nlp(text).json()) {
-    for (const t of s.terms) {
+    const sentence = s.terms.map((t) => t.tags);
+    for (const [i, t] of s.terms.entries()) {
+      // The rule skips adjectives used as nouns ("the common good").
+      if (usedAsNoun(sentence, i)) continue;
       // compromise splits "don't" into "do" plus a hidden "not"; label it "n't".
       const word = t.text === "" && t.implicit === "not" ? "n't" : t.normal.replace(/[^a-z'-]/g, "");
       if (t.tags.includes("Adjective")) out.push({ word, cat: "adj" });

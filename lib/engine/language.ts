@@ -4,6 +4,7 @@
 import nlp from "compromise/two";
 import { syllable } from "syllable";
 import exceptions from "../language/syllable-exceptions.json";
+import { usedAsNoun } from "../language/noun-use";
 import { normalizeWord } from "./tokenize";
 import type { Token } from "./types";
 
@@ -71,6 +72,7 @@ export function wordRoots(text: string, tokens: Token[]): Set<string>[] {
 }
 
 // Words compromise tags as adverbs or adjectives, mapped to our tokens.
+// Adjectives used as nouns ("the common good") are left out.
 // `word` is compromise's own word, lowercase: "known" inside "well-known",
 // "n't" for the hidden "not" in "don't".
 export function tagWords(text: string, tokens: Token[]): TaggedWord[] {
@@ -78,8 +80,10 @@ export function tagWords(text: string, tokens: Token[]): TaggedWord[] {
   doc.compute("offset");
   const out: TaggedWord[] = [];
   for (const terms of doc.docs as Term[][]) {
-    for (const t of terms) {
+    const sentence = terms.map((t) => [...(t.tags ?? [])]);
+    for (const [i, t] of terms.entries()) {
       const tags = t.tags ?? new Set();
+      if (usedAsNoun(sentence, i)) continue;
       const category = tags.has("Adjective") ? "adjective" : tags.has("Adverb") || tags.has("Negative") ? "adverb" : null;
       const start = t.offset?.start;
       if (!category || start === undefined) continue;

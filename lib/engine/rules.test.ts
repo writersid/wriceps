@@ -240,6 +240,21 @@ describe("no adverbs and no adjectives", () => {
     expect(words("noAdjectives", "A broken window rattled.")).toEqual(["broken"]);
   });
 
+  test("skips adjectives used as nouns, but not the adjectives before them", () => {
+    expect(words("noAdjectives", "It was for the common good.")).toEqual(["common"]);
+    expect(words("noAdjectives", "Do some good today.")).toEqual([]);
+    expect(words("noAdjectives", "She did a world of good.")).toEqual([]);
+    expect(words("noAdjectives", "The blue of the sky.")).toEqual([]);
+    expect(words("noAdjectives", "The good, the bad, and the ugly.")).toEqual([]);
+  });
+
+  test("still flags adjectives that describe a noun or follow a verb", () => {
+    expect(words("noAdjectives", "The food is good.")).toEqual(["good"]);
+    expect(words("noAdjectives", "The quick fox ran.")).toEqual(["quick"]);
+    expect(words("noAdjectives", "A big, old house.")).toEqual(["big", "old"]);
+    expect(words("noAdjectives", "My old coat was warm.")).toEqual(["old", "warm"]);
+  });
+
   test("a flag inside a hyphenated word underlines the whole word", () => {
     expect(words("noAdjectives", "A well-known man arrived.")).toEqual(["well-known"]);
   });
