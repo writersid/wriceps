@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { checkText } from "./check";
-import { bandFor, scoreText } from "./score";
+import { bandFor, countedWords, scoreText } from "./score";
 import type { Exercise, Flag } from "./types";
 
 const words = (n: number) => Array(n).fill("cat").join(" ");
@@ -207,6 +207,12 @@ describe("words after the opening line", () => {
     };
     const text = `Marley was dead: to begin with. ${own(4)}`;
     expect(checkText(text, capped).map((f) => f.word)).toEqual(["w3"]);
+  });
+
+  test("the live count matches what the score counts", () => {
+    expect(countedWords(`Marley was dead: to begin with. ${own(5)}`, exercise)).toBe(5);
+    expect(countedWords("Marley was", exercise)).toBe(0);
+    expect(countedWords(own(5), { rules: [] })).toBe(5);
   });
 
   test("without the flag, the opening counts", () => {

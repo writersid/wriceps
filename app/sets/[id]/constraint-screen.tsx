@@ -16,11 +16,11 @@ import {
   type Logged,
 } from "@/app/components/set-parts";
 import { ShareButton } from "@/app/components/share-button";
-import { useClock } from "@/app/components/use-clock";
+import { clockText, useClock } from "@/app/components/use-clock";
 import type { ConstraintSet } from "@/content/constraint";
 import { track, trackLog, type SetInfo } from "@/lib/analytics";
-import { scoreText } from "@/lib/engine/score";
-import { buildNotes } from "@/lib/notes";
+import { countedWords, scoreText } from "@/lib/engine/score";
+import { buildNotes, wordProgress } from "@/lib/notes";
 import { buildShare, constraintRuns, parseChallenge, type Challenge } from "@/lib/share";
 import { clearDraft, getBest, loadDraft, logScore, saveDraft, workInProgress } from "@/lib/progress";
 import { hasDraws, newSeed, openRound, resolveRound } from "@/lib/round";
@@ -91,6 +91,14 @@ export function ConstraintScreen({ set, number, total }: { set: ConstraintSet; n
       : [],
   );
   const { score, band } = scoreText(checkedText, round, flags, ignored);
+  // Counted on every keystroke (it's cheap), so it never lags the typing.
+  const progress = wordProgress(countedWords(text, round), round);
+  const timeLeft =
+    timeRule?.type === "timeLimit"
+      ? timer.secondsLeft === null
+        ? clockText(timeRule.seconds).replace(" left", "") // the full time, before the first keystroke
+        : clockText(timer.secondsLeft)
+      : null;
 
   function edit(value: string) {
     const started = timer.start();
@@ -162,7 +170,7 @@ export function ConstraintScreen({ set, number, total }: { set: ConstraintSet; n
       blurb={set.blurb}
       rules={round.rules}
       bonus={round.bonus}
-      secondsLeft={timer.secondsLeft}
+      secondsLeft={null}
     />
   );
 
@@ -191,6 +199,15 @@ export function ConstraintScreen({ set, number, total }: { set: ConstraintSet; n
         underlines={underlines}
         label={`Your draft for ${set.title}`}
         disabled={!engine}
+        status={
+          <>
+            <span className={progress.status === "over" ? "font-semibold text-coral" : undefined}>
+              {progress.text}
+              {progress.status === "met" && " ✓"}
+            </span>
+            {timeLeft && <span className="font-semibold">{timeLeft.charAt(0).toUpperCase() + timeLeft.slice(1)}</span>}
+          </>
+        }
       />
       {!engine && <EngineStatus loadFailed={loadFailed} />}
       <NoteCards notes={notes} ignoredCount={ignored.length} onIgnore={ignore} />

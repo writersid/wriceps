@@ -1,12 +1,15 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, type ReactNode } from "react";
 
 type Range = { start: number; end: number };
 
 // A plain textarea over an invisible copy of its text. The copy's letters are
 // transparent but its underlines show, so flagged words look underlined while
 // typing stays native. Both layers must share SHARED so the words line up.
+// `status` is an optional strip across the top of the box (the live word count
+// and clock). It sits just above the typing, so it stays on screen with the
+// phone keyboard open.
 const SHARED = "px-4 py-3.5 text-base leading-7 whitespace-pre-wrap break-words";
 
 export function DraftEditor({
@@ -15,48 +18,57 @@ export function DraftEditor({
   underlines,
   label,
   disabled,
+  status,
 }: {
   value: string;
   onChange: (value: string) => void;
   underlines: Range[];
   label: string;
   disabled?: boolean;
+  status?: ReactNode;
 }) {
   const mirror = useRef<HTMLDivElement>(null);
 
   return (
-    <div className="relative h-56 overflow-hidden rounded-2xl border border-border bg-surface focus-within:border-ink">
-      <div
-        ref={mirror}
-        aria-hidden="true"
-        className={`${SHARED} pointer-events-none absolute inset-0 overflow-hidden text-transparent`}
-      >
-        {segments(value, underlines).map((s, i) =>
-          s.flagged ? (
-            <span
-              key={i}
-              className="underline decoration-coral decoration-wavy decoration-[1.5px] underline-offset-4"
-            >
-              {s.text}
-            </span>
-          ) : (
-            s.text
-          ),
-        )}
-        {/* Keeps a trailing line break as tall as the textarea's. */}
-        {"​"}
+    <div className="overflow-hidden rounded-2xl border border-border bg-surface focus-within:border-ink">
+      {status && (
+        <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-1.5 text-sm tabular-nums">
+          {status}
+        </div>
+      )}
+      <div className="relative h-56">
+        <div
+          ref={mirror}
+          aria-hidden="true"
+          className={`${SHARED} pointer-events-none absolute inset-0 overflow-hidden text-transparent`}
+        >
+          {segments(value, underlines).map((s, i) =>
+            s.flagged ? (
+              <span
+                key={i}
+                className="underline decoration-coral decoration-wavy decoration-[1.5px] underline-offset-4"
+              >
+                {s.text}
+              </span>
+            ) : (
+              s.text
+            ),
+          )}
+          {/* Keeps a trailing line break as tall as the textarea's. */}
+          {"​"}
+        </div>
+        <textarea
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          onScroll={(e) => {
+            if (mirror.current) mirror.current.scrollTop = e.currentTarget.scrollTop;
+          }}
+          aria-label={label}
+          disabled={disabled}
+          placeholder="Start your rep here."
+          className={`${SHARED} relative block size-full resize-none bg-transparent outline-none [scrollbar-width:none] placeholder:text-muted`}
+        />
       </div>
-      <textarea
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        onScroll={(e) => {
-          if (mirror.current) mirror.current.scrollTop = e.currentTarget.scrollTop;
-        }}
-        aria-label={label}
-        disabled={disabled}
-        placeholder="Start your rep here."
-        className={`${SHARED} relative block size-full resize-none bg-transparent outline-none [scrollbar-width:none] placeholder:text-muted`}
-      />
     </div>
   );
 }

@@ -33,6 +33,12 @@ export function skippedWords(exercise: Exercise): number {
   return opening?.type === "firstSentence" && opening.sentence ? tokenize(opening.sentence).length : 0;
 }
 
+// The words a word-count rule counts: all of them, minus a required opening
+// it skips. The draft's live count shows the same number.
+export function countedWords(text: string, exercise: Exercise): number {
+  return Math.max(0, tokenize(text).length - skippedWords(exercise));
+}
+
 // `ignored` holds the ignoreKeys the person tapped, in order. The first two
 // are free; later ones still hide their flags but cost points as usual.
 export function scoreText(text: string, exercise: Exercise, flags: Flag[], ignored: string[]) {
@@ -54,7 +60,7 @@ export function scoreText(text: string, exercise: Exercise, flags: Flag[], ignor
 
   const all = [...exercise.rules, ...(exercise.bonus ?? [])];
   const sum = all.reduce((total, rule) => total + pointsLeft(rule), 0);
-  const words = Math.max(0, tokenize(text).length - skippedWords(exercise));
+  const words = countedWords(text, exercise);
   const score = Math.min(100, Math.round(sum * gate(words, exercise, pointsLeft)));
   return { score, band: bandFor(score), ignoredFlags };
 }

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { checkText } from "./engine/check";
 import { syllableRange } from "./engine/language";
 import type { Exercise } from "./engine/types";
-import { buildNotes, ruleLabel, type Mechanic } from "./notes";
+import { buildNotes, ruleLabel, wordProgress, type Mechanic } from "./notes";
 
 // Small sets written here, so the tests don't change when the content does.
 const SETS: Record<string, Exercise> = {
@@ -162,5 +162,29 @@ describe("ruleLabel", () => {
 
   it("names a drawn opening line by its short label", () => {
     expect(ruleLabel({ type: "firstSentence", sentence: "Marley was dead: to begin with.", label: "Dickens" })).toBe("Opening: Dickens");
+  });
+});
+
+describe("wordProgress", () => {
+  const count = (rule: Exercise["rules"][number]) => ({ rules: [rule] });
+
+  it("shows the count against each kind of target", () => {
+    expect(wordProgress(48, count({ id: "l", type: "wordCount", exact: 50, weight: 90 }))).toEqual({ text: "48 / 50 words", status: "short" });
+    expect(wordProgress(52, count({ id: "l", type: "wordCount", min: 50, weight: 90 }))).toEqual({ text: "52 / 50+ words", status: "met" });
+    expect(wordProgress(70, count({ id: "l", type: "wordCount", min: 60, max: 80, weight: 90 }))).toEqual({ text: "70 / 60–80 words", status: "met" });
+    expect(wordProgress(40, count({ id: "l", type: "wordCount", max: 80, weight: 90 }))).toEqual({ text: "40 / up to 80 words", status: "met" });
+  });
+
+  it("marks the target met at the exact edge and over past a limit", () => {
+    expect(wordProgress(50, count({ id: "l", type: "wordCount", exact: 50, weight: 90 })).status).toBe("met");
+    expect(wordProgress(51, count({ id: "l", type: "wordCount", exact: 50, weight: 90 })).status).toBe("over");
+    expect(wordProgress(59, count({ id: "l", type: "wordCount", min: 60, max: 80, weight: 90 })).status).toBe("short");
+    expect(wordProgress(81, count({ id: "l", type: "wordCount", min: 60, max: 80, weight: 90 })).status).toBe("over");
+    expect(wordProgress(500, count({ id: "l", type: "wordCount", min: 50, weight: 90 })).status).toBe("met");
+  });
+
+  it("shows a plain count when the set has no word-count rule", () => {
+    expect(wordProgress(1, set("short-reps"))).toEqual({ text: "1 word", status: "none" });
+    expect(wordProgress(12, set("short-reps"))).toEqual({ text: "12 words", status: "none" });
   });
 });

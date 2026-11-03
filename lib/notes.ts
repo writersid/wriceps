@@ -190,6 +190,24 @@ function syllablesShown(
   return Math.max(...parts.map((p) => p[0]));
 }
 
+// The draft box's live count against the set's word-count rule, such as
+// "52 / 50+ words". `status` says whether the target is met or passed.
+export type WordProgress = { text: string; status: "none" | "short" | "met" | "over" };
+
+export function wordProgress(count: number, exercise: Exercise): WordProgress {
+  const rule = exercise.rules.find((r) => r.type === "wordCount");
+  if (rule?.type !== "wordCount") return { text: plural(count, "word"), status: "none" };
+  const min = rule.exact ?? rule.min ?? 0;
+  const max = rule.exact ?? rule.max;
+  let target: string;
+  if (rule.exact !== undefined) target = `${rule.exact}`;
+  else if (rule.min !== undefined && rule.max !== undefined) target = `${rule.min}–${rule.max}`;
+  else if (rule.min !== undefined) target = `${rule.min}+`;
+  else target = `up to ${rule.max}`;
+  const status = max !== undefined && count > max ? "over" : count >= min ? "met" : "short";
+  return { text: `${count} / ${target} words`, status };
+}
+
 export function ruleLabel(rule: Rule): string {
   switch (rule.type) {
     case "wordCount": {
