@@ -19,3 +19,6 @@ Features deliberately kept out of v1. Decide what moves up based on v1 usage num
 
 ## Ideas parking lot
 Add new ideas here as they come up. Nothing here is committed.
+
+- Word length rule, "4+ letters" (beta tester request, 2026-11-03): a constraint rule that flags every word shorter than N letters, with no exemptions ("the", "and", "a", and "I" all count). Letters only, so numbers are skipped; hyphenated parts are checked separately; exact, so no Ignore button. Constraint sets only. Decided so far: a new rule plus one new set rather than a harder mode on existing sets (that would need separate PRs per mode and mode-aware challenge links). Open: whether to add the set at all, and its title, blurb, and tips.
+- Repeat checks on more sets: a beta tester expected repeated words to be flagged on every set, but only sets with the no-repeats rule check them. Possibly add no-repeats as a bonus on more sets (a content decision, and it changes those sets' scoring).
